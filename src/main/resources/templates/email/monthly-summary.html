@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${title}">Monthly Summary</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #4CAF50; color: white; }
+        .positive { color: green; }
+        .negative { color: red; }
+    </style>
+</head>
+<body>
+    <h2>Resumen Mensual</h2>
+    <p>Hola <span th:text="${firstName}">Usuario</span>,</p>
+    <p>Aquí está tu resumen financiero del mes:</p>
+    
+    <h3>Resumen por Categoría</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Categoría</th>
+                <th>Moneda</th>
+                <th>Monto Total</th>
+                <th>Cantidad de Transacciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="cat : ${categories}">
+                <td th:text="${cat.categoryName}">Nombre</td>
+                <td th:text="${cat.currency}">USD</td>
+                <td th:class="${cat.totalAmount < 0} ? 'negative' : ''" 
+                    th:text="${cat.currency} + ' ' + ${#numbers.formatDecimal(cat.totalAmount, 1, 2)}">$0.00</td>
+                <td th:text="${cat.transactionCount}">0</td>
+            </tr>
+        </tbody>
+    </table>
+    
+    <p th:if="${#lists.isEmpty(categories)}">No hay transacciones en este período.</p>
+    
+    <br>
+    <p>Saludos,<br>El equipo de FinancialApp</p>
+</body>
+</html>

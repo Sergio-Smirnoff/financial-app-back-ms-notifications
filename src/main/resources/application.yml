@@ -1,5 +1,6 @@
 server:
   port: 8084
+  forward-headers-strategy: framework
 
 spring:
   application:
@@ -9,12 +10,22 @@ spring:
     username: ${SPRING_DATASOURCE_USERNAME:financialapp}
     password: ${SPRING_DATASOURCE_PASSWORD:changeme}
     driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      connection-timeout: 20000
+      idle-timeout: 300000
+      max-lifetime: 1200000
   jpa:
     hibernate:
       ddl-auto: validate
     properties:
       hibernate:
         default_schema: notifications
+        jdbc:
+          batch_size: 20
+        order_inserts: true
+        order_updates: true
     show-sql: false
   flyway:
     schemas: notifications
@@ -26,9 +37,11 @@ spring:
       group-id: notifications-group
       auto-offset-reset: earliest
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
       properties:
-        spring.json.trusted.packages: com.financialapp.*
+        spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JsonDeserializer
+        spring.json.trusted.packages: "com.financialapp.*"
+        spring.json.type.mapping: "com.financialapp.finances.kafka.event.PaymentDueEvent:com.financialapp.notifications.kafka.event.PaymentDueEvent,com.financialapp.finances.kafka.event.LoanReminderEvent:com.financialapp.notifications.kafka.event.LoanReminderEvent,com.financialapp.finances.kafka.event.InstallmentReminderEvent:com.financialapp.notifications.kafka.event.InstallmentReminderEvent,com.financialapp.investments.kafka.event.InvestmentThresholdEvent:com.financialapp.notifications.kafka.event.InvestmentThresholdEvent,com.financialapp.users.kafka.event.UserRegisteredEvent:com.financialapp.notifications.kafka.event.UserRegisteredEvent"
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
@@ -46,7 +59,7 @@ spring:
 
 notification:
   scheduler:
-    cron: ${NOTIFICATION_SCHEDULER_CRON:0 0 8 * * *}
+    cron: ${NOTIFICATION_SCHEDULER_CRON:0 0 0 1 * *}
 
 springdoc:
   api-docs:
@@ -63,3 +76,9 @@ management:
     health:
       probes:
         enabled: true
+  health:
+    mail:
+      enabled: false
+      show-details: always
+      health-contributors:
+        excludes: mail
