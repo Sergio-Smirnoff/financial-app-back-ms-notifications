@@ -12,7 +12,7 @@ RUN mvn -f financial-app-parent/pom.xml install -N -q
 
 # Resolve dependencies (cached layer — only re-runs when pom.xml changes)
 COPY ms-notifications/pom.xml ms-notifications/pom.xml
-RUN mvn -f ms-notifications/pom.xml dependency:go-offline -q
+RUN mvn -f ms-notifications/pom.xml dependency:resolve -q
 
 # Build
 COPY ms-notifications/src ms-notifications/src
