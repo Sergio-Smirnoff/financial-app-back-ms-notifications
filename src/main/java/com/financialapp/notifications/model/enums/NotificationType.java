@@ -8,5 +8,7 @@ public enum NotificationType {
     USER_REGISTERED,
     MONTHLY_SUMMARY,
     CARD_EXPIRING,
-    LOW_BALANCE
+    LOW_BALANCE,
+    TRANSFER_SENT,
+    TRANSFER_RECEIVED
 }
