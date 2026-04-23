@@ -24,7 +24,7 @@ public class FinancesEventListener {
         PaymentDueEvent.Payload p = event.getPayload();
         String title = "Payment Due: " + p.getDescription();
         String message = String.format(
-                "Your payment of %s %s for '%s' is due on %s. %d installment(s) remaining.",
+                "Your payment of %.2f %s for '%s' is due on %s. %d installment(s) remaining.",
                 p.getInstallmentAmount(), p.getCurrency(), p.getDescription(),
                 p.getNextDueDate(), p.getRemainingInstallments());
         notificationService.createAndDispatch(
@@ -38,7 +38,7 @@ public class FinancesEventListener {
         LoanReminderEvent.Payload p = event.getPayload();
         String title = "Loan Payment Due: " + p.getLoanDescription();
         String message = String.format(
-                "Your loan payment of %s %s for '%s' is due on %s. %d installment(s) remaining.",
+                "Your loan payment of %.2f %s for '%s' is due on %s. %d installment(s) remaining.",
                 p.getInstallmentAmount(), p.getCurrency(), p.getLoanDescription(),
                 p.getNextPaymentDate(), p.getRemainingInstallments());
         notificationService.createAndDispatch(
@@ -52,7 +52,7 @@ public class FinancesEventListener {
         InstallmentReminderEvent.Payload p = event.getPayload();
         String title = String.format("Installment #%d Due: %s", p.getInstallmentNumber(), p.getLoanDescription());
         String message = String.format(
-                "Installment #%d of %s %s for loan '%s' is due on %s.",
+                "Installment #%d of %.2f %s for loan '%s' is due on %s.",
                 p.getInstallmentNumber(), p.getAmount(), p.getCurrency(),
                 p.getLoanDescription(), p.getDueDate());
         notificationService.createAndDispatch(

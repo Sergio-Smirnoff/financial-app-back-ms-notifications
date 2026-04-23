@@ -35,10 +35,13 @@ public class NotificationController {
     }
 
     @GetMapping("/latest")
-    @Operation(summary = "Get last 5 notifications")
+    @Operation(summary = "Get latest notifications, optionally filtered by bank")
     public ResponseEntity<ApiResponse<List<NotificationResponse>>> getLatest(
-            @RequestHeader("X-User-Id") Long userId) {
-        List<NotificationResponse> notifications = notificationService.getLatest(userId);
+            @RequestHeader("X-User-Id") Long userId,
+            @RequestParam(required = false) Long bankId) {
+        List<NotificationResponse> notifications = bankId != null ?
+                notificationService.getLatestByBank(userId, bankId) :
+                notificationService.getLatest(userId);
         return ResponseEntity.ok(ApiResponse.ok(notifications));
     }
 

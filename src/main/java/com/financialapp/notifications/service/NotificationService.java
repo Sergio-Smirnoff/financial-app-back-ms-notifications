@@ -77,6 +77,14 @@ public class NotificationService {
     }
 
     @Transactional(readOnly = true)
+    public List<NotificationResponse> getLatestByBank(Long userId, Long bankId) {
+        return notificationRepository.findLatestByBank(userId, bankId.toString())
+                .stream()
+                .map(notificationMapper::toResponse)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
     public UnreadCountResponse getUnreadCount(Long userId) {
         return UnreadCountResponse.builder()
                 .count(notificationRepository.countByUserIdAndReadFalse(userId))

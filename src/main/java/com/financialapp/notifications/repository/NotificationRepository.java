@@ -21,4 +21,10 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
     @Modifying
     @Query("UPDATE Notification n SET n.read = true WHERE n.userId = :userId AND n.read = false")
     int markAllAsRead(@Param("userId") Long userId);
+
+    @Query(value = "SELECT * FROM notifications.notifications n " +
+                   "WHERE n.user_id = :userId " +
+                   "AND n.metadata->>'bankId' = :bankId " +
+                   "ORDER BY n.created_at DESC LIMIT 10", nativeQuery = true)
+    List<Notification> findLatestByBank(@Param("userId") Long userId, @Param("bankId") String bankId);
 }
