@@ -27,4 +27,8 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
                    "AND n.metadata->>'bankId' = :bankId " +
                    "ORDER BY n.created_at DESC LIMIT 10", nativeQuery = true)
     List<Notification> findLatestByBank(@Param("userId") Long userId, @Param("bankId") String bankId);
+
+    @Modifying
+    @Query("DELETE FROM Notification n WHERE n.createdAt < :thresholdDate")
+    int deleteOldNotifications(@Param("thresholdDate") java.time.LocalDateTime thresholdDate);
 }
