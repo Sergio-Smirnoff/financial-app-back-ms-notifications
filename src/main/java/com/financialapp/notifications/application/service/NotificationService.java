@@ -33,8 +33,8 @@ public class NotificationService {
 
     @Transactional
     public NotificationResponse createAndDispatch(Long userId, NotificationType type,
-                                                  String title, String message,
-                                                  NotificationChannel channel, String metadata) {
+            String title, String message,
+            NotificationChannel channel, String metadata) {
         Notification notification = Notification.builder()
                 .userId(userId)
                 .type(type)
@@ -54,55 +54,57 @@ public class NotificationService {
 
         // Send email for email channels
         if (channel == NotificationChannel.EMAIL || channel == NotificationChannel.BOTH) {
-            preferenceRepository.findByUserId(userId).ifPresent(pref ->
-                    emailService.sendSimpleNotification(pref.getEmail(), title, message)
-            );
+            preferenceRepository.findByUserId(userId)
+                    .ifPresent(pref -> emailService.sendSimpleNotification(pref.getEmail(), title, message));
         }
 
         return response;
     }
 
-    @Transactional(readOnly = true)
-    public Page<NotificationResponse> getNotifications(Long userId, Pageable pageable) {
-        return notificationRepository.findByUserIdOrderByCreatedAtDesc(userId, pageable)
-                .map(notificationMapper::toResponse);
-    }
+    // @Transactional(readOnly = true)
+    // public Page<NotificationResponse> getNotifications(Long userId, Pageable
+    // pageable) {
+    // return notificationRepository.findByUserIdOrderByCreatedAtDesc(userId,
+    // pageable)
+    // .map(notificationMapper::toResponse);
+    // }
 
-    @Transactional(readOnly = true)
-    public List<NotificationResponse> getLatest(Long userId) {
-        return notificationRepository.findTop5ByUserIdOrderByCreatedAtDesc(userId)
-                .stream()
-                .map(notificationMapper::toResponse)
-                .toList();
-    }
+    // @Transactional(readOnly = true)
+    // public List<NotificationResponse> getLatest(Long userId) {
+    // return notificationRepository.findTop5ByUserIdOrderByCreatedAtDesc(userId)
+    // .stream()
+    // .map(notificationMapper::toResponse)
+    // .toList();
+    // }
 
-    @Transactional(readOnly = true)
-    public List<NotificationResponse> getLatestByBank(Long userId, Long bankId) {
-        return notificationRepository.findLatestByBank(userId, bankId.toString())
-                .stream()
-                .map(notificationMapper::toResponse)
-                .toList();
-    }
+    // @Transactional(readOnly = true)
+    // public List<NotificationResponse> getLatestByBank(Long userId, Long bankId) {
+    // return notificationRepository.findLatestByBank(userId, bankId.toString())
+    // .stream()
+    // .map(notificationMapper::toResponse)
+    // .toList();
+    // }
 
-    @Transactional(readOnly = true)
-    public UnreadCountResponse getUnreadCount(Long userId) {
-        return UnreadCountResponse.builder()
-                .count(notificationRepository.countByUserIdAndReadFalse(userId))
-                .build();
-    }
+    // @Transactional(readOnly = true)
+    // public UnreadCountResponse getUnreadCount(Long userId) {
+    // return UnreadCountResponse.builder()
+    // .count(notificationRepository.countByUserIdAndReadFalse(userId))
+    // .build();
+    // }
 
-    @Transactional
-    public void markAsRead(Long userId, Long notificationId) {
-        Notification notification = notificationRepository.findById(notificationId)
-                .filter(n -> n.getUserId().equals(userId))
-                .orElseThrow(() -> new ResourceNotFoundException("Notification", notificationId));
-        notification.setRead(true);
-    }
+    // @Transactional
+    // public void markAsRead(Long userId, Long notificationId) {
+    // Notification notification = notificationRepository.findById(notificationId)
+    // .filter(n -> n.getUserId().equals(userId))
+    // .orElseThrow(() -> new ResourceNotFoundException("Notification",
+    // notificationId));
+    // notification.setRead(true);
+    // }
 
-    @Transactional
-    public void markAllAsRead(Long userId) {
-        notificationRepository.markAllAsRead(userId);
-    }
+    // @Transactional
+    // public void markAllAsRead(Long userId) {
+    // notificationRepository.markAllAsRead(userId);
+    // }
 
     // ── Preferences ──────────────────────────────────────────────────────────
 
