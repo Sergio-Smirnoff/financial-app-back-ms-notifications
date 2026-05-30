@@ -1,5 +1,8 @@
-package com.financialapp.notifications.application.service;
+package com.financialapp.notifications.infrastructure.email;
 
+import com.financialapp.notifications.domain.interfaces.infrastructure.EmailSender;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.SimpleMailMessage;
@@ -9,18 +12,17 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.MimeMessage;
 import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class EmailService {
+public class SmtpEmailSender implements EmailSender {
 
     private final JavaMailSender mailSender;
     private final TemplateEngine templateEngine;
 
+    @Override
     public void sendSimpleNotification(String to, String subject, String text) {
         try {
             SimpleMailMessage message = new SimpleMailMessage();
@@ -35,6 +37,7 @@ public class EmailService {
         }
     }
 
+    @Override
     public void sendTemplatedEmail(String to, String subject, String template, Map<String, Object> variables) {
         try {
             Context context = new Context();
@@ -54,3 +57,4 @@ public class EmailService {
         }
     }
 }
+

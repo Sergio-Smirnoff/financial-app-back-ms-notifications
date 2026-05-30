@@ -1,12 +1,12 @@
 package com.financialapp.notifications.application.scheduler;
 
+import com.financialapp.notifications.domain.interfaces.infrastructure.EmailSender;
 import com.financialapp.notifications.infrastructure.client.CategorySummaryResponse;
 import com.financialapp.notifications.infrastructure.client.FinancesClient;
 import com.financialapp.notifications.domain.model.entity.UserNotificationPreference;
 import com.financialapp.notifications.domain.model.entity.enums.NotificationChannel;
 import com.financialapp.notifications.domain.model.entity.enums.NotificationType;
 import com.financialapp.notifications.domain.interfaces.infrastructure.UserNotificationPreferenceRepository;
-import com.financialapp.notifications.application.service.EmailService;
 import com.financialapp.notifications.application.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,7 +32,7 @@ public class MonthlySummaryScheduler {
     private final UserNotificationPreferenceRepository preferenceRepository;
     private final FinancesClient financesClient;
     private final NotificationService notificationService;
-    private final EmailService emailService;
+    private final EmailSender emailSender;
 
     @Scheduled(cron = "${notification.scheduler.cron:0 0 9 1 * *}")
     public void sendMonthlySummaries() {
@@ -91,7 +91,7 @@ public class MonthlySummaryScheduler {
         templateVars.put("firstName", "Usuario");
         templateVars.put("message", message);
         templateVars.put("categories", categories);
-        emailService.sendTemplatedEmail(pref.getEmail(), title, "monthly-summary", templateVars);
+        emailSender.sendTemplatedEmail(pref.getEmail(), title, "monthly-summary", templateVars);
 
         log.debug("Sent monthly summary to userId={}", userId);
     }
