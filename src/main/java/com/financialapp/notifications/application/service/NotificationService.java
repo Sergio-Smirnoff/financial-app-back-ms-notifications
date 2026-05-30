@@ -1,5 +1,7 @@
 package com.financialapp.notifications.application.service;
 
+import com.financialapp.notifications.domain.interfaces.infrastructure.EmailSender;
+import com.financialapp.notifications.domain.interfaces.infrastructure.InAppNotificationSender;
 import com.financialapp.notifications.domain.model.exception.ResourceNotFoundException;
 import com.financialapp.notifications.web.controller.mapper.NotificationMapper;
 import com.financialapp.notifications.domain.model.response.NotificationPreferenceResponse;
@@ -28,8 +30,8 @@ public class NotificationService {
     private final NotificationRepository notificationRepository;
     private final UserNotificationPreferenceRepository preferenceRepository;
     private final NotificationMapper notificationMapper;
-    private final SseEmitterService sseEmitterService;
-    private final EmailService emailService;
+    private final InAppNotificationSender inAppNotificationSender;
+    private final EmailSender emailSender;
 
     @Transactional
     public NotificationResponse createAndDispatch(Long userId, NotificationType type,
@@ -49,13 +51,13 @@ public class NotificationService {
 
         // Push via SSE for in-app channels
         if (channel == NotificationChannel.IN_APP || channel == NotificationChannel.BOTH) {
-            sseEmitterService.sendToUser(userId, response);
+            inAppNotificationSender.sendToUser(userId, response);
         }
 
         // Send email for email channels
         if (channel == NotificationChannel.EMAIL || channel == NotificationChannel.BOTH) {
             preferenceRepository.findByUserId(userId)
-                    .ifPresent(pref -> emailService.sendSimpleNotification(pref.getEmail(), title, message));
+                    .ifPresent(pref -> emailSender.sendSimpleNotification(pref.getEmail(), title, message));
         }
 
         return response;

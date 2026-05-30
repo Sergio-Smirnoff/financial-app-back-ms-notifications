@@ -1,6 +1,6 @@
 package com.financialapp.notifications.web.controller;
 
-import com.financialapp.notifications.application.service.SseEmitterService;
+import com.financialapp.notifications.infrastructure.sse.SseInAppNotificationSender;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -12,13 +12,13 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 @RequestMapping("/api/v1/notifications")
 @RequiredArgsConstructor
 @Tag(name = "Notifications SSE", description = "Server-Sent Events for real-time notifications")
-public class SseController {
+public class NotificationStreamController {
 
-    private final SseEmitterService sseEmitterService;
+    private final SseInAppNotificationSender sseInAppNotificationSender;
 
     @GetMapping(value = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     @Operation(summary = "SSE stream for real-time notifications")
     public SseEmitter stream(@RequestHeader("X-User-Id") Long userId) {
-        return sseEmitterService.createEmitter(userId);
+        return sseInAppNotificationSender.createEmitter(userId);
     }
 }

@@ -1,5 +1,6 @@
-package com.financialapp.notifications.application.service;
+package com.financialapp.notifications.infrastructure.sse;
 
+import com.financialapp.notifications.domain.interfaces.infrastructure.InAppNotificationSender;
 import com.financialapp.notifications.domain.model.response.NotificationResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -12,7 +13,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 @Service
 @Slf4j
-public class SseEmitterService {
+public class SseInAppNotificationSender implements InAppNotificationSender {
 
     private final Map<Long, List<SseEmitter>> emitters = new ConcurrentHashMap<>();
 
@@ -47,6 +48,7 @@ public class SseEmitterService {
         return emitter;
     }
 
+    @Override
     public void sendToUser(Long userId, NotificationResponse notification) {
         List<SseEmitter> userEmitters = emitters.get(userId);
         if (userEmitters == null || userEmitters.isEmpty()) return;
@@ -72,6 +74,7 @@ public class SseEmitterService {
             if (userEmitters.isEmpty()) emitters.remove(userId);
         }
     }
+
 
     public void sendHeartbeat() {
         emitters.forEach((userId, userEmitters) -> {

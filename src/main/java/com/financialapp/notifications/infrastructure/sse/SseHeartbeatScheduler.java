@@ -1,12 +1,10 @@
-package com.financialapp.notifications.application.scheduler;
+package com.financialapp.notifications.infrastructure.sse;
 
-import com.financialapp.notifications.application.service.SseEmitterService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 @Component
 @RequiredArgsConstructor
@@ -15,11 +13,11 @@ public class SseHeartbeatScheduler {
 
     private static final String HEARTBEAT_EVENT = ":heartbeat\n\n";
 
-    private final SseEmitterService sseEmitterService;
+    private final SseInAppNotificationSender sseInAppNotificationSender;
 
     @Async
     @Scheduled(fixedRate = 30000)
     public void sendHeartbeats() {
-        sseEmitterService.sendHeartbeat();
+        sseInAppNotificationSender.sendHeartbeat();
     }
 }
