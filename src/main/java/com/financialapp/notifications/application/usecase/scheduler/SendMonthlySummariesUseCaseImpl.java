@@ -1,21 +1,21 @@
-package com.financialapp.notifications.application.scheduler;
+package com.financialapp.notifications.application.usecase.scheduler;
 
+import com.financialapp.notifications.application.service.NotificationService;
 import com.financialapp.notifications.domain.interfaces.infrastructure.EmailSender;
-import com.financialapp.notifications.infrastructure.client.CategorySummaryResponse;
-import com.financialapp.notifications.infrastructure.client.FinancesClient;
+import com.financialapp.notifications.domain.interfaces.infrastructure.UserNotificationPreferenceRepository;
+import com.financialapp.notifications.domain.interfaces.usecase.SendMonthlySummariesUseCase;
 import com.financialapp.notifications.domain.model.entity.UserNotificationPreference;
 import com.financialapp.notifications.domain.model.entity.enums.NotificationChannel;
 import com.financialapp.notifications.domain.model.entity.enums.NotificationType;
-import com.financialapp.notifications.domain.interfaces.infrastructure.UserNotificationPreferenceRepository;
-import com.financialapp.notifications.application.service.NotificationService;
+import com.financialapp.notifications.infrastructure.client.CategorySummaryResponse;
+import com.financialapp.notifications.infrastructure.client.FinancesClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -24,18 +24,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
-@Component
+@Service
 @RequiredArgsConstructor
 @Slf4j
-public class MonthlySummaryScheduler {
+public class SendMonthlySummariesUseCaseImpl implements SendMonthlySummariesUseCase {
 
     private final UserNotificationPreferenceRepository preferenceRepository;
     private final FinancesClient financesClient;
     private final NotificationService notificationService;
     private final EmailSender emailSender;
 
-    @Scheduled(cron = "${notification.scheduler.cron:0 0 9 1 * *}")
-    public void sendMonthlySummaries() {
+    public void execute() {
         log.info("Starting monthly summary job");
 
         LocalDate today = LocalDate.now();
@@ -103,14 +102,14 @@ public class MonthlySummaryScheduler {
         StringBuilder sb = new StringBuilder("Resumen de tus gastos del mes:\n");
         categories.forEach(cat -> {
             sb.append("- ")
-              .append(cat.getCategoryName())
-              .append(": ")
-              .append(cat.getCurrency())
-              .append(" ")
-              .append(cat.getTotalAmount())
-              .append(" (")
-              .append(cat.getTransactionCount())
-              .append(" transacciones)\n");
+                    .append(cat.getCategoryName())
+                    .append(": ")
+                    .append(cat.getCurrency())
+                    .append(" ")
+                    .append(cat.getTotalAmount())
+                    .append(" (")
+                    .append(cat.getTransactionCount())
+                    .append(" transacciones)\n");
         });
         return sb.toString();
     }
