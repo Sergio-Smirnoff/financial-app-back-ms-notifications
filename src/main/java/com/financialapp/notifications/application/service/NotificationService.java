@@ -1,26 +1,19 @@
 package com.financialapp.notifications.application.service;
 
-import com.financialapp.notifications.domain.interfaces.infrastructure.EmailSender;
-import com.financialapp.notifications.domain.interfaces.infrastructure.InAppNotificationSender;
-import com.financialapp.notifications.domain.model.exception.ResourceNotFoundException;
-import com.financialapp.notifications.web.controller.mapper.NotificationMapper;
-import com.financialapp.notifications.domain.model.response.NotificationPreferenceResponse;
-import com.financialapp.notifications.domain.model.response.NotificationResponse;
-import com.financialapp.notifications.domain.model.response.UnreadCountResponse;
+import com.financialapp.notifications.domain.messaging.EmailSender;
+import com.financialapp.notifications.domain.messaging.InAppNotificationSender;
+import com.financialapp.notifications.domain.repository.NotificationRepository;
+import com.financialapp.notifications.domain.repository.UserNotificationPreferenceRepository;
 import com.financialapp.notifications.domain.model.entity.Notification;
 import com.financialapp.notifications.domain.model.entity.UserNotificationPreference;
 import com.financialapp.notifications.domain.model.entity.enums.NotificationChannel;
 import com.financialapp.notifications.domain.model.entity.enums.NotificationType;
-import com.financialapp.notifications.infrastructure.repository.NotificationRepository;
-import com.financialapp.notifications.domain.interfaces.infrastructure.UserNotificationPreferenceRepository;
+import com.financialapp.notifications.domain.model.response.NotificationResponse;
+import com.financialapp.notifications.web.controller.mapper.NotificationMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -34,15 +27,16 @@ public class NotificationService {
     private final EmailSender emailSender;
 
     @Transactional
-    public NotificationResponse createAndDispatch(Long userId, NotificationType type,
-            String title, String message,
-            NotificationChannel channel, String metadata) {
+    public void notify(Long userId, NotificationType type,
+                                  String title, String message,
+                                  NotificationChannel channel, String metadata) {
         Notification notification = Notification.builder()
                 .userId(userId)
                 .type(type)
                 .title(title)
                 .message(message)
                 .channel(channel)
+                .read(false)
                 .metadata(metadata)
                 .build();
 
@@ -59,78 +53,6 @@ public class NotificationService {
             preferenceRepository.findByUserId(userId)
                     .ifPresent(pref -> emailSender.sendSimpleNotification(pref.getEmail(), title, message));
         }
-
-        return response;
-    }
-
-    // @Transactional(readOnly = true)
-    // public Page<NotificationResponse> getNotifications(Long userId, Pageable
-    // pageable) {
-    // return notificationRepository.findByUserIdOrderByCreatedAtDesc(userId,
-    // pageable)
-    // .map(notificationMapper::toResponse);
-    // }
-
-    // @Transactional(readOnly = true)
-    // public List<NotificationResponse> getLatest(Long userId) {
-    // return notificationRepository.findTop5ByUserIdOrderByCreatedAtDesc(userId)
-    // .stream()
-    // .map(notificationMapper::toResponse)
-    // .toList();
-    // }
-
-    // @Transactional(readOnly = true)
-    // public List<NotificationResponse> getLatestByBank(Long userId, Long bankId) {
-    // return notificationRepository.findLatestByBank(userId, bankId.toString())
-    // .stream()
-    // .map(notificationMapper::toResponse)
-    // .toList();
-    // }
-
-    // @Transactional(readOnly = true)
-    // public UnreadCountResponse getUnreadCount(Long userId) {
-    // return UnreadCountResponse.builder()
-    // .count(notificationRepository.countByUserIdAndReadFalse(userId))
-    // .build();
-    // }
-
-    // @Transactional
-    // public void markAsRead(Long userId, Long notificationId) {
-    // Notification notification = notificationRepository.findById(notificationId)
-    // .filter(n -> n.getUserId().equals(userId))
-    // .orElseThrow(() -> new ResourceNotFoundException("Notification",
-    // notificationId));
-    // notification.setRead(true);
-    // }
-
-    // @Transactional
-    // public void markAllAsRead(Long userId) {
-    // notificationRepository.markAllAsRead(userId);
-    // }
-
-    // ── Preferences ──────────────────────────────────────────────────────────
-
-    @Transactional(readOnly = true)
-    public NotificationPreferenceResponse getPreference(Long userId) {
-        return preferenceRepository.findByUserId(userId)
-                .map(this::toPreferenceResponse)
-                .orElse(NotificationPreferenceResponse.builder()
-                        .userId(userId)
-                        .email("")
-                        .monthlyEmailEnabled(true)
-                        .build());
-    }
-
-    @Transactional
-    public NotificationPreferenceResponse updatePreference(Long userId, boolean monthlyEmailEnabled) {
-        UserNotificationPreference pref = preferenceRepository.findByUserId(userId)
-                .orElseGet(() -> UserNotificationPreference.builder()
-                        .userId(userId)
-                        .email("")
-                        .monthlyEmailEnabled(true)
-                        .build());
-        pref.setMonthlyEmailEnabled(monthlyEmailEnabled);
-        return toPreferenceResponse(preferenceRepository.save(pref));
     }
 
     @Transactional
@@ -143,13 +65,5 @@ public class NotificationService {
                     .build());
             log.info("Created notification preferences for userId={}", userId);
         }
-    }
-
-    private NotificationPreferenceResponse toPreferenceResponse(UserNotificationPreference pref) {
-        return NotificationPreferenceResponse.builder()
-                .userId(pref.getUserId())
-                .email(pref.getEmail())
-                .monthlyEmailEnabled(pref.isMonthlyEmailEnabled())
-                .build();
     }
 }

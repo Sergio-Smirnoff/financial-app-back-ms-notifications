@@ -1,9 +1,8 @@
 package com.financialapp.notifications.infrastructure.kafka.listener;
 
+import com.financialapp.notifications.domain.interfaces.usecase.event.ProcessUserRegisteredUseCase;
 import com.financialapp.notifications.infrastructure.kafka.event.UserRegisteredEvent;
-import com.financialapp.notifications.domain.model.entity.enums.NotificationChannel;
-import com.financialapp.notifications.domain.model.entity.enums.NotificationType;
-import com.financialapp.notifications.application.service.NotificationService;
+import com.financialapp.notifications.infrastructure.kafka.mapper.UserRegisteredMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -14,24 +13,12 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class UserEventListener {
 
-    private final NotificationService notificationService;
+    private final ProcessUserRegisteredUseCase useCase;
 
     @KafkaListener(topics = "user.registered", groupId = "notifications-group")
     public void handleUserRegistered(UserRegisteredEvent event) {
         log.info("Received user.registered event for userId={}", event.getUserId());
-        UserRegisteredEvent.Payload p = event.getPayload();
 
-        // Create notification preferences row for this user
-        notificationService.createPreferenceIfAbsent(event.getUserId(), p.getEmail());
-
-        String title = "Welcome to Financial App!";
-        String message = String.format(
-                "Hi %s, your account has been created successfully. "
-                        + "Start tracking your finances, investments, and more.",
-                p.getFirstName());
-
-        notificationService.createAndDispatch(
-                event.getUserId(), NotificationType.USER_REGISTERED, title, message,
-                NotificationChannel.BOTH, null);
+        useCase.execute(UserRegisteredMapper.toDomain(event));
     }
 }
