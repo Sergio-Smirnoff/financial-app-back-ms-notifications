@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class MonthlySummeryScheduler {
+public class MonthlySummaryScheduler {
 
     private final SendMonthlySummariesUseCase useCase;
 

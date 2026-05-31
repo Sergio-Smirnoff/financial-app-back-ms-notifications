@@ -1,24 +1,23 @@
-package com.financialapp.notifications.application.scheduler;
+package com.financialapp.notifications.application.usecase.scheduler;
 
+import com.financialapp.notifications.domain.interfaces.usecase.CleanupNotificationsUseCase;
 import com.financialapp.notifications.infrastructure.repository.NotificationRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
-@Component
-@RequiredArgsConstructor
 @Slf4j
-public class NotificationCleanupScheduler {
-
+@Service
+@RequiredArgsConstructor
+public class CleanupNotificationsUseCaseImpl implements CleanupNotificationsUseCase {
     private final NotificationRepository notificationRepository;
 
-    @Scheduled(cron = "0 0 0 * * *") // Midnight every day
     @Transactional
-    public void cleanupOldNotifications() {
+    public void execute() {
         log.info("Starting nightly notification cleanup...");
         LocalDateTime threshold = LocalDateTime.now().minusMonths(1);
         int deletedCount = notificationRepository.deleteOldNotifications(threshold);
