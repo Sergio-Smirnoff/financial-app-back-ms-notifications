@@ -1,6 +1,6 @@
 package com.financialapp.notifications.infrastructure.email;
 
-import com.financialapp.notifications.domain.interfaces.infrastructure.EmailSender;
+import com.financialapp.notifications.domain.messaging.EmailSender;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;

@@ -1,5 +1,7 @@
-package com.financialapp.notifications.domain.model.exception;
+package com.financialapp.notifications.web.controller.exception;
 
+import com.financialapp.notifications.domain.model.exception.BusinessException;
+import com.financialapp.notifications.domain.model.exception.ResourceNotFoundException;
 import com.financialapp.notifications.domain.model.response.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;

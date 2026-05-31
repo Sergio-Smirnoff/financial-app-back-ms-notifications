@@ -1,6 +1,6 @@
 package com.financialapp.notifications.infrastructure.sse;
 
-import com.financialapp.notifications.domain.interfaces.infrastructure.InAppNotificationSender;
+import com.financialapp.notifications.domain.messaging.InAppNotificationSender;
 import com.financialapp.notifications.domain.model.response.NotificationResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

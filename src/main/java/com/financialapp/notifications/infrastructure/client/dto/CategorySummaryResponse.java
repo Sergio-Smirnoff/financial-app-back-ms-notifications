@@ -1,4 +1,4 @@
-package com.financialapp.notifications.infrastructure.client;
+package com.financialapp.notifications.infrastructure.client.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

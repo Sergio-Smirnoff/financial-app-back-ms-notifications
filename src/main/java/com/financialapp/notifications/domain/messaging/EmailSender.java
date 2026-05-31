@@ -1,4 +1,4 @@
-package com.financialapp.notifications.domain.interfaces.infrastructure;
+package com.financialapp.notifications.domain.messaging;
 
 import java.util.Map;
 

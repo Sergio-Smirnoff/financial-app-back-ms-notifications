@@ -1,20 +1,20 @@
 package com.financialapp.notifications.application.usecase.scheduler;
 
 import com.financialapp.notifications.application.service.NotificationService;
-import com.financialapp.notifications.domain.interfaces.infrastructure.EmailSender;
-import com.financialapp.notifications.domain.interfaces.infrastructure.UserNotificationPreferenceRepository;
+import com.financialapp.notifications.domain.gateway.FinancesGateway;
+import com.financialapp.notifications.domain.messaging.EmailSender;
+import com.financialapp.notifications.domain.model.entity.summary.CategorySummary;
+import com.financialapp.notifications.domain.repository.UserNotificationPreferenceRepository;
 import com.financialapp.notifications.domain.interfaces.usecase.SendMonthlySummariesUseCase;
 import com.financialapp.notifications.domain.model.entity.UserNotificationPreference;
 import com.financialapp.notifications.domain.model.entity.enums.NotificationChannel;
 import com.financialapp.notifications.domain.model.entity.enums.NotificationType;
-import com.financialapp.notifications.infrastructure.client.CategorySummaryResponse;
-import com.financialapp.notifications.infrastructure.client.FinancesClient;
+import com.financialapp.notifications.infrastructure.client.dto.CategorySummaryResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -30,7 +30,7 @@ import java.util.concurrent.CompletableFuture;
 public class SendMonthlySummariesUseCaseImpl implements SendMonthlySummariesUseCase {
 
     private final UserNotificationPreferenceRepository preferenceRepository;
-    private final FinancesClient financesClient;
+    private final FinancesGateway financesGateway;
     private final NotificationService notificationService;
     private final EmailSender emailSender;
 
@@ -71,12 +71,12 @@ public class SendMonthlySummariesUseCaseImpl implements SendMonthlySummariesUseC
 
     private void processUser(UserNotificationPreference pref, String dateFrom, String dateTo) {
         Long userId = pref.getUserId();
-        List<CategorySummaryResponse> categories = financesClient.getSummaryByCategory(userId, dateFrom, dateTo);
+        List<CategorySummary> categories = financesGateway.getSummaryByCategory(userId, dateFrom, dateTo);
 
         String title = "Resumen Mensual - " + LocalDate.now().minusMonths(1).format(DateTimeFormatter.ofPattern("MMMM yyyy"));
         String message = buildMessage(categories);
 
-        notificationService.createAndDispatch(
+        notificationService.notify(
                 userId,
                 NotificationType.MONTHLY_SUMMARY,
                 title,
@@ -95,20 +95,20 @@ public class SendMonthlySummariesUseCaseImpl implements SendMonthlySummariesUseC
         log.debug("Sent monthly summary to userId={}", userId);
     }
 
-    private String buildMessage(List<CategorySummaryResponse> categories) {
+    private String buildMessage(List<CategorySummary> categories) {
         if (categories.isEmpty()) {
             return "No tuviste transacciones este mes.";
         }
         StringBuilder sb = new StringBuilder("Resumen de tus gastos del mes:\n");
         categories.forEach(cat -> {
             sb.append("- ")
-                    .append(cat.getCategoryName())
+                    .append(cat.categoryName())
                     .append(": ")
-                    .append(cat.getCurrency())
+                    .append(cat.currency())
                     .append(" ")
-                    .append(cat.getTotalAmount())
+                    .append(cat.totalAmount())
                     .append(" (")
-                    .append(cat.getTransactionCount())
+                    .append(cat.transactionCount())
                     .append(" transacciones)\n");
         });
         return sb.toString();
