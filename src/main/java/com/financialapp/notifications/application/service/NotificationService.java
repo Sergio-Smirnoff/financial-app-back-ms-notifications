@@ -21,7 +21,6 @@ public class NotificationService {
 
     private final NotificationRepository notificationRepository;
     private final UserNotificationPreferenceRepository preferenceRepository;
-    private final NotificationMapper notificationMapper;
     private final InAppNotificationSender inAppNotificationSender;
     private final EmailSender emailSender;
 
@@ -45,8 +44,7 @@ public class NotificationService {
     }
 
     private void dispatchInApp(Notification notification) {
-        NotificationResponse response = notificationMapper.toResponse(notification);
-        inAppNotificationSender.sendToUser(notification.userId(), response);
+        inAppNotificationSender.sendToUser(notification.userId(), notification);
     }
 
     private void dispatchEmail(Notification notification) {

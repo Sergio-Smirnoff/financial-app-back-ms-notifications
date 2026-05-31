@@ -1,7 +1,9 @@
 package com.financialapp.notifications.infrastructure.sse;
 
 import com.financialapp.notifications.domain.messaging.InAppNotificationSender;
-import com.financialapp.notifications.domain.model.response.NotificationResponse;
+import com.financialapp.notifications.domain.model.entity.Notification;
+import com.financialapp.notifications.infrastructure.sse.dto.SseNotificationEntity;
+import com.financialapp.notifications.infrastructure.sse.mapper.SseNotificationMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -49,7 +51,8 @@ public class SseInAppNotificationSender implements InAppNotificationSender {
     }
 
     @Override
-    public void sendToUser(Long userId, NotificationResponse notification) {
+    public void sendToUser(Long userId, Notification notification) {
+        SseNotificationEntity sseNotification = SseNotificationMapper.toEntity(notification);
         List<SseEmitter> userEmitters = emitters.get(userId);
         if (userEmitters == null || userEmitters.isEmpty()) return;
 
@@ -58,7 +61,7 @@ public class SseInAppNotificationSender implements InAppNotificationSender {
             try {
                 emitter.send(SseEmitter.event()
                         .name("notification")
-                        .data(notification));
+                        .data(sseNotification));
             } catch (Exception e) {
                 log.debug("SSE emitter dead for userId={}, removing", userId);
                 dead.add(emitter);
