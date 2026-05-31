@@ -1,7 +1,7 @@
 package com.financialapp.notifications.application.usecase.notification;
 
 import com.financialapp.notifications.domain.model.response.NotificationResponse;
-import com.financialapp.notifications.infrastructure.repository.NotificationRepository;
+import com.financialapp.notifications.domain.repository.NotificationRepository;
 import com.financialapp.notifications.web.controller.mapper.NotificationMapper;
 import lombok.RequiredArgsConstructor;
 
@@ -10,6 +10,7 @@ import java.beans.Transient;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor

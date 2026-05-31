@@ -2,56 +2,34 @@ package com.financialapp.notifications.domain.model.entity;
 
 import com.financialapp.notifications.domain.model.entity.enums.NotificationChannel;
 import com.financialapp.notifications.domain.model.entity.enums.NotificationType;
-import jakarta.persistence.*;
-import lombok.*;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
+import lombok.Builder;
 
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "notifications", schema = "notifications")
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
 @Builder
-public class Notification {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(name = "user_id", nullable = false)
-    private Long userId;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 50)
-    private NotificationType type;
-
-    @Column(nullable = false)
-    private String title;
-
-    @Column(nullable = false, columnDefinition = "TEXT")
-    private String message;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
-    private NotificationChannel channel;
-
-    @Column(nullable = false)
-    @Builder.Default
-    private boolean read = false;
-
-    @JdbcTypeCode(SqlTypes.JSON)
-    @Column(columnDefinition = "jsonb")
-    private String metadata;
-
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
-
-    @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
+public record Notification(
+        Long id,
+        Long userId,
+        NotificationType type,
+        String title,
+        String message,
+        NotificationChannel channel,
+        boolean read,
+        String metadata,
+        LocalDateTime createdAt
+) {
+    public Notification markAsRead() {
+        return new Notification(
+                id,
+                userId,
+                type,
+                title,
+                message,
+                channel,
+                true,
+                metadata,
+                createdAt
+        );
     }
 }
+

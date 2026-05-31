@@ -8,7 +8,7 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface NotificationMapper {
 
-    @Mapping(target = "type", expression = "java(notification.getType().name())")
-    @Mapping(target = "channel", expression = "java(notification.getChannel().name())")
+    @Mapping(target = "type", expression = "java(notification.type().name())")
+    @Mapping(target = "channel", expression = "java(notification.channel().name())")
     NotificationResponse toResponse(Notification notification);
 }

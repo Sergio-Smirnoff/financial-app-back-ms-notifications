@@ -1,4 +1,4 @@
-package com.financialapp.notifications.domain.interfaces.infrastructure;
+package com.financialapp.notifications.domain.repository;
 
 import com.financialapp.notifications.domain.model.entity.UserNotificationPreference;
 import org.springframework.data.domain.Page;
