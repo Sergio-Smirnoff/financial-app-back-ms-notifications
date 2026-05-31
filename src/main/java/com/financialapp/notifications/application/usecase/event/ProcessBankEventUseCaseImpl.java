@@ -1,6 +1,7 @@
 package com.financialapp.notifications.application.usecase.event;
 
 import com.financialapp.notifications.application.service.NotificationService;
+import com.financialapp.notifications.domain.model.entity.Notification;
 import com.financialapp.notifications.domain.model.entity.enums.NotificationChannel;
 import com.financialapp.notifications.domain.model.entity.enums.NotificationType;
 import com.financialapp.notifications.domain.model.entity.event.BankAlert;
@@ -25,8 +26,10 @@ public class ProcessBankEventUseCaseImpl implements com.financialapp.notificatio
             return;
         }
 
-        notificationService.notify(
-                alert.userId(), type, alert.title(), alert.message(),
+        var newNotification = Notification.create(alert.userId(), type, alert.title(), alert.message(),
                 NotificationChannel.BOTH, alert.metadata());
+
+        notificationService.notify(
+                newNotification);
     }
 }

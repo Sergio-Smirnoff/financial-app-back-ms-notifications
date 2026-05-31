@@ -7,7 +7,6 @@ import com.financialapp.notifications.domain.repository.UserNotificationPreferen
 import com.financialapp.notifications.domain.model.entity.Notification;
 import com.financialapp.notifications.domain.model.entity.UserNotificationPreference;
 import com.financialapp.notifications.domain.model.entity.enums.NotificationChannel;
-import com.financialapp.notifications.domain.model.entity.enums.NotificationType;
 import com.financialapp.notifications.domain.model.response.NotificationResponse;
 import com.financialapp.notifications.web.controller.mapper.NotificationMapper;
 import lombok.RequiredArgsConstructor;
@@ -26,33 +25,33 @@ public class NotificationService {
     private final InAppNotificationSender inAppNotificationSender;
     private final EmailSender emailSender;
 
-    @Transactional
-    public void notify(Long userId, NotificationType type,
-                                  String title, String message,
-                                  NotificationChannel channel, String metadata) {
-        Notification notification = Notification.builder()
-                .userId(userId)
-                .type(type)
-                .title(title)
-                .message(message)
-                .channel(channel)
-                .read(false)
-                .metadata(metadata)
-                .build();
+    public void notify(Notification newNotification) {
+        var saved = saveInRepository(newNotification);
+        dispatch(saved);
+    }
 
-        Notification saved = notificationRepository.save(notification);
-        NotificationResponse response = notificationMapper.toResponse(saved);
+    private Notification saveInRepository(Notification notification) {
+        return notificationRepository.save(notification);
+    }
 
-        // Push via SSE for in-app channels
-        if (channel == NotificationChannel.IN_APP || channel == NotificationChannel.BOTH) {
-            inAppNotificationSender.sendToUser(userId, response);
+    private void dispatch(Notification notification) {
+        if (notification.channel().sendInApp()) {
+            dispatchInApp(notification);
         }
 
-        // Send email for email channels
-        if (channel == NotificationChannel.EMAIL || channel == NotificationChannel.BOTH) {
-            preferenceRepository.findByUserId(userId)
-                    .ifPresent(pref -> emailSender.sendSimpleNotification(pref.getEmail(), title, message));
+        if (notification.channel().sendEmail()) {
+            dispatchEmail(notification);
         }
+    }
+
+    private void dispatchInApp(Notification notification) {
+        NotificationResponse response = notificationMapper.toResponse(notification);
+        inAppNotificationSender.sendToUser(notification.userId(), response);
+    }
+
+    private void dispatchEmail(Notification notification) {
+        preferenceRepository.findByUserId(notification.userId())
+                .ifPresent(pref -> emailSender.sendSimpleNotification(pref.getEmail(), notification.title(), notification.message()));
     }
 
     @Transactional

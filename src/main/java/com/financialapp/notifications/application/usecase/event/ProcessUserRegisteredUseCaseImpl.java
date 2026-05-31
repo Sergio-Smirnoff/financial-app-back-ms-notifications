@@ -2,6 +2,7 @@ package com.financialapp.notifications.application.usecase.event;
 
 import com.financialapp.notifications.application.service.NotificationService;
 import com.financialapp.notifications.domain.interfaces.usecase.event.ProcessUserRegisteredUseCase;
+import com.financialapp.notifications.domain.model.entity.Notification;
 import com.financialapp.notifications.domain.model.entity.event.UserRegistered;
 import com.financialapp.notifications.domain.model.entity.enums.NotificationChannel;
 import com.financialapp.notifications.domain.model.entity.enums.NotificationType;
@@ -28,9 +29,10 @@ public class ProcessUserRegisteredUseCaseImpl implements ProcessUserRegisteredUs
                 "Hi %s, your account has been created successfully. Start tracking your finances, investments, and more.",
                 user.firstName());
 
-        notificationService.notify(
+        var newNotification = Notification.create(
                 user.userId(), NotificationType.USER_REGISTERED, title, message,
                 NotificationChannel.BOTH, null);
+        notificationService.notify(newNotification);
     }
 
 

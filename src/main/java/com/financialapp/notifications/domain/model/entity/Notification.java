@@ -31,5 +31,23 @@ public record Notification(
                 createdAt
         );
     }
+    public static Notification create(
+            Long userId,
+            NotificationType type,
+            String title,
+            String message,
+            NotificationChannel channel,
+            String metadata
+    ) {
+        return Notification.builder()
+                .userId(userId)
+                .type(type)
+                .title(title)
+                .message(message)
+                .channel(channel)
+                .metadata(metadata)
+                //.read(false)
+                .build();
+    }
 }
 

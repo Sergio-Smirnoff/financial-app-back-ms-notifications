@@ -3,6 +3,7 @@ package com.financialapp.notifications.application.usecase.scheduler;
 import com.financialapp.notifications.application.service.NotificationService;
 import com.financialapp.notifications.domain.gateway.FinancesGateway;
 import com.financialapp.notifications.domain.messaging.EmailSender;
+import com.financialapp.notifications.domain.model.entity.Notification;
 import com.financialapp.notifications.domain.model.entity.summary.CategorySummary;
 import com.financialapp.notifications.domain.repository.UserNotificationPreferenceRepository;
 import com.financialapp.notifications.domain.interfaces.usecase.SendMonthlySummariesUseCase;
@@ -76,7 +77,7 @@ public class SendMonthlySummariesUseCaseImpl implements SendMonthlySummariesUseC
         String title = "Resumen Mensual - " + LocalDate.now().minusMonths(1).format(DateTimeFormatter.ofPattern("MMMM yyyy"));
         String message = buildMessage(categories);
 
-        notificationService.notify(
+        var newNotification = Notification.create(
                 userId,
                 NotificationType.MONTHLY_SUMMARY,
                 title,
@@ -84,6 +85,7 @@ public class SendMonthlySummariesUseCaseImpl implements SendMonthlySummariesUseC
                 NotificationChannel.BOTH,
                 null
         );
+        notificationService.notify(newNotification);
 
         Map<String, Object> templateVars = new HashMap<>();
         templateVars.put("title", title);

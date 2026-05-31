@@ -2,6 +2,7 @@ package com.financialapp.notifications.application.usecase.event;
 
 import com.financialapp.notifications.application.service.NotificationService;
 import com.financialapp.notifications.domain.interfaces.usecase.event.ProcessInvestmentThresholdUseCase;
+import com.financialapp.notifications.domain.model.entity.Notification;
 import com.financialapp.notifications.domain.model.entity.event.InvestmentThreshold;
 import com.financialapp.notifications.domain.model.entity.enums.NotificationChannel;
 import com.financialapp.notifications.domain.model.entity.enums.NotificationType;
@@ -28,8 +29,9 @@ public class ProcessInvestmentThresholdUseCaseImpl implements ProcessInvestmentT
                 t.currentPrice(), t.currency(),
                 t.avgPurchasePrice(), t.currency());
 
-        notificationService.notify(
+        var newNotification = Notification.create(
                 t.userId(), NotificationType.INVESTMENT_THRESHOLD, title, message,
                 NotificationChannel.BOTH, null);
+        notificationService.notify(newNotification);
     }
 }

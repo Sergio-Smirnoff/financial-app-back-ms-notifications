@@ -2,6 +2,7 @@ package com.financialapp.notifications.application.usecase.event;
 
 import com.financialapp.notifications.application.service.NotificationService;
 import com.financialapp.notifications.domain.interfaces.usecase.event.ProcessInstallmentReminderUseCase;
+import com.financialapp.notifications.domain.model.entity.Notification;
 import com.financialapp.notifications.domain.model.entity.enums.NotificationChannel;
 import com.financialapp.notifications.domain.model.entity.enums.NotificationType;
 import com.financialapp.notifications.domain.model.entity.event.InstallmentReminder;
@@ -20,8 +21,9 @@ public class ProcessInstallmentReminderUseCaseImpl implements ProcessInstallment
                 "Installment #%d of %.2f %s for loan '%s' is due on %s.",
                 reminder.installmentNumber(), reminder.amount().doubleValue(), reminder.currency(),
                 reminder.loanDescription(), reminder.dueDate());
-        notificationService.notify(
+        var newNotification = Notification.create(
                 reminder.userId(), NotificationType.INSTALLMENT_REMINDER, title, message,
                 NotificationChannel.BOTH, null);
+        notificationService.notify(newNotification);
     }
 }
