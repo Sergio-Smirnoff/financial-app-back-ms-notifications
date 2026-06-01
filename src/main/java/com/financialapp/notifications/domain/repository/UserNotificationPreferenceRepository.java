@@ -1,18 +1,15 @@
 package com.financialapp.notifications.domain.repository;
 
 import com.financialapp.notifications.domain.model.entity.UserNotificationPreference;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.JpaRepository;
+import com.financialapp.notifications.domain.model.response.PageResult;
 
-import java.util.List;
 import java.util.Optional;
 
-public interface UserNotificationPreferenceRepository extends JpaRepository<UserNotificationPreference, Long> {
-
+public interface UserNotificationPreferenceRepository {
     Optional<UserNotificationPreference> findByUserId(Long userId);
 
-    List<UserNotificationPreference> findByMonthlyEmailEnabledTrue();
+    PageResult<UserNotificationPreference> findByMonthlyEmailEnabledTrue(int page, int size);
 
-    Page<UserNotificationPreference> findByMonthlyEmailEnabledTrue(Pageable pageable);
+    UserNotificationPreference save(UserNotificationPreference preference);
+
 }

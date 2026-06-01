@@ -1,8 +1,7 @@
 package com.financialapp.notifications.domain.repository;
 
 import com.financialapp.notifications.domain.model.entity.Notification;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import com.financialapp.notifications.domain.model.response.PageResult;
 
 import java.util.List;
 import java.util.Optional;
@@ -13,7 +12,7 @@ public interface NotificationRepository {
 
     Optional<Notification> findById(Long id);
 
-    Page<Notification> findByUserIdOrderByCreatedAtDesc(Long userId, Pageable pageable);
+    PageResult<Notification> findByUserIdOrderByCreatedAtDesc(Long userId, int page, int size);
 
     List<Notification> findTop5ByUserIdOrderByCreatedAtDesc(Long userId);
 

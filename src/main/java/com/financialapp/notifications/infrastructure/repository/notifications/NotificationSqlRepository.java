@@ -1,4 +1,4 @@
-package com.financialapp.notifications.infrastructure.repository;
+package com.financialapp.notifications.infrastructure.repository.notifications;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

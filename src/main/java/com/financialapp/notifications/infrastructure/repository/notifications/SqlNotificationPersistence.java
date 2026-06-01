@@ -1,16 +1,19 @@
-package com.financialapp.notifications.infrastructure.repository;
+package com.financialapp.notifications.infrastructure.repository.notifications;
 
 import com.financialapp.notifications.domain.repository.NotificationRepository;
 import com.financialapp.notifications.domain.model.entity.Notification;
-import com.financialapp.notifications.infrastructure.repository.mapper.NotificationMapper;
+import com.financialapp.notifications.domain.model.response.PageResult;
+import com.financialapp.notifications.infrastructure.repository.notifications.mapper.NotificationMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
@@ -32,9 +35,18 @@ public class SqlNotificationPersistence implements NotificationRepository {
     }
 
     @Override
-    public Page<Notification> findByUserIdOrderByCreatedAtDesc(Long userId, Pageable pageable) {
-        return sqlRepository.findByUserIdOrderByCreatedAtDesc(userId, pageable)
-                .map(NotificationMapper::toDomain);
+    public PageResult<Notification> findByUserIdOrderByCreatedAtDesc(Long userId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<NotificationSqlEntity> springPage = sqlRepository.findByUserIdOrderByCreatedAtDesc(userId, pageable);
+        return new PageResult<>(
+                springPage.getContent().stream()
+                        .map(NotificationMapper::toDomain)
+                        .collect(Collectors.toList()),
+                springPage.getNumber(),
+                springPage.getSize(),
+                springPage.getTotalElements(),
+                springPage.getTotalPages()
+        );
     }
 
     @Override

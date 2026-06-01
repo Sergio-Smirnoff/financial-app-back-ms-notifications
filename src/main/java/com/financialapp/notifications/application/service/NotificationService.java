@@ -5,14 +5,9 @@ import com.financialapp.notifications.domain.messaging.InAppNotificationSender;
 import com.financialapp.notifications.domain.repository.NotificationRepository;
 import com.financialapp.notifications.domain.repository.UserNotificationPreferenceRepository;
 import com.financialapp.notifications.domain.model.entity.Notification;
-import com.financialapp.notifications.domain.model.entity.UserNotificationPreference;
-import com.financialapp.notifications.domain.model.entity.enums.NotificationChannel;
-import com.financialapp.notifications.domain.model.response.NotificationResponse;
-import com.financialapp.notifications.web.controller.mapper.NotificationMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -49,7 +44,7 @@ public class NotificationService {
 
     private void dispatchEmail(Notification notification) {
         preferenceRepository.findByUserId(notification.userId())
-                .ifPresent(pref -> emailSender.sendSimpleNotification(pref.getEmail(), notification.title(),
+                .ifPresent(pref -> emailSender.sendSimpleNotification(pref.email(), notification.title(),
                         notification.message()));
     }
 }

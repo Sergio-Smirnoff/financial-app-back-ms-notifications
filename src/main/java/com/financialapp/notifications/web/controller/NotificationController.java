@@ -2,6 +2,7 @@ package com.financialapp.notifications.web.controller;
 
 import com.financialapp.notifications.domain.model.response.ApiResponse;
 import com.financialapp.notifications.domain.model.response.NotificationResponse;
+import com.financialapp.notifications.domain.model.response.PageResult;
 import com.financialapp.notifications.domain.model.response.UnreadCountResponse;
 import com.financialapp.notifications.domain.usecase.AllAsReadUseCase;
 import com.financialapp.notifications.domain.usecase.GetLatestNotificationsByBankUseCase;
@@ -9,6 +10,7 @@ import com.financialapp.notifications.domain.usecase.GetLatestNotificationsUseCa
 import com.financialapp.notifications.domain.usecase.GetNotificationUseCase;
 import com.financialapp.notifications.domain.usecase.GetUnreadCountUseCase;
 import com.financialapp.notifications.domain.usecase.OneAsReadUsecase;
+import com.financialapp.notifications.web.controller.mapper.PageResultMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -39,8 +41,10 @@ public class NotificationController {
             @RequestHeader("X-User-Id") Long userId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
+        PageResult<NotificationResponse> pageResult =
+                getNotificationUseCase.execute(userId, page, size);
         Pageable pageable = PageRequest.of(page, size);
-        Page<NotificationResponse> notifications = getNotificationUseCase.execute(userId, pageable);
+        Page<NotificationResponse> notifications = PageResultMapper.toPage(pageResult, pageable);
         return ResponseEntity.ok(ApiResponse.ok(notifications));
     }
 

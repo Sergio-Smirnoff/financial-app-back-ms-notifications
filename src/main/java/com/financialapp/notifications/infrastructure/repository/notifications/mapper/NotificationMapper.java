@@ -1,7 +1,7 @@
-package com.financialapp.notifications.infrastructure.repository.mapper;
+package com.financialapp.notifications.infrastructure.repository.notifications.mapper;
 
 import com.financialapp.notifications.domain.model.entity.Notification;
-import com.financialapp.notifications.infrastructure.repository.NotificationSqlEntity;
+import com.financialapp.notifications.infrastructure.repository.notifications.NotificationSqlEntity;
 
 public class NotificationMapper {
     public static Notification toDomain(NotificationSqlEntity entity) {

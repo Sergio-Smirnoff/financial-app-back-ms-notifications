@@ -1,4 +1,4 @@
-package com.financialapp.notifications.infrastructure.repository;
+package com.financialapp.notifications.infrastructure.repository.notifications;
 
 import com.financialapp.notifications.domain.model.entity.enums.NotificationChannel;
 import com.financialapp.notifications.domain.model.entity.enums.NotificationType;

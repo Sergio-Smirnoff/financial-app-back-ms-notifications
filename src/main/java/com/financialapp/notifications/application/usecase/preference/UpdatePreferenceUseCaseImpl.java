@@ -23,15 +23,15 @@ public class UpdatePreferenceUseCaseImpl implements UpdatePreferenceUseCase {
                         .monthlyEmailEnabled(true)
                         .build());
 
-        preference.setMonthlyEmailEnabled(monthlyEmailEnabled);
+        preference = preference.withMonthlyEmailEnabled(monthlyEmailEnabled);
         return toResponse(preferenceRepository.save(preference));
     }
 
     private NotificationPreferenceResponse toResponse(UserNotificationPreference preference) {
         return NotificationPreferenceResponse.builder()
-                .userId(preference.getUserId())
-                .email(preference.getEmail())
-                .monthlyEmailEnabled(preference.isMonthlyEmailEnabled())
+                .userId(preference.userId())
+                .email(preference.email())
+                .monthlyEmailEnabled(preference.monthlyEmailEnabled())
                 .build();
     }
 }

@@ -6,16 +6,13 @@ import com.financialapp.notifications.domain.messaging.EmailSender;
 import com.financialapp.notifications.domain.model.entity.Notification;
 import com.financialapp.notifications.domain.model.entity.summary.CategorySummary;
 import com.financialapp.notifications.domain.repository.UserNotificationPreferenceRepository;
-import com.financialapp.notifications.domain.interfaces.usecase.SendMonthlySummariesUseCase;
+import com.financialapp.notifications.domain.usecase.notifications.SendMonthlySummariesUseCase;
 import com.financialapp.notifications.domain.model.entity.UserNotificationPreference;
 import com.financialapp.notifications.domain.model.entity.enums.NotificationChannel;
 import com.financialapp.notifications.domain.model.entity.enums.NotificationType;
-import com.financialapp.notifications.infrastructure.client.dto.CategorySummaryResponse;
+import com.financialapp.notifications.domain.model.response.PageResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -43,14 +40,15 @@ public class SendMonthlySummariesUseCaseImpl implements SendMonthlySummariesUseC
         String dateFrom = firstOfMonth.minusMonths(1).format(DateTimeFormatter.ISO_LOCAL_DATE);
         String dateTo = firstOfMonth.minusDays(1).format(DateTimeFormatter.ISO_LOCAL_DATE);
 
-        Pageable pageable = PageRequest.of(0, 500);
-        Page<UserNotificationPreference> page;
+        int pageSize = 500;
+        int pageNumber = 0;
         int totalProcessed = 0;
+        PageResult<UserNotificationPreference> page;
         do {
-            page = preferenceRepository.findByMonthlyEmailEnabledTrue(pageable);
-            processPage(page.getContent(), dateFrom, dateTo);
-            totalProcessed += page.getNumberOfElements();
-            pageable = pageable.next();
+            page = preferenceRepository.findByMonthlyEmailEnabledTrue(pageNumber, pageSize);
+            processPage(page.content(), dateFrom, dateTo);
+            totalProcessed += page.content().size();
+            pageNumber++;
         } while (page.hasNext());
         log.info("Monthly summary job completed, processed {} users", totalProcessed);
     }
@@ -66,12 +64,12 @@ public class SendMonthlySummariesUseCaseImpl implements SendMonthlySummariesUseC
         try {
             processUser(pref, dateFrom, dateTo);
         } catch (Exception e) {
-            log.error("Failed to process monthly summary for userId={}: {}", pref.getUserId(), e.getMessage());
+            log.error("Failed to process monthly summary for userId={}: {}", pref.userId(), e.getMessage());
         }
     }
 
     private void processUser(UserNotificationPreference pref, String dateFrom, String dateTo) {
-        Long userId = pref.getUserId();
+        Long userId = pref.userId();
         List<CategorySummary> categories = financesGateway.getSummaryByCategory(userId, dateFrom, dateTo);
 
         String title = "Resumen Mensual - " + LocalDate.now().minusMonths(1).format(DateTimeFormatter.ofPattern("MMMM yyyy"));
@@ -92,7 +90,7 @@ public class SendMonthlySummariesUseCaseImpl implements SendMonthlySummariesUseC
         templateVars.put("firstName", "Usuario");
         templateVars.put("message", message);
         templateVars.put("categories", categories);
-        emailSender.sendTemplatedEmail(pref.getEmail(), title, "monthly-summary", templateVars);
+        emailSender.sendTemplatedEmail(pref.email(), title, "monthly-summary", templateVars);
 
         log.debug("Sent monthly summary to userId={}", userId);
     }

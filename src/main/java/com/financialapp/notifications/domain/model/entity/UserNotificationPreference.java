@@ -1,47 +1,34 @@
 package com.financialapp.notifications.domain.model.entity;
 
-import jakarta.persistence.*;
-import lombok.*;
+import lombok.Builder;
 
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "user_notification_preferences", schema = "notifications")
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
 @Builder
-public class UserNotificationPreference {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(name = "user_id", nullable = false, unique = true)
-    private Long userId;
-
-    @Column(nullable = false)
-    private String email;
-
-    @Column(name = "monthly_email_enabled", nullable = false)
-    @Builder.Default
-    private boolean monthlyEmailEnabled = true;
-
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
-
-    @Column(name = "updated_at", nullable = false)
-    private LocalDateTime updatedAt;
-
-    @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
+public record UserNotificationPreference(
+        Long id,
+        Long userId,
+        String email,
+        boolean monthlyEmailEnabled,
+        LocalDateTime createdAt,
+        LocalDateTime updatedAt
+) {
+    public UserNotificationPreference withMonthlyEmailEnabled(boolean monthlyEmailEnabled) {
+        return new UserNotificationPreference(
+                id,
+                userId,
+                email,
+                monthlyEmailEnabled,
+                createdAt,
+                LocalDateTime.now()
+        );
     }
 
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
+    public static UserNotificationPreference create(Long userId, String email) {
+        return UserNotificationPreference.builder()
+                .userId(userId)
+                .email(email)
+                .monthlyEmailEnabled(true)
+                .build();
     }
 }
