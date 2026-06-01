@@ -49,18 +49,7 @@ public class NotificationService {
 
     private void dispatchEmail(Notification notification) {
         preferenceRepository.findByUserId(notification.userId())
-                .ifPresent(pref -> emailSender.sendSimpleNotification(pref.getEmail(), notification.title(), notification.message()));
-    }
-
-    @Transactional
-    public void createPreferenceIfAbsent(Long userId, String email) {
-        if (preferenceRepository.findByUserId(userId).isEmpty()) {
-            preferenceRepository.save(UserNotificationPreference.builder()
-                    .userId(userId)
-                    .email(email)
-                    .monthlyEmailEnabled(true)
-                    .build());
-            log.info("Created notification preferences for userId={}", userId);
-        }
+                .ifPresent(pref -> emailSender.sendSimpleNotification(pref.getEmail(), notification.title(),
+                        notification.message()));
     }
 }

@@ -1,9 +1,10 @@
 package com.financialapp.notifications.application.usecase.event;
 
 import com.financialapp.notifications.application.service.NotificationService;
-import com.financialapp.notifications.domain.interfaces.usecase.event.ProcessUserRegisteredUseCase;
 import com.financialapp.notifications.domain.model.entity.Notification;
 import com.financialapp.notifications.domain.model.entity.event.UserRegistered;
+import com.financialapp.notifications.domain.usecase.CreatePreferenceIfAbsentUseCase;
+import com.financialapp.notifications.domain.usecase.event.ProcessUserRegisteredUseCase;
 import com.financialapp.notifications.domain.model.entity.enums.NotificationChannel;
 import com.financialapp.notifications.domain.model.entity.enums.NotificationType;
 import lombok.RequiredArgsConstructor;
@@ -17,12 +18,13 @@ import org.springframework.transaction.annotation.Transactional;
 public class ProcessUserRegisteredUseCaseImpl implements ProcessUserRegisteredUseCase {
 
     private final NotificationService notificationService;
+    private final CreatePreferenceIfAbsentUseCase createPreferenceIfAbsentUseCase;
 
     @Override
     @Transactional
     public void execute(UserRegistered user) {
         // create preferences
-        notificationService.createPreferenceIfAbsent(user.userId(), user.email());
+        createPreferenceIfAbsentUseCase.execute(user.userId(), user.email());
 
         String title = "Welcome to Financial App!";
         String message = String.format(
@@ -34,6 +36,5 @@ public class ProcessUserRegisteredUseCaseImpl implements ProcessUserRegisteredUs
                 NotificationChannel.BOTH, null);
         notificationService.notify(newNotification);
     }
-
 
 }

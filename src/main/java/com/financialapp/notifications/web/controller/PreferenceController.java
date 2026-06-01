@@ -1,8 +1,9 @@
 package com.financialapp.notifications.web.controller;
 
+import com.financialapp.notifications.domain.usecase.GetPreferenceUseCase;
+import com.financialapp.notifications.domain.usecase.UpdatePreferenceUseCase;
 import com.financialapp.notifications.domain.model.response.ApiResponse;
 import com.financialapp.notifications.domain.model.response.NotificationPreferenceResponse;
-import com.financialapp.notifications.application.service.NotificationService;
 import com.financialapp.notifications.web.controller.request.NotificationPreferenceRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -17,13 +18,14 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Notification Preferences", description = "User notification preferences management")
 public class PreferenceController {
 
-    private final NotificationService notificationService;
+    private final GetPreferenceUseCase getPreferenceUseCase;
+    private final UpdatePreferenceUseCase updatePreferenceUseCase;
 
     @GetMapping
     @Operation(summary = "Get user notification preferences")
     public ResponseEntity<ApiResponse<NotificationPreferenceResponse>> getPreference(
             @RequestHeader("X-User-Id") Long userId) {
-        NotificationPreferenceResponse pref = notificationService.getPreference(userId);
+        NotificationPreferenceResponse pref = getPreferenceUseCase.execute(userId);
         return ResponseEntity.ok(ApiResponse.ok(pref));
     }
 
@@ -32,7 +34,8 @@ public class PreferenceController {
     public ResponseEntity<ApiResponse<NotificationPreferenceResponse>> updatePreference(
             @RequestHeader("X-User-Id") Long userId,
             @Valid @RequestBody NotificationPreferenceRequest request) {
-        NotificationPreferenceResponse updated = notificationService.updatePreference(userId, request.getMonthlyEmailEnabled());
+        NotificationPreferenceResponse updated = updatePreferenceUseCase.execute(userId,
+                request.getMonthlyEmailEnabled());
         return ResponseEntity.ok(ApiResponse.ok("Preferences updated", updated));
     }
 }

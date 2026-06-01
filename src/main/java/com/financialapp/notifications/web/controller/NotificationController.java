@@ -3,12 +3,12 @@ package com.financialapp.notifications.web.controller;
 import com.financialapp.notifications.domain.model.response.ApiResponse;
 import com.financialapp.notifications.domain.model.response.NotificationResponse;
 import com.financialapp.notifications.domain.model.response.UnreadCountResponse;
-import com.financialapp.notifications.application.usecase.notification.AllAsReadUseCase;
-import com.financialapp.notifications.application.usecase.notification.GetLatestNotificationsUseCase;
-import com.financialapp.notifications.application.usecase.notification.GetNotificationUseCase;
-import com.financialapp.notifications.application.usecase.notification.GetUnreadCountUseCase;
-import com.financialapp.notifications.application.usecase.notification.OneAsReadUseCase;
-import com.financialapp.notifications.application.service.NotificationService;
+import com.financialapp.notifications.domain.usecase.AllAsReadUseCase;
+import com.financialapp.notifications.domain.usecase.GetLatestNotificationsByBankUseCase;
+import com.financialapp.notifications.domain.usecase.GetLatestNotificationsUseCase;
+import com.financialapp.notifications.domain.usecase.GetNotificationUseCase;
+import com.financialapp.notifications.domain.usecase.GetUnreadCountUseCase;
+import com.financialapp.notifications.domain.usecase.OneAsReadUsecase;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -26,11 +26,11 @@ import java.util.List;
 @Tag(name = "Notifications", description = "Notification management")
 public class NotificationController {
 
-    private final NotificationService notificationService;
     private final GetNotificationUseCase getNotificationUseCase;
     private final GetLatestNotificationsUseCase getLatestNotificationsUseCase;
+    private final GetLatestNotificationsByBankUseCase getLatestNotificationsByBankUseCase;
     private final GetUnreadCountUseCase getUnreadCountUseCase;
-    private final OneAsReadUseCase markAsReadUseCase;
+    private final OneAsReadUsecase markAsReadUseCase;
     private final AllAsReadUseCase markAllAsReadUseCase;
 
     @GetMapping
@@ -49,7 +49,9 @@ public class NotificationController {
     public ResponseEntity<ApiResponse<List<NotificationResponse>>> getLatest(
             @RequestHeader("X-User-Id") Long userId,
             @RequestParam(required = false) Long bankId) {
-        List<NotificationResponse> notifications = getLatestNotificationsUseCase.execute(userId, bankId);
+        List<NotificationResponse> notifications = bankId != null
+                ? getLatestNotificationsByBankUseCase.execute(userId, bankId)
+                : getLatestNotificationsUseCase.execute(userId, null);
         return ResponseEntity.ok(ApiResponse.ok(notifications));
     }
 
