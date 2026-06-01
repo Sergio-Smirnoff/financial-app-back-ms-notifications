@@ -1,7 +1,7 @@
 package com.financialapp.notifications.application.usecase.event;
 
 import com.financialapp.notifications.application.service.NotificationService;
-import com.financialapp.notifications.domain.interfaces.usecase.event.ProcessInvestmentThresholdUseCase;
+import com.financialapp.notifications.domain.usecase.event.ProcessInvestmentThresholdUseCase;
 import com.financialapp.notifications.domain.model.entity.Notification;
 import com.financialapp.notifications.domain.model.entity.event.InvestmentThreshold;
 import com.financialapp.notifications.domain.model.entity.enums.NotificationChannel;

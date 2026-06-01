@@ -1,4 +1,4 @@
-package com.financialapp.notifications.domain.interfaces.usecase;
+package com.financialapp.notifications.domain.usecase.notifications;
 
 public interface CleanupNotificationsUseCase {
     void execute();

@@ -1,6 +1,6 @@
 package com.financialapp.notifications.infrastructure.kafka.listener;
 
-import com.financialapp.notifications.domain.interfaces.usecase.event.ProcessBankEventUseCase;
+import com.financialapp.notifications.domain.usecase.event.ProcessBankEventUseCase;
 import com.financialapp.notifications.infrastructure.kafka.event.BankAlertEvent;
 import com.financialapp.notifications.infrastructure.kafka.mapper.BankAlertMapper;
 import lombok.RequiredArgsConstructor;

@@ -1,8 +1,8 @@
 package com.financialapp.notifications.infrastructure.kafka.listener;
 
-import com.financialapp.notifications.domain.interfaces.usecase.event.ProcessInstallmentReminderUseCase;
-import com.financialapp.notifications.domain.interfaces.usecase.event.ProcessLoanReminderUseCase;
-import com.financialapp.notifications.domain.interfaces.usecase.event.ProcessPaymentDueUseCase;
+import com.financialapp.notifications.domain.usecase.event.ProcessInstallmentReminderUseCase;
+import com.financialapp.notifications.domain.usecase.event.ProcessLoanReminderUseCase;
+import com.financialapp.notifications.domain.usecase.event.ProcessPaymentDueUseCase;
 import com.financialapp.notifications.infrastructure.kafka.event.InstallmentReminderEvent;
 import com.financialapp.notifications.infrastructure.kafka.event.LoanReminderEvent;
 import com.financialapp.notifications.infrastructure.kafka.event.PaymentDueEvent;

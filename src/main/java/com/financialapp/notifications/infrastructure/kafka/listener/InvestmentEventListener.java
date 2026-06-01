@@ -1,6 +1,6 @@
 package com.financialapp.notifications.infrastructure.kafka.listener;
 
-import com.financialapp.notifications.domain.interfaces.usecase.event.ProcessInvestmentThresholdUseCase;
+import com.financialapp.notifications.domain.usecase.event.ProcessInvestmentThresholdUseCase;
 import com.financialapp.notifications.infrastructure.kafka.event.InvestmentThresholdEvent;
 import com.financialapp.notifications.infrastructure.kafka.mapper.InvestmentThresholdMapper;
 import lombok.RequiredArgsConstructor;

@@ -1,6 +1,6 @@
 package com.financialapp.notifications.infrastructure.scheduler;
 
-import com.financialapp.notifications.domain.interfaces.usecase.CleanupNotificationsUseCase;
+import com.financialapp.notifications.domain.usecase.notifications.CleanupNotificationsUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;

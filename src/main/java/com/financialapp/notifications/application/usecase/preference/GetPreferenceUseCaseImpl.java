@@ -27,9 +27,9 @@ public class GetPreferenceUseCaseImpl implements GetPreferenceUseCase {
 
     private NotificationPreferenceResponse toResponse(UserNotificationPreference preference) {
         return NotificationPreferenceResponse.builder()
-                .userId(preference.getUserId())
-                .email(preference.getEmail())
-                .monthlyEmailEnabled(preference.isMonthlyEmailEnabled())
+                .userId(preference.userId())
+                .email(preference.email())
+                .monthlyEmailEnabled(preference.monthlyEmailEnabled())
                 .build();
     }
 }
