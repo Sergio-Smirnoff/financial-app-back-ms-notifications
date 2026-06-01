@@ -1,6 +1,6 @@
 package com.financialapp.notifications.application.usecase.preference;
 
-import com.financialapp.notifications.domain.interfaces.infrastructure.UserNotificationPreferenceRepository;
+import com.financialapp.notifications.domain.repository.UserNotificationPreferenceRepository;
 import com.financialapp.notifications.domain.model.entity.UserNotificationPreference;
 import com.financialapp.notifications.domain.usecase.CreatePreferenceIfAbsentUseCase;
 import lombok.RequiredArgsConstructor;
@@ -11,7 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class CreatePreferenceIfAbsentUseCase implements CreatePreferenceIfAbsentUseCase {
+public class CreatePreferenceIfAbsentUseCaseImpl implements CreatePreferenceIfAbsentUseCase {
 
     private final UserNotificationPreferenceRepository preferenceRepository;
 

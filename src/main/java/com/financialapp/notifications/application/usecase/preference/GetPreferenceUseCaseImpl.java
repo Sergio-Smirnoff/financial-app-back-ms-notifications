@@ -1,6 +1,6 @@
 package com.financialapp.notifications.application.usecase.preference;
 
-import com.financialapp.notifications.domain.interfaces.infrastructure.UserNotificationPreferenceRepository;
+import com.financialapp.notifications.domain.repository.UserNotificationPreferenceRepository;
 import com.financialapp.notifications.domain.model.entity.UserNotificationPreference;
 import com.financialapp.notifications.domain.model.response.NotificationPreferenceResponse;
 import com.financialapp.notifications.domain.usecase.GetPreferenceUseCase;
@@ -10,7 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class GetPreferenceUseCase implements GetPreferenceUseCase {
+public class GetPreferenceUseCaseImpl implements GetPreferenceUseCase {
 
     private final UserNotificationPreferenceRepository preferenceRepository;
 
