@@ -1,4 +1,4 @@
-package com.financialapp.notifications.domain.usecase;
+package com.financialapp.notifications.domain.usecase.notification;
 
 import java.util.List;
 

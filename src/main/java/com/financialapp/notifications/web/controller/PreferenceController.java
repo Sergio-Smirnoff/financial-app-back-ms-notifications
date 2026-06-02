@@ -1,8 +1,8 @@
 package com.financialapp.notifications.web.controller;
 
 import com.financialapp.notifications.domain.model.notification.UserNotificationPreference;
-import com.financialapp.notifications.domain.usecase.GetPreferenceUseCase;
-import com.financialapp.notifications.domain.usecase.UpdatePreferenceUseCase;
+import com.financialapp.notifications.domain.usecase.preference.GetPreferenceUseCase;
+import com.financialapp.notifications.domain.usecase.preference.UpdatePreferenceUseCase;
 import com.financialapp.notifications.web.controller.dto.ApiResponse;
 import com.financialapp.notifications.web.controller.dto.NotificationPreferenceResponse;
 import com.financialapp.notifications.web.controller.request.NotificationPreferenceRequest;

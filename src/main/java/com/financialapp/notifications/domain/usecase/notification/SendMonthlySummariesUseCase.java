@@ -1,4 +1,4 @@
-package com.financialapp.notifications.domain.usecase.notifications;
+package com.financialapp.notifications.domain.usecase.notification;
 
 public interface SendMonthlySummariesUseCase {
     void execute();

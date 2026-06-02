@@ -7,7 +7,7 @@ import com.financialapp.notifications.domain.model.notification.Notification;
 import com.financialapp.notifications.domain.model.category.CategorySummary;
 import com.financialapp.notifications.domain.model.pagination.PageResult;
 import com.financialapp.notifications.domain.repository.UserNotificationPreferenceRepository;
-import com.financialapp.notifications.domain.usecase.notifications.SendMonthlySummariesUseCase;
+import com.financialapp.notifications.domain.usecase.notification.SendMonthlySummariesUseCase;
 import com.financialapp.notifications.domain.model.notification.UserNotificationPreference;
 import com.financialapp.notifications.domain.model.notification.NotificationChannel;
 import com.financialapp.notifications.domain.model.notification.NotificationType;

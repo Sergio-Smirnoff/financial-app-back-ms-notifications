@@ -1,4 +1,4 @@
-package com.financialapp.notifications.domain.model.exception;
+package com.financialapp.notifications.domain.exception;
 
 public class BusinessException extends RuntimeException {
 

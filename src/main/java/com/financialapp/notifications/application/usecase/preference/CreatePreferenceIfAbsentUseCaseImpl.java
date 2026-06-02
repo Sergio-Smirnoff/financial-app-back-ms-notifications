@@ -2,7 +2,7 @@ package com.financialapp.notifications.application.usecase.preference;
 
 import com.financialapp.notifications.domain.repository.UserNotificationPreferenceRepository;
 import com.financialapp.notifications.domain.model.notification.UserNotificationPreference;
-import com.financialapp.notifications.domain.usecase.CreatePreferenceIfAbsentUseCase;
+import com.financialapp.notifications.domain.usecase.preference.CreatePreferenceIfAbsentUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

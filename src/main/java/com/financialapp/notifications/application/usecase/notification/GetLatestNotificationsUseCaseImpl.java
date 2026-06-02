@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.financialapp.notifications.domain.model.notification.Notification;
 import com.financialapp.notifications.domain.repository.NotificationRepository;
-import com.financialapp.notifications.domain.usecase.GetLatestNotificationsUseCase;
+import com.financialapp.notifications.domain.usecase.notification.GetLatestNotificationsUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

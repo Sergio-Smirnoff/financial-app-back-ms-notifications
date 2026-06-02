@@ -1,7 +1,7 @@
 package com.financialapp.notifications.application.usecase.notification;
 
 import com.financialapp.notifications.domain.repository.NotificationRepository;
-import com.financialapp.notifications.domain.usecase.AllAsReadUseCase;
+import com.financialapp.notifications.domain.usecase.notification.AllAsReadUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

@@ -1,6 +1,6 @@
 package com.financialapp.notifications.application.usecase.scheduler;
 
-import com.financialapp.notifications.domain.usecase.notifications.CleanupNotificationsUseCase;
+import com.financialapp.notifications.domain.usecase.notification.CleanupNotificationsUseCase;
 import com.financialapp.notifications.domain.repository.NotificationRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
