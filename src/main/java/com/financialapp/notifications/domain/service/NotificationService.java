@@ -1,4 +1,4 @@
-package com.financialapp.notifications.application.service;
+package com.financialapp.notifications.domain.service;
 
 import com.financialapp.notifications.domain.model.notification.Notification;
 

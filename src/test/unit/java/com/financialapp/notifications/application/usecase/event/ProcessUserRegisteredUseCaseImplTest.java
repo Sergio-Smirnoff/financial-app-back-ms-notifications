@@ -1,6 +1,6 @@
 package com.financialapp.notifications.application.usecase.event;
 
-import com.financialapp.notifications.application.service.NotificationService;
+import com.financialapp.notifications.domain.service.NotificationService;
 import com.financialapp.notifications.application.usecase.event.impl.ProcessUserRegisteredUseCaseImpl;
 import com.financialapp.notifications.domain.event.UserRegistered;
 import com.financialapp.notifications.domain.model.notification.Notification;

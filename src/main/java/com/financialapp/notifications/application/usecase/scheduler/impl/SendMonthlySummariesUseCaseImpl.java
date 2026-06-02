@@ -1,6 +1,6 @@
 package com.financialapp.notifications.application.usecase.scheduler.impl;
 
-import com.financialapp.notifications.application.service.NotificationService;
+import com.financialapp.notifications.domain.service.NotificationService;
 import com.financialapp.notifications.domain.gateway.FinancesGateway;
 import com.financialapp.notifications.domain.messaging.EmailSender;
 import com.financialapp.notifications.domain.model.notification.Notification;
