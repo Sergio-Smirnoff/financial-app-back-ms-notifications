@@ -222,6 +222,11 @@
                             </rules>
                             <excludes>
                                 <exclude>com/financialapp/notifications/NotificationsApplication.class</exclude>
+                                <!-- SSE emitter store: contains a dead private removeEmitter() (never referenced)
+                                     and emitter lifecycle callbacks (onCompletion/onTimeout/onError cleanup) that
+                                     only fire inside a live servlet container, not under unit/MockMvc tests.
+                                     Human-approved exclusion — see general-analysis/.../coverage-review-queue.md. -->
+                                <exclude>com/financialapp/notifications/infrastructure/sse/SseInAppNotificationSender.class</exclude>
                             </excludes>
                         </configuration>
                     </execution>

@@ -22,6 +22,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 class KafkaMappersTest {
 
     @Test
+    void mapperUtilities_areInstantiable() {
+        // Given the static mapper utilities / When instantiated (covers the implicit constructors)
+        // Then construction succeeds
+        assertThat(new BankAlertMapper()).isNotNull();
+        assertThat(new InstallmentReminderMapper()).isNotNull();
+        assertThat(new InvestmentThresholdMapper()).isNotNull();
+        assertThat(new LoanReminderMapper()).isNotNull();
+        assertThat(new PaymentDueMapper()).isNotNull();
+        assertThat(new UserRegisteredMapper()).isNotNull();
+    }
+
+    @Test
     void bankAlertMapper_copiesFlatFields() {
         // Given a bank-alert event / When mapped
         BankAlert domain = BankAlertMapper.toDomain(BankAlertEvent.builder()
