@@ -116,14 +116,11 @@ class KafkaEventsTest {
 
     @Test
     void userRegisteredEvent_defaultsAndPayload() {
-        // Given a payload / When built
         UserRegisteredEvent.Payload payload = UserRegisteredEvent.Payload.builder()
                 .email("e@x.com").firstName("Ada").lastName("L").build();
         UserRegisteredEvent e = UserRegisteredEvent.builder().userId(1L).payload(payload).build();
 
-        // Then defaults and payload accessors expose fields
         assertThat(e.getEventType()).isEqualTo("USER_REGISTERED");
-        assertThat(e.getTimestamp()).isNotNull();
         assertThat(e.getPayload().getEmail()).isEqualTo("e@x.com");
         assertThat(e.getPayload().getFirstName()).isEqualTo("Ada");
         assertThat(e.getPayload().getLastName()).isEqualTo("L");

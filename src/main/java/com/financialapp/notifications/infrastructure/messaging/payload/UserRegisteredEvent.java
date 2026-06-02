@@ -1,23 +1,21 @@
 package com.financialapp.notifications.infrastructure.messaging.payload;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.Instant;
-
 @Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class UserRegisteredEvent {
 
     @Builder.Default
     private String eventType = "USER_REGISTERED";
     private Long userId;
-    @Builder.Default
-    private Instant timestamp = Instant.now();
     private Payload payload;
 
     @Getter

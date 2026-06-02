@@ -1,12 +1,20 @@
 package com.financialapp.notifications.infrastructure.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.config.TopicBuilder;
+import org.springframework.kafka.support.converter.ByteArrayJsonMessageConverter;
+import org.springframework.kafka.support.converter.RecordMessageConverter;
 
 @Configuration
 public class KafkaConfig {
+
+    @Bean
+    public RecordMessageConverter jsonMessageConverter(ObjectMapper objectMapper) {
+        return new ByteArrayJsonMessageConverter(objectMapper);
+    }
 
     @Bean
     public NewTopic paymentDueTopic() {

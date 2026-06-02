@@ -15,11 +15,7 @@ import java.io.IOException;
 @Slf4j
 public class InternalAuthFilter extends OncePerRequestFilter {
 
-<<<<<<< Updated upstream
     @Value("${internal.auth.token}")
-=======
-    @Value("${INTERNAL_AUTH_TOKEN:local-dev-token}")
->>>>>>> Stashed changes
     private String internalToken;
 
     @Override
