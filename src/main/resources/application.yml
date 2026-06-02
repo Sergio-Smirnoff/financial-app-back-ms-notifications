@@ -59,7 +59,7 @@ spring:
 
 internal:
   auth:
-    token: ${INTERNAL_AUTH_TOKEN:dev-internal-token}
+    token: ${INTERNAL_AUTH_TOKEN:local-dev-token}
 
 notification:
   scheduler:

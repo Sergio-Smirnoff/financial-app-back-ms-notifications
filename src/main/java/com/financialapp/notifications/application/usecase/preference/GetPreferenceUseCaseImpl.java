@@ -1,5 +1,6 @@
 package com.financialapp.notifications.application.usecase.preference;
 
+import com.financialapp.notifications.domain.model.exception.UserNotFoundException;
 import com.financialapp.notifications.domain.repository.UserNotificationPreferenceRepository;
 import com.financialapp.notifications.domain.model.entity.UserNotificationPreference;
 import com.financialapp.notifications.domain.model.exception.ResourceNotFoundException;
@@ -17,6 +18,6 @@ public class GetPreferenceUseCaseImpl implements GetPreferenceUseCase {
     @Transactional(readOnly = true)
     public UserNotificationPreference execute(Long userId) {
         return preferenceRepository.findByUserId(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("UserNotificationPreference", userId));
+                .orElseThrow(() -> new UserNotFoundException(userId));
     }
 }
