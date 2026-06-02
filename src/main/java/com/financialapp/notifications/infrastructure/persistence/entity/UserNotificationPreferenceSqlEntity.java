@@ -1,4 +1,4 @@
-package com.financialapp.notifications.infrastructure.persistence.preferences;
+package com.financialapp.notifications.infrastructure.persistence.entity;
 
 import jakarta.persistence.*;
 import lombok.*;

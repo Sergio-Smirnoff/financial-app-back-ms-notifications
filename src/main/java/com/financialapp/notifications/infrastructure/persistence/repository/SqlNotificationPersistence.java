@@ -1,9 +1,10 @@
-package com.financialapp.notifications.infrastructure.persistence.notifications;
+package com.financialapp.notifications.infrastructure.persistence.repository;
 
 import com.financialapp.notifications.domain.repository.NotificationRepository;
 import com.financialapp.notifications.domain.model.notification.Notification;
 import com.financialapp.notifications.domain.model.pagination.PageResult;
-import com.financialapp.notifications.infrastructure.persistence.notifications.mapper.NotificationMapper;
+import com.financialapp.notifications.infrastructure.persistence.entity.NotificationSqlEntity;
+import com.financialapp.notifications.infrastructure.persistence.mapper.NotificationMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;

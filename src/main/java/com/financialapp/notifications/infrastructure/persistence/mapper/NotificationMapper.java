@@ -1,7 +1,7 @@
-package com.financialapp.notifications.infrastructure.persistence.notifications.mapper;
+package com.financialapp.notifications.infrastructure.persistence.mapper;
 
 import com.financialapp.notifications.domain.model.notification.Notification;
-import com.financialapp.notifications.infrastructure.persistence.notifications.NotificationSqlEntity;
+import com.financialapp.notifications.infrastructure.persistence.entity.NotificationSqlEntity;
 
 public class NotificationMapper {
     public static Notification toDomain(NotificationSqlEntity entity) {
@@ -14,8 +14,7 @@ public class NotificationMapper {
                 entity.getChannel(),
                 entity.isRead(),
                 entity.getMetadata(),
-                entity.getCreatedAt()
-        );
+                entity.getCreatedAt());
     }
 
     public static NotificationSqlEntity toEntity(Notification notification) {

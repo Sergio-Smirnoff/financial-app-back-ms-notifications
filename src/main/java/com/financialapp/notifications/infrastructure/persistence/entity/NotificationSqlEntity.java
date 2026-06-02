@@ -1,4 +1,4 @@
-package com.financialapp.notifications.infrastructure.persistence.notifications;
+package com.financialapp.notifications.infrastructure.persistence.entity;
 
 import com.financialapp.notifications.domain.model.notification.NotificationChannel;
 import com.financialapp.notifications.domain.model.notification.NotificationType;

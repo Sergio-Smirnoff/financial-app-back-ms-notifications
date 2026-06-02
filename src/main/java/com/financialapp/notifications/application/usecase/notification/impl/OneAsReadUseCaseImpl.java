@@ -1,6 +1,7 @@
 package com.financialapp.notifications.application.usecase.notification.impl;
 
 import com.financialapp.notifications.domain.model.notification.Notification;
+import com.financialapp.notifications.domain.exception.BusinessException;
 import com.financialapp.notifications.domain.exception.ResourceNotFoundException;
 import com.financialapp.notifications.domain.repository.NotificationRepository;
 import com.financialapp.notifications.domain.usecase.notification.OneAsReadUsecase;
@@ -18,6 +19,9 @@ public class OneAsReadUseCaseImpl implements OneAsReadUsecase {
 
     @Transactional
     public void execute(MarkOneAsReadCommand command) {
+        if (command.userId() == null || command.userId() <= 0) {
+            throw new BusinessException("userId must be a positive number");
+        }
         Notification notification = notificationRepository.findById(command.notificationId())
                 .filter(n -> n.userId().equals(command.userId()))
                 .orElseThrow(() -> new ResourceNotFoundException("Notification", command.notificationId()));

@@ -2,6 +2,7 @@ package com.financialapp.notifications.application.usecase.notification.impl;
 
 import java.util.List;
 
+import com.financialapp.notifications.domain.exception.BusinessException;
 import com.financialapp.notifications.domain.model.notification.Notification;
 import com.financialapp.notifications.domain.repository.NotificationRepository;
 import com.financialapp.notifications.domain.usecase.notification.GetLatestNotificationsUseCase;
@@ -18,7 +19,9 @@ public class GetLatestNotificationsUseCaseImpl implements GetLatestNotifications
 
     @Transactional(readOnly = true)
     public List<Notification> execute(GetLatestNotificationsCommand command) {
-
+        if (command.userId() == null || command.userId() <= 0) {
+            throw new BusinessException("userId must be a positive number");
+        }
         return notificationRepository.findTop5ByUserIdOrderByCreatedAtDesc(command.userId());
     }
 }
