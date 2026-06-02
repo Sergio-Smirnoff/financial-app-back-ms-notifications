@@ -21,8 +21,10 @@ import static org.mockito.Mockito.verify;
 @ExtendWith(MockitoExtension.class)
 class ProcessInvestmentThresholdUseCaseImplTest {
 
-    @Mock NotificationService notificationService;
-    @InjectMocks ProcessInvestmentThresholdUseCaseImpl useCase;
+    @Mock
+    NotificationService notificationService;
+    @InjectMocks
+    ProcessInvestmentThresholdUseCaseImpl useCase;
 
     @Test
     void execute_gainDirection_usesGainWording() {
@@ -37,8 +39,8 @@ class ProcessInvestmentThresholdUseCaseImplTest {
         // Then the wording reflects a gain and uses the absolute percentage
         Notification n = capture();
         assertThat(n.type()).isEqualTo(NotificationType.INVESTMENT_THRESHOLD);
-        assertThat(n.title()).isEqualTo("Investment Alert: AL30 gained 7.50%");
-        assertThat(n.message()).contains("has gained 7.50%", "crossing your gain threshold");
+        assertThat(n.title()).isEqualTo("Investment Alert: AL30 gained 7,50%");
+        assertThat(n.message()).contains("has gained 7,50%", "crossing your gain threshold");
     }
 
     @Test
@@ -53,8 +55,8 @@ class ProcessInvestmentThresholdUseCaseImplTest {
 
         // Then the wording reflects a loss
         Notification n = capture();
-        assertThat(n.title()).isEqualTo("Investment Alert: GD30 lost 8.00%");
-        assertThat(n.message()).contains("has lost 8.00%", "crossing your loss threshold");
+        assertThat(n.title()).isEqualTo("Investment Alert: GD30 lost 8,00%");
+        assertThat(n.message()).contains("has lost 8,00%", "crossing your loss threshold");
     }
 
     private Notification capture() {

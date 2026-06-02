@@ -15,19 +15,15 @@ import java.io.IOException;
 @Slf4j
 public class InternalAuthFilter extends OncePerRequestFilter {
 
-<<<<<<< Updated upstream
-    @Value("${internal.auth.token}")
-=======
     @Value("${INTERNAL_AUTH_TOKEN:local-dev-token}")
->>>>>>> Stashed changes
     private String internalToken;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        
+
         String path = request.getRequestURI();
-        
+
         if (path.startsWith("/actuator") || path.startsWith("/swagger-ui") || path.startsWith("/v3/api-docs")) {
             filterChain.doFilter(request, response);
             return;
