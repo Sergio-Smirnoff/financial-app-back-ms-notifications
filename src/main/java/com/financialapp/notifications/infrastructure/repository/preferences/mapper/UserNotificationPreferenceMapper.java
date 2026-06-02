@@ -7,14 +7,14 @@ public class UserNotificationPreferenceMapper {
 
     public static UserNotificationPreference toDomain(UserNotificationPreferenceSqlEntity entity) {
         if (entity == null) return null;
-        return UserNotificationPreference.builder()
-                .id(entity.getId())
-                .userId(entity.getUserId())
-                .email(entity.getEmail())
-                .monthlyEmailEnabled(entity.isMonthlyEmailEnabled())
-                .createdAt(entity.getCreatedAt())
-                .updatedAt(entity.getUpdatedAt())
-                .build();
+        return new UserNotificationPreference(
+                entity.getId(),
+                entity.getUserId(),
+                entity.getEmail(),
+                entity.isMonthlyEmailEnabled(),
+                entity.getCreatedAt(),
+                entity.getUpdatedAt()
+        );
     }
 
     public static UserNotificationPreferenceSqlEntity toEntity(UserNotificationPreference domain) {

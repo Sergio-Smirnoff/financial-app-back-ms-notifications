@@ -5,12 +5,12 @@ import com.financialapp.notifications.infrastructure.client.dto.CategorySummaryR
 
 public class CategorySummaryMapper {
     public static CategorySummary toDomain(CategorySummaryResponse response) {
-        return CategorySummary.builder()
-                .categoryName(response.getCategoryName())
-                .subcategoryName(response.getSubcategoryName())
-                .totalAmount(response.getTotalAmount())
-                .currency(response.getCurrency())
-                .transactionCount(response.getTransactionCount())
-                .build();
+        return new CategorySummary(
+                response.getCategoryName(),
+                response.getSubcategoryName(),
+                response.getTotalAmount(),
+                response.getCurrency(),
+                response.getTransactionCount()
+        );
     }
 }

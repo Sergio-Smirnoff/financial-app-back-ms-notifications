@@ -18,11 +18,7 @@ public class CreatePreferenceIfAbsentUseCaseImpl implements CreatePreferenceIfAb
     @Transactional
     public void execute(Long userId, String email) {
         if (preferenceRepository.findByUserId(userId).isEmpty()) {
-            preferenceRepository.save(UserNotificationPreference.builder()
-                    .userId(userId)
-                    .email(email)
-                    .monthlyEmailEnabled(true)
-                    .build());
+            preferenceRepository.save(UserNotificationPreference.create(userId, email));
             log.info("Created notification preferences for userId={}", userId);
         }
     }

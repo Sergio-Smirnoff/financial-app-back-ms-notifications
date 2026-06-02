@@ -6,14 +6,14 @@ import com.financialapp.notifications.domain.model.entity.event.PaymentDue;
 public class PaymentDueMapper {
     public static PaymentDue toDomain(PaymentDueEvent event) {
         PaymentDueEvent.Payload p = event.getPayload();
-        return PaymentDue.builder()
-                .userId(event.getUserId())
-                .cardExpenseId(p.getCardExpenseId())
-                .description(p.getDescription())
-                .nextDueDate(p.getNextDueDate())
-                .installmentAmount(p.getInstallmentAmount())
-                .currency(p.getCurrency())
-                .remainingInstallments(p.getRemainingInstallments())
-                .build();
+        return new PaymentDue(
+                event.getUserId(),
+                p.getCardExpenseId(),
+                p.getDescription(),
+                p.getNextDueDate(),
+                p.getInstallmentAmount(),
+                p.getCurrency(),
+                p.getRemainingInstallments()
+        );
     }
 }

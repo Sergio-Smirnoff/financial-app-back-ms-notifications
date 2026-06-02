@@ -6,17 +6,17 @@ import com.financialapp.notifications.domain.model.entity.event.InvestmentThresh
 public class InvestmentThresholdMapper {
     public static InvestmentThreshold toDomain(InvestmentThresholdEvent event) {
         InvestmentThresholdEvent.Payload p = event.getPayload();
-        return InvestmentThreshold.builder()
-                .userId(event.getUserId())
-                .holdingId(p.getHoldingId())
-                .ticker(p.getTicker())
-                .name(p.getName())
-                .direction(p.getDirection())
-                .thresholdPct(p.getThresholdPct())
-                .actualPct(p.getActualPct())
-                .currentPrice(p.getCurrentPrice())
-                .avgPurchasePrice(p.getAvgPurchasePrice())
-                .currency(p.getCurrency())
-                .build();
+        return new InvestmentThreshold(
+                event.getUserId(),
+                p.getHoldingId(),
+                p.getTicker(),
+                p.getName(),
+                p.getDirection(),
+                p.getThresholdPct(),
+                p.getActualPct(),
+                p.getCurrentPrice(),
+                p.getAvgPurchasePrice(),
+                p.getCurrency()
+        );
     }
 }

@@ -5,12 +5,12 @@ import com.financialapp.notifications.domain.model.entity.event.BankAlert;
 
 public class BankAlertMapper {
     public static BankAlert toDomain(BankAlertEvent event) {
-        return BankAlert.builder()
-                .userId(event.getUserId())
-                .type(event.getType())
-                .title(event.getTitle())
-                .message(event.getMessage())
-                .metadata(event.getMetadata())
-                .build();
+        return new BankAlert(
+                event.getUserId(),
+                event.getType(),
+                event.getTitle(),
+                event.getMessage(),
+                event.getMetadata()
+        );
     }
 }

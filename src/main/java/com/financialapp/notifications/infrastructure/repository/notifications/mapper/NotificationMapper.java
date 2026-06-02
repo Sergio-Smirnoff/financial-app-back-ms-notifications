@@ -5,17 +5,17 @@ import com.financialapp.notifications.infrastructure.repository.notifications.No
 
 public class NotificationMapper {
     public static Notification toDomain(NotificationSqlEntity entity) {
-        return Notification.builder()
-                .id(entity.getId())
-                .userId(entity.getUserId())
-                .type(entity.getType())
-                .title(entity.getTitle())
-                .message(entity.getMessage())
-                .channel(entity.getChannel())
-                .read(entity.isRead())
-                .metadata(entity.getMetadata())
-                .createdAt(entity.getCreatedAt())
-                .build();
+        return new Notification(
+                entity.getId(),
+                entity.getUserId(),
+                entity.getType(),
+                entity.getTitle(),
+                entity.getMessage(),
+                entity.getChannel(),
+                entity.isRead(),
+                entity.getMetadata(),
+                entity.getCreatedAt()
+        );
     }
 
     public static NotificationSqlEntity toEntity(Notification notification) {

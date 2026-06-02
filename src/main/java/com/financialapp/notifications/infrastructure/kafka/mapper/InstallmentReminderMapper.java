@@ -10,15 +10,15 @@ public class InstallmentReminderMapper {
     public static InstallmentReminder toDomain(InstallmentReminderEvent event) {
         InstallmentReminderEvent.Payload payload = event.getPayload();
 
-        return InstallmentReminder.builder()
-                .userId(event.getUserId())
-                .loanId(payload.getLoanId())
-                .installmentId(payload.getInstallmentId())
-                .loanDescription(payload.getLoanDescription())
-                .installmentNumber(payload.getInstallmentNumber())
-                .dueDate(payload.getDueDate())
-                .amount(payload.getAmount())
-                .currency(payload.getCurrency())
-                .build();
+        return new InstallmentReminder(
+                event.getUserId(),
+                payload.getLoanId(),
+                payload.getInstallmentId(),
+                payload.getLoanDescription(),
+                payload.getInstallmentNumber(),
+                payload.getDueDate(),
+                payload.getAmount(),
+                payload.getCurrency()
+        );
     }
 }
