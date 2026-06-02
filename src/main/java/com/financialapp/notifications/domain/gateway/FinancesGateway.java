@@ -1,7 +1,7 @@
 package com.financialapp.notifications.domain.gateway;
 
 
-import com.financialapp.notifications.domain.model.entity.summary.CategorySummary;
+import com.financialapp.notifications.domain.model.category.CategorySummary;
 
 import java.util.List;
 

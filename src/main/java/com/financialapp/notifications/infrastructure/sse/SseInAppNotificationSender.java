@@ -1,7 +1,7 @@
 package com.financialapp.notifications.infrastructure.sse;
 
 import com.financialapp.notifications.domain.messaging.InAppNotificationSender;
-import com.financialapp.notifications.domain.model.entity.Notification;
+import com.financialapp.notifications.domain.model.notification.Notification;
 import com.financialapp.notifications.infrastructure.sse.dto.SseNotificationEntity;
 import com.financialapp.notifications.infrastructure.sse.mapper.SseNotificationMapper;
 import lombok.extern.slf4j.Slf4j;

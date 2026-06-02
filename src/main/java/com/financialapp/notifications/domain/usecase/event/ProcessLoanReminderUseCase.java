@@ -1,7 +1,7 @@
 package com.financialapp.notifications.domain.usecase.event;
 
-import com.financialapp.notifications.domain.model.entity.event.LoanReminder;
+import com.financialapp.notifications.domain.usecase.event.command.ProcessLoanReminderCommand;
 
 public interface ProcessLoanReminderUseCase {
-    void execute(LoanReminder reminder);
+    void execute(ProcessLoanReminderCommand command);
 }

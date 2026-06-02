@@ -1,7 +1,8 @@
 package com.financialapp.notifications.web.controller.mapper;
 
-import com.financialapp.notifications.domain.model.response.NotificationResponse;
-import com.financialapp.notifications.domain.model.entity.Notification;
+import com.financialapp.notifications.domain.model.notification.Notification;
+import com.financialapp.notifications.web.controller.dto.response.NotificationResponse;
+
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 

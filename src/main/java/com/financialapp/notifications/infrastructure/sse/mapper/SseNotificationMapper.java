@@ -1,6 +1,6 @@
 package com.financialapp.notifications.infrastructure.sse.mapper;
 
-import com.financialapp.notifications.domain.model.entity.Notification;
+import com.financialapp.notifications.domain.model.notification.Notification;
 import com.financialapp.notifications.infrastructure.sse.dto.SseNotificationEntity;
 
 public class SseNotificationMapper {
