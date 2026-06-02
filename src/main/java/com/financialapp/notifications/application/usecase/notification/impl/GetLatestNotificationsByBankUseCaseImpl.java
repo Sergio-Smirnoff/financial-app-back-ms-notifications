@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.financialapp.notifications.domain.model.notification.Notification;
 import com.financialapp.notifications.domain.usecase.notification.GetLatestNotificationsByBankUseCase;
+import com.financialapp.notifications.domain.usecase.notification.command.GetLatestNotificationsByBankCommand;
 import com.financialapp.notifications.domain.repository.NotificationRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -17,8 +18,8 @@ public class GetLatestNotificationsByBankUseCaseImpl implements GetLatestNotific
     private final NotificationRepository notificationRepository;
 
     @Transactional(readOnly = true)
-    public List<Notification> execute(Long userId, Long bankId) {
+    public List<Notification> execute(GetLatestNotificationsByBankCommand command) {
 
-        return notificationRepository.findLatestByBank(userId, bankId.toString());
+        return notificationRepository.findLatestByBank(command.userId(), command.bankId().toString());
     }
 }

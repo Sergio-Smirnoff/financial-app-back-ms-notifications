@@ -3,6 +3,8 @@ package com.financialapp.notifications.web.controller;
 import com.financialapp.notifications.domain.model.notification.UserNotificationPreference;
 import com.financialapp.notifications.domain.usecase.preference.GetPreferenceUseCase;
 import com.financialapp.notifications.domain.usecase.preference.UpdatePreferenceUseCase;
+import com.financialapp.notifications.domain.usecase.preference.command.GetPreferenceCommand;
+import com.financialapp.notifications.domain.usecase.preference.command.UpdatePreferenceCommand;
 import com.financialapp.notifications.web.controller.dto.ApiResponse;
 import com.financialapp.notifications.web.controller.dto.NotificationPreferenceResponse;
 import com.financialapp.notifications.web.controller.request.NotificationPreferenceRequest;
@@ -26,7 +28,7 @@ public class PreferenceController {
     @Operation(summary = "Get user notification preferences")
     public ResponseEntity<ApiResponse<NotificationPreferenceResponse>> getPreference(
             @RequestHeader("X-User-Id") Long userId) {
-        NotificationPreferenceResponse pref = toResponse(getPreferenceUseCase.execute(userId));
+        NotificationPreferenceResponse pref = toResponse(getPreferenceUseCase.execute(new GetPreferenceCommand(userId)));
         return ResponseEntity.ok(ApiResponse.ok(pref));
     }
 
@@ -35,8 +37,8 @@ public class PreferenceController {
     public ResponseEntity<ApiResponse<NotificationPreferenceResponse>> updatePreference(
             @RequestHeader("X-User-Id") Long userId,
             @Valid @RequestBody NotificationPreferenceRequest request) {
-        NotificationPreferenceResponse updated = toResponse(updatePreferenceUseCase.execute(userId,
-                request.getMonthlyEmailEnabled()));
+        NotificationPreferenceResponse updated = toResponse(updatePreferenceUseCase.execute(new UpdatePreferenceCommand(userId,
+                request.getMonthlyEmailEnabled())));
         return ResponseEntity.ok(ApiResponse.ok("Preferences updated", updated));
     }
 

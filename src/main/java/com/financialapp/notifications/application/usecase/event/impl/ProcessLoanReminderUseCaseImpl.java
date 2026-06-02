@@ -2,6 +2,7 @@ package com.financialapp.notifications.application.usecase.event.impl;
 
 import com.financialapp.notifications.application.service.NotificationService;
 import com.financialapp.notifications.domain.usecase.event.ProcessLoanReminderUseCase;
+import com.financialapp.notifications.domain.usecase.event.command.ProcessLoanReminderCommand;
 import com.financialapp.notifications.domain.model.notification.Notification;
 import com.financialapp.notifications.domain.event.LoanReminder;
 import com.financialapp.notifications.domain.model.notification.NotificationChannel;
@@ -16,7 +17,8 @@ public class ProcessLoanReminderUseCaseImpl implements ProcessLoanReminderUseCas
     private final NotificationService notificationService;
 
     @Override
-    public void execute(LoanReminder reminder) {
+    public void execute(ProcessLoanReminderCommand command) {
+        LoanReminder reminder = command.reminder();
         String title = "Loan Payment Due: " + reminder.loanDescription();
         String message = String.format(
                 "Your loan payment of %.2f %s for '%s' is due on %s. %d installment(s) remaining.",

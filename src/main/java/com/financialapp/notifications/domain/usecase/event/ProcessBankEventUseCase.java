@@ -1,7 +1,7 @@
 package com.financialapp.notifications.domain.usecase.event;
 
-import com.financialapp.notifications.domain.event.BankAlert;
+import com.financialapp.notifications.domain.usecase.event.command.ProcessBankEventCommand;
 
 public interface ProcessBankEventUseCase {
-    void execute(BankAlert alert);
+    void execute(ProcessBankEventCommand command);
 }

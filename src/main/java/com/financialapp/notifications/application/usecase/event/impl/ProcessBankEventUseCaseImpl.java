@@ -6,6 +6,7 @@ import com.financialapp.notifications.domain.model.notification.NotificationChan
 import com.financialapp.notifications.domain.model.notification.NotificationType;
 import com.financialapp.notifications.domain.event.BankAlert;
 import com.financialapp.notifications.domain.usecase.event.ProcessBankEventUseCase;
+import com.financialapp.notifications.domain.usecase.event.command.ProcessBankEventCommand;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -18,7 +19,8 @@ public class ProcessBankEventUseCaseImpl implements ProcessBankEventUseCase {
     private final NotificationService notificationService;
 
     @Override
-    public void execute(BankAlert alert) {
+    public void execute(ProcessBankEventCommand command) {
+        BankAlert alert = command.alert();
         NotificationType type;
         try {
             type = NotificationType.valueOf(alert.type());

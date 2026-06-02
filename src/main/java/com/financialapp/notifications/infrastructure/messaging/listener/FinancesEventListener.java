@@ -3,6 +3,9 @@ package com.financialapp.notifications.infrastructure.messaging.listener;
 import com.financialapp.notifications.domain.usecase.event.ProcessInstallmentReminderUseCase;
 import com.financialapp.notifications.domain.usecase.event.ProcessLoanReminderUseCase;
 import com.financialapp.notifications.domain.usecase.event.ProcessPaymentDueUseCase;
+import com.financialapp.notifications.domain.usecase.event.command.ProcessInstallmentReminderCommand;
+import com.financialapp.notifications.domain.usecase.event.command.ProcessLoanReminderCommand;
+import com.financialapp.notifications.domain.usecase.event.command.ProcessPaymentDueCommand;
 import com.financialapp.notifications.infrastructure.messaging.payload.InstallmentReminderEvent;
 import com.financialapp.notifications.infrastructure.messaging.payload.LoanReminderEvent;
 import com.financialapp.notifications.infrastructure.messaging.payload.PaymentDueEvent;
@@ -26,18 +29,18 @@ public class FinancesEventListener {
     @KafkaListener(topics = "payment.due", groupId = "notifications-group")
     public void handlePaymentDue(PaymentDueEvent event) {
         log.info("Received payment.due event for userId={}", event.getUserId());
-        paymentDueUseCase.execute(PaymentDueMapper.toDomain(event));
+        paymentDueUseCase.execute(new ProcessPaymentDueCommand(PaymentDueMapper.toDomain(event)));
     }
 
     @KafkaListener(topics = "loan.reminder", groupId = "notifications-group")
     public void handleLoanReminder(LoanReminderEvent event) {
         log.info("Received loan.reminder event for userId={}", event.getUserId());
-        loanReminderUseCase.execute(LoanReminderMapper.toDomain(event));
+        loanReminderUseCase.execute(new ProcessLoanReminderCommand(LoanReminderMapper.toDomain(event)));
     }
 
     @KafkaListener(topics = "installment.reminder", groupId = "notifications-group")
     public void handleInstallmentReminder(InstallmentReminderEvent event) {
         log.info("Received installment.reminder event for userId={}", event.getUserId());
-        installmentReminderUseCase.execute(InstallmentReminderMapper.toDomain(event));
+        installmentReminderUseCase.execute(new ProcessInstallmentReminderCommand(InstallmentReminderMapper.toDomain(event)));
     }
 }

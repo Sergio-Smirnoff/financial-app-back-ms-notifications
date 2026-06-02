@@ -1,6 +1,7 @@
 package com.financialapp.notifications.infrastructure.messaging.listener;
 
 import com.financialapp.notifications.domain.usecase.event.ProcessInvestmentThresholdUseCase;
+import com.financialapp.notifications.domain.usecase.event.command.ProcessInvestmentThresholdCommand;
 import com.financialapp.notifications.infrastructure.messaging.payload.InvestmentThresholdEvent;
 import com.financialapp.notifications.infrastructure.messaging.mapper.InvestmentThresholdMapper;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,6 @@ public class InvestmentEventListener {
     public void handleThresholdReached(InvestmentThresholdEvent event) {
         log.info("Received investment.threshold.reached event for userId={}", event.getUserId());
 
-        useCase.execute(InvestmentThresholdMapper.toDomain(event));
+        useCase.execute(new ProcessInvestmentThresholdCommand(InvestmentThresholdMapper.toDomain(event)));
     }
 }

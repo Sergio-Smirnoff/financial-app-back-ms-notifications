@@ -4,7 +4,9 @@ import com.financialapp.notifications.application.service.NotificationService;
 import com.financialapp.notifications.domain.model.notification.Notification;
 import com.financialapp.notifications.domain.event.UserRegistered;
 import com.financialapp.notifications.domain.usecase.preference.CreatePreferenceIfAbsentUseCase;
+import com.financialapp.notifications.domain.usecase.preference.command.CreatePreferenceIfAbsentCommand;
 import com.financialapp.notifications.domain.usecase.event.ProcessUserRegisteredUseCase;
+import com.financialapp.notifications.domain.usecase.event.command.ProcessUserRegisteredCommand;
 import com.financialapp.notifications.domain.model.notification.NotificationChannel;
 import com.financialapp.notifications.domain.model.notification.NotificationType;
 import lombok.RequiredArgsConstructor;
@@ -22,9 +24,10 @@ public class ProcessUserRegisteredUseCaseImpl implements ProcessUserRegisteredUs
 
     @Override
     @Transactional
-    public void execute(UserRegistered user) {
+    public void execute(ProcessUserRegisteredCommand command) {
+        UserRegistered user = command.user();
         // create preferences
-        createPreferenceIfAbsentUseCase.execute(user.userId(), user.email());
+        createPreferenceIfAbsentUseCase.execute(new CreatePreferenceIfAbsentCommand(command.user().userId(), command.user().email()));
 
         String title = "Welcome to Financial App!";
         String message = String.format(

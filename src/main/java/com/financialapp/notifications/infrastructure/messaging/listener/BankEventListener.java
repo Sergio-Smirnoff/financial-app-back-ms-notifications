@@ -1,6 +1,7 @@
 package com.financialapp.notifications.infrastructure.messaging.listener;
 
 import com.financialapp.notifications.domain.usecase.event.ProcessBankEventUseCase;
+import com.financialapp.notifications.domain.usecase.event.command.ProcessBankEventCommand;
 import com.financialapp.notifications.infrastructure.messaging.payload.BankAlertEvent;
 import com.financialapp.notifications.infrastructure.messaging.mapper.BankAlertMapper;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,6 @@ public class BankEventListener {
     public void handleBankAlert(BankAlertEvent event) {
         log.info("Received bank-alert event of type {} for userId={}", event.getType(), event.getUserId());
 
-        useCase.execute(BankAlertMapper.toDomain(event));
+        useCase.execute(new ProcessBankEventCommand(BankAlertMapper.toDomain(event)));
     }
 }

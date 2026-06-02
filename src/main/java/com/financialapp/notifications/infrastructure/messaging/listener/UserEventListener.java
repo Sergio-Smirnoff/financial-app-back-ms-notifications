@@ -1,6 +1,7 @@
 package com.financialapp.notifications.infrastructure.messaging.listener;
 
 import com.financialapp.notifications.domain.usecase.event.ProcessUserRegisteredUseCase;
+import com.financialapp.notifications.domain.usecase.event.command.ProcessUserRegisteredCommand;
 import com.financialapp.notifications.infrastructure.messaging.payload.UserRegisteredEvent;
 import com.financialapp.notifications.infrastructure.messaging.mapper.UserRegisteredMapper;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,6 @@ public class UserEventListener {
     public void handleUserRegistered(UserRegisteredEvent event) {
         log.info("Received user.registered event for userId={}", event.getUserId());
 
-        useCase.execute(UserRegisteredMapper.toDomain(event));
+        useCase.execute(new ProcessUserRegisteredCommand(UserRegisteredMapper.toDomain(event)));
     }
 }

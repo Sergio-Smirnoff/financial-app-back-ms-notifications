@@ -5,6 +5,7 @@ import java.util.List;
 import com.financialapp.notifications.domain.model.notification.Notification;
 import com.financialapp.notifications.domain.repository.NotificationRepository;
 import com.financialapp.notifications.domain.usecase.notification.GetLatestNotificationsUseCase;
+import com.financialapp.notifications.domain.usecase.notification.command.GetLatestNotificationsCommand;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,8 +17,8 @@ public class GetLatestNotificationsUseCaseImpl implements GetLatestNotifications
     private final NotificationRepository notificationRepository;
 
     @Transactional(readOnly = true)
-    public List<Notification> execute(Long userId, Long bankId) {
+    public List<Notification> execute(GetLatestNotificationsCommand command) {
 
-        return notificationRepository.findTop5ByUserIdOrderByCreatedAtDesc(userId);
+        return notificationRepository.findTop5ByUserIdOrderByCreatedAtDesc(command.userId());
     }
 }

@@ -11,6 +11,12 @@ import com.financialapp.notifications.domain.usecase.notification.GetLatestNotif
 import com.financialapp.notifications.domain.usecase.notification.GetNotificationUseCase;
 import com.financialapp.notifications.domain.usecase.notification.GetUnreadCountUseCase;
 import com.financialapp.notifications.domain.usecase.notification.OneAsReadUsecase;
+import com.financialapp.notifications.domain.usecase.notification.command.AllAsReadCommand;
+import com.financialapp.notifications.domain.usecase.notification.command.GetLatestNotificationsByBankCommand;
+import com.financialapp.notifications.domain.usecase.notification.command.GetLatestNotificationsCommand;
+import com.financialapp.notifications.domain.usecase.notification.command.GetNotificationsCommand;
+import com.financialapp.notifications.domain.usecase.notification.command.GetUnreadCountCommand;
+import com.financialapp.notifications.domain.usecase.notification.command.MarkOneAsReadCommand;
 import com.financialapp.notifications.web.controller.mapper.NotificationMapper;
 import com.financialapp.notifications.web.controller.mapper.PageResultMapper;
 import io.swagger.v3.oas.annotations.Operation;
@@ -44,7 +50,7 @@ public class NotificationController {
             @RequestHeader("X-User-Id") Long userId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
-        PageResult<Notification> pageResult = getNotificationUseCase.execute(userId, page, size);
+        PageResult<Notification> pageResult = getNotificationUseCase.execute(new GetNotificationsCommand(userId, page, size));
         Pageable pageable = PageRequest.of(page, size);
         Page<NotificationResponse> notifications = PageResultMapper.toPage(pageResult, pageable,
                 notificationMapper::toResponse);
@@ -57,8 +63,8 @@ public class NotificationController {
             @RequestHeader("X-User-Id") Long userId,
             @RequestParam(required = false) Long bankId) {
         List<NotificationResponse> notifications = (bankId != null
-                ? getLatestNotificationsByBankUseCase.execute(userId, bankId)
-                : getLatestNotificationsUseCase.execute(userId, null))
+                ? getLatestNotificationsByBankUseCase.execute(new GetLatestNotificationsByBankCommand(userId, bankId))
+                : getLatestNotificationsUseCase.execute(new GetLatestNotificationsCommand(userId, null)))
                 .stream()
                 .map(notificationMapper::toResponse)
                 .toList();
@@ -70,7 +76,7 @@ public class NotificationController {
     public ResponseEntity<ApiResponse<UnreadCountResponse>> getUnreadCount(
             @RequestHeader("X-User-Id") Long userId) {
         UnreadCountResponse count = UnreadCountResponse.builder()
-                .count(getUnreadCountUseCase.execute(userId))
+                .count(getUnreadCountUseCase.execute(new GetUnreadCountCommand(userId)))
                 .build();
         return ResponseEntity.ok(ApiResponse.ok(count));
     }
@@ -80,7 +86,7 @@ public class NotificationController {
     public ResponseEntity<ApiResponse<Void>> markAsRead(
             @RequestHeader("X-User-Id") Long userId,
             @PathVariable Long id) {
-        markAsReadUseCase.execute(userId, id);
+        markAsReadUseCase.execute(new MarkOneAsReadCommand(userId, id));
         return ResponseEntity.ok(ApiResponse.ok("Notification marked as read", null));
     }
 
@@ -88,7 +94,7 @@ public class NotificationController {
     @Operation(summary = "Mark all notifications as read")
     public ResponseEntity<ApiResponse<Void>> markAllAsRead(
             @RequestHeader("X-User-Id") Long userId) {
-        markAllAsReadUseCase.execute(userId);
+        markAllAsReadUseCase.execute(new AllAsReadCommand(userId));
         return ResponseEntity.ok(ApiResponse.ok("All notifications marked as read", null));
     }
 }

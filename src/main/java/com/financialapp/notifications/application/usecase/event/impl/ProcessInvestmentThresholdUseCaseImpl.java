@@ -2,6 +2,7 @@ package com.financialapp.notifications.application.usecase.event.impl;
 
 import com.financialapp.notifications.application.service.NotificationService;
 import com.financialapp.notifications.domain.usecase.event.ProcessInvestmentThresholdUseCase;
+import com.financialapp.notifications.domain.usecase.event.command.ProcessInvestmentThresholdCommand;
 import com.financialapp.notifications.domain.model.notification.Notification;
 import com.financialapp.notifications.domain.event.InvestmentThreshold;
 import com.financialapp.notifications.domain.model.notification.NotificationChannel;
@@ -16,7 +17,8 @@ public class ProcessInvestmentThresholdUseCaseImpl implements ProcessInvestmentT
     private final NotificationService notificationService;
 
     @Override
-    public void execute(InvestmentThreshold t) {
+    public void execute(ProcessInvestmentThresholdCommand command) {
+        InvestmentThreshold t = command.threshold();
         boolean isGain = "GAIN".equals(t.direction());
 
         String title = String.format("Investment Alert: %s %s %.2f%%",
