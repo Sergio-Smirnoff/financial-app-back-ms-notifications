@@ -10,9 +10,13 @@ import com.financialapp.notifications.domain.model.notification.NotificationType
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Locale;
+
 @Service
 @RequiredArgsConstructor
 public class ProcessInvestmentThresholdUseCaseImpl implements ProcessInvestmentThresholdUseCase {
+
+    private static final Locale MESSAGE_LOCALE = Locale.of("es", "AR");
 
     private final NotificationService notificationService;
 
@@ -21,9 +25,9 @@ public class ProcessInvestmentThresholdUseCaseImpl implements ProcessInvestmentT
         InvestmentThreshold t = command.threshold();
         boolean isGain = "GAIN".equals(t.direction());
 
-        String title = String.format("Investment Alert: %s %s %.2f%%",
+        String title = String.format(MESSAGE_LOCALE, "Investment Alert: %s %s %.2f%%",
                 t.ticker(), isGain ? "gained" : "lost", t.actualPct().abs());
-        String message = String.format(
+        String message = String.format(MESSAGE_LOCALE,
                 "Your holding %s (%s) has %s %.2f%%, crossing your %s threshold of %.2f%%. Current price: %s %s, avg cost: %s %s.",
                 t.name(), t.ticker(),
                 isGain ? "gained" : "lost", t.actualPct().abs(),
