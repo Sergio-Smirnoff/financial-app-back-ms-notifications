@@ -1,5 +1,6 @@
 package com.financialapp.notifications.domain.model.entity;
 
+import com.financialapp.notifications.domain.model.notification.UserNotificationPreference;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
@@ -25,8 +26,7 @@ class UserNotificationPreferenceTest {
     void withMonthlyEmailEnabled_togglesFlagAndStampsUpdatedAt() {
         // Given an existing preference with no updatedAt
         LocalDateTime created = LocalDateTime.of(2026, 1, 1, 0, 0);
-        UserNotificationPreference pref = UserNotificationPreference.builder()
-                .id(1L).userId(2L).email("x@y.com").monthlyEmailEnabled(true).createdAt(created).build();
+        UserNotificationPreference pref = new UserNotificationPreference(1L, 2L, "x@y.com", true, created, null);
 
         // When disabling monthly email
         UserNotificationPreference updated = pref.withMonthlyEmailEnabled(false);
@@ -43,9 +43,9 @@ class UserNotificationPreferenceTest {
     @Test
     void equalsHashCodeToString_distinguishInstances() {
         // Given two equal and one different preference
-        UserNotificationPreference a = UserNotificationPreference.builder().id(1L).email("e").build();
-        UserNotificationPreference b = UserNotificationPreference.builder().id(1L).email("e").build();
-        UserNotificationPreference c = UserNotificationPreference.builder().id(2L).email("e").build();
+        UserNotificationPreference a = new UserNotificationPreference(1L, null, "e", false, null, null);
+        UserNotificationPreference b = new UserNotificationPreference(1L, null, "e", false, null, null);
+        UserNotificationPreference c = new UserNotificationPreference(2L, null, "e", false, null, null);
 
         // Then it behaves as a value record
         assertThat(a).isEqualTo(b).hasSameHashCodeAs(b).isNotEqualTo(c);

@@ -1,5 +1,11 @@
 package com.financialapp.notifications.infrastructure.kafka.event;
 
+import com.financialapp.notifications.infrastructure.messaging.payload.BankAlertEvent;
+import com.financialapp.notifications.infrastructure.messaging.payload.InstallmentReminderEvent;
+import com.financialapp.notifications.infrastructure.messaging.payload.InvestmentThresholdEvent;
+import com.financialapp.notifications.infrastructure.messaging.payload.LoanReminderEvent;
+import com.financialapp.notifications.infrastructure.messaging.payload.PaymentDueEvent;
+import com.financialapp.notifications.infrastructure.messaging.payload.UserRegisteredEvent;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;

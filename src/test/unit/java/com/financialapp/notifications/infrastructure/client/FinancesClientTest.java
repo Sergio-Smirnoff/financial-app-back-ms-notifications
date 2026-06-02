@@ -1,6 +1,7 @@
 package com.financialapp.notifications.infrastructure.client;
 
-import com.financialapp.notifications.domain.model.entity.summary.CategorySummary;
+import com.financialapp.notifications.domain.model.category.CategorySummary;
+import com.financialapp.notifications.infrastructure.gateway.impl.FinancesClient;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.reactive.function.client.WebClient;

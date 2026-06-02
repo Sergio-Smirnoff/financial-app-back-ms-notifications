@@ -1,5 +1,7 @@
 package com.financialapp.notifications.domain.model.exception;
 
+import com.financialapp.notifications.domain.exception.BusinessException;
+import com.financialapp.notifications.domain.exception.ResourceNotFoundException;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

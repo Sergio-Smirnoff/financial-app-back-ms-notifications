@@ -1,5 +1,6 @@
 package com.financialapp.notifications.infrastructure.repository.preferences;
 
+import com.financialapp.notifications.infrastructure.persistence.entity.UserNotificationPreferenceSqlEntity;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

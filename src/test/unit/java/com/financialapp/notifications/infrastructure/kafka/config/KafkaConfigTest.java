@@ -1,5 +1,7 @@
 package com.financialapp.notifications.infrastructure.kafka.config;
 
+import com.financialapp.notifications.infrastructure.config.KafkaConfig;
+import com.financialapp.notifications.infrastructure.config.KafkaErrorHandlerConfig;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.junit.jupiter.api.Test;
 import org.springframework.kafka.core.KafkaTemplate;

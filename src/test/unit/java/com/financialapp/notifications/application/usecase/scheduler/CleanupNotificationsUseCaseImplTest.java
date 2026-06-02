@@ -1,5 +1,6 @@
 package com.financialapp.notifications.application.usecase.scheduler;
 
+import com.financialapp.notifications.application.usecase.scheduler.impl.CleanupNotificationsUseCaseImpl;
 import com.financialapp.notifications.domain.repository.NotificationRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

@@ -1,8 +1,8 @@
 package com.financialapp.notifications.infrastructure.kafka;
 
 import com.financialapp.notifications.domain.repository.NotificationRepository;
-import com.financialapp.notifications.infrastructure.kafka.event.PaymentDueEvent;
-import com.financialapp.notifications.infrastructure.kafka.event.UserRegisteredEvent;
+import com.financialapp.notifications.infrastructure.messaging.payload.PaymentDueEvent;
+import com.financialapp.notifications.infrastructure.messaging.payload.UserRegisteredEvent;
 import com.financialapp.notifications.support.IntegrationTestBase;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

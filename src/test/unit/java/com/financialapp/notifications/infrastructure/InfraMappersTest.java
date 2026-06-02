@@ -1,16 +1,16 @@
 package com.financialapp.notifications.infrastructure;
 
-import com.financialapp.notifications.domain.model.entity.Notification;
-import com.financialapp.notifications.domain.model.entity.UserNotificationPreference;
-import com.financialapp.notifications.domain.model.entity.enums.NotificationChannel;
-import com.financialapp.notifications.domain.model.entity.enums.NotificationType;
-import com.financialapp.notifications.domain.model.entity.summary.CategorySummary;
-import com.financialapp.notifications.infrastructure.client.dto.CategorySummaryResponse;
-import com.financialapp.notifications.infrastructure.client.mapper.CategorySummaryMapper;
-import com.financialapp.notifications.infrastructure.repository.notifications.NotificationSqlEntity;
-import com.financialapp.notifications.infrastructure.repository.notifications.mapper.NotificationMapper;
-import com.financialapp.notifications.infrastructure.repository.preferences.UserNotificationPreferenceSqlEntity;
-import com.financialapp.notifications.infrastructure.repository.preferences.mapper.UserNotificationPreferenceMapper;
+import com.financialapp.notifications.domain.model.category.CategorySummary;
+import com.financialapp.notifications.domain.model.notification.Notification;
+import com.financialapp.notifications.domain.model.notification.NotificationChannel;
+import com.financialapp.notifications.domain.model.notification.NotificationType;
+import com.financialapp.notifications.domain.model.notification.UserNotificationPreference;
+import com.financialapp.notifications.infrastructure.gateway.dto.CategorySummaryResponse;
+import com.financialapp.notifications.infrastructure.gateway.mapper.CategorySummaryMapper;
+import com.financialapp.notifications.infrastructure.persistence.entity.NotificationSqlEntity;
+import com.financialapp.notifications.infrastructure.persistence.entity.UserNotificationPreferenceSqlEntity;
+import com.financialapp.notifications.infrastructure.persistence.mapper.NotificationMapper;
+import com.financialapp.notifications.infrastructure.persistence.mapper.UserNotificationPreferenceMapper;
 import com.financialapp.notifications.infrastructure.sse.dto.SseNotificationEntity;
 import com.financialapp.notifications.infrastructure.sse.mapper.SseNotificationMapper;
 import org.junit.jupiter.api.Test;
@@ -55,9 +55,8 @@ class InfraMappersTest {
         // Given a domain notification / When mapped to entity and back (utility instantiable)
         new NotificationMapper();
         LocalDateTime now = LocalDateTime.of(2026, 1, 1, 0, 0);
-        Notification domain = Notification.builder().id(1L).userId(2L).type(NotificationType.PAYMENT_DUE)
-                .title("t").message("m").channel(NotificationChannel.BOTH).read(true).metadata("meta")
-                .createdAt(now).build();
+        Notification domain = new Notification(1L, 2L, NotificationType.PAYMENT_DUE,
+                "t", "m", NotificationChannel.BOTH, true, "meta", now);
 
         NotificationSqlEntity entity = NotificationMapper.toEntity(domain);
         Notification back = NotificationMapper.toDomain(entity);
@@ -74,8 +73,7 @@ class InfraMappersTest {
         // Given a domain preference / When mapped to entity and back (utility instantiable)
         new UserNotificationPreferenceMapper();
         LocalDateTime now = LocalDateTime.of(2026, 1, 1, 0, 0);
-        UserNotificationPreference domain = UserNotificationPreference.builder().id(1L).userId(2L)
-                .email("e@x.com").monthlyEmailEnabled(false).createdAt(now).updatedAt(now).build();
+        UserNotificationPreference domain = new UserNotificationPreference(1L, 2L, "e@x.com", false, now, now);
 
         UserNotificationPreferenceSqlEntity entity = UserNotificationPreferenceMapper.toEntity(domain);
         UserNotificationPreference back = UserNotificationPreferenceMapper.toDomain(entity);
@@ -98,9 +96,8 @@ class InfraMappersTest {
         // Given a domain notification / When mapped (utility instantiable)
         new SseNotificationMapper();
         LocalDateTime now = LocalDateTime.of(2026, 1, 1, 0, 0);
-        Notification domain = Notification.builder().id(1L).userId(2L).type(NotificationType.LOAN_REMINDER)
-                .title("t").message("m").channel(NotificationChannel.IN_APP).read(false).metadata("meta")
-                .createdAt(now).build();
+        Notification domain = new Notification(1L, 2L, NotificationType.LOAN_REMINDER,
+                "t", "m", NotificationChannel.IN_APP, false, "meta", now);
 
         SseNotificationEntity sse = SseNotificationMapper.toEntity(domain);
 

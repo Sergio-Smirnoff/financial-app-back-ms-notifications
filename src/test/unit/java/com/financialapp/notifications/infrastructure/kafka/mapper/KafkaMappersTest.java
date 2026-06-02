@@ -1,17 +1,23 @@
 package com.financialapp.notifications.infrastructure.kafka.mapper;
 
-import com.financialapp.notifications.domain.model.entity.event.BankAlert;
-import com.financialapp.notifications.domain.model.entity.event.InstallmentReminder;
-import com.financialapp.notifications.domain.model.entity.event.InvestmentThreshold;
-import com.financialapp.notifications.domain.model.entity.event.LoanReminder;
-import com.financialapp.notifications.domain.model.entity.event.PaymentDue;
-import com.financialapp.notifications.domain.model.entity.event.UserRegistered;
-import com.financialapp.notifications.infrastructure.kafka.event.BankAlertEvent;
-import com.financialapp.notifications.infrastructure.kafka.event.InstallmentReminderEvent;
-import com.financialapp.notifications.infrastructure.kafka.event.InvestmentThresholdEvent;
-import com.financialapp.notifications.infrastructure.kafka.event.LoanReminderEvent;
-import com.financialapp.notifications.infrastructure.kafka.event.PaymentDueEvent;
-import com.financialapp.notifications.infrastructure.kafka.event.UserRegisteredEvent;
+import com.financialapp.notifications.domain.event.BankAlert;
+import com.financialapp.notifications.domain.event.InstallmentReminder;
+import com.financialapp.notifications.domain.event.InvestmentThreshold;
+import com.financialapp.notifications.domain.event.LoanReminder;
+import com.financialapp.notifications.domain.event.PaymentDue;
+import com.financialapp.notifications.domain.event.UserRegistered;
+import com.financialapp.notifications.infrastructure.messaging.mapper.BankAlertMapper;
+import com.financialapp.notifications.infrastructure.messaging.mapper.InstallmentReminderMapper;
+import com.financialapp.notifications.infrastructure.messaging.mapper.InvestmentThresholdMapper;
+import com.financialapp.notifications.infrastructure.messaging.mapper.LoanReminderMapper;
+import com.financialapp.notifications.infrastructure.messaging.mapper.PaymentDueMapper;
+import com.financialapp.notifications.infrastructure.messaging.mapper.UserRegisteredMapper;
+import com.financialapp.notifications.infrastructure.messaging.payload.BankAlertEvent;
+import com.financialapp.notifications.infrastructure.messaging.payload.InstallmentReminderEvent;
+import com.financialapp.notifications.infrastructure.messaging.payload.InvestmentThresholdEvent;
+import com.financialapp.notifications.infrastructure.messaging.payload.LoanReminderEvent;
+import com.financialapp.notifications.infrastructure.messaging.payload.PaymentDueEvent;
+import com.financialapp.notifications.infrastructure.messaging.payload.UserRegisteredEvent;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;

@@ -1,7 +1,10 @@
 package com.financialapp.notifications.infrastructure.repository.preferences;
 
-import com.financialapp.notifications.domain.model.entity.UserNotificationPreference;
-import com.financialapp.notifications.domain.model.response.PageResult;
+import com.financialapp.notifications.domain.model.notification.UserNotificationPreference;
+import com.financialapp.notifications.domain.model.pagination.PageResult;
+import com.financialapp.notifications.infrastructure.persistence.entity.UserNotificationPreferenceSqlEntity;
+import com.financialapp.notifications.infrastructure.persistence.repository.SqlUserNotificationPreferencePersistence;
+import com.financialapp.notifications.infrastructure.persistence.repository.UserNotificationPreferenceSqlRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -60,7 +63,7 @@ class SqlUserNotificationPreferencePersistenceTest {
 
         // When saving a domain preference
         UserNotificationPreference saved = persistence.save(
-                UserNotificationPreference.builder().userId(7L).email("e@x.com").monthlyEmailEnabled(true).build());
+                new UserNotificationPreference(null, 7L, "e@x.com", true, null, null));
 
         // Then the domain object reflects the persisted id
         assertThat(saved.id()).isEqualTo(1L);

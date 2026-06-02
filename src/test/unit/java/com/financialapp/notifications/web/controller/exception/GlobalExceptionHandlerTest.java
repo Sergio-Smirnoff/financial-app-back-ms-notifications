@@ -1,8 +1,8 @@
 package com.financialapp.notifications.web.controller.exception;
 
-import com.financialapp.notifications.domain.model.exception.BusinessException;
-import com.financialapp.notifications.domain.model.exception.ResourceNotFoundException;
-import com.financialapp.notifications.domain.model.response.ApiResponse;
+import com.financialapp.notifications.domain.exception.BusinessException;
+import com.financialapp.notifications.domain.exception.ResourceNotFoundException;
+import com.financialapp.notifications.web.controller.dto.ApiResponse;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

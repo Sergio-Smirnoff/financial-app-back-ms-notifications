@@ -1,8 +1,13 @@
 package com.financialapp.notifications.application.usecase.preference;
 
-import com.financialapp.notifications.domain.model.entity.UserNotificationPreference;
-import com.financialapp.notifications.domain.model.response.NotificationPreferenceResponse;
+import com.financialapp.notifications.application.usecase.preference.impl.CreatePreferenceIfAbsentUseCaseImpl;
+import com.financialapp.notifications.application.usecase.preference.impl.GetPreferenceUseCaseImpl;
+import com.financialapp.notifications.application.usecase.preference.impl.UpdatePreferenceUseCaseImpl;
+import com.financialapp.notifications.domain.model.notification.UserNotificationPreference;
 import com.financialapp.notifications.domain.repository.UserNotificationPreferenceRepository;
+import com.financialapp.notifications.domain.usecase.preference.command.CreatePreferenceIfAbsentCommand;
+import com.financialapp.notifications.domain.usecase.preference.command.GetPreferenceCommand;
+import com.financialapp.notifications.domain.usecase.preference.command.UpdatePreferenceCommand;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -23,8 +28,7 @@ class PreferenceUseCasesTest {
     @Mock UserNotificationPreferenceRepository repository;
 
     private UserNotificationPreference pref(Long userId, String email, boolean enabled) {
-        return UserNotificationPreference.builder().id(1L).userId(userId).email(email)
-                .monthlyEmailEnabled(enabled).build();
+        return new UserNotificationPreference(1L, userId, email, enabled, null, null);
     }
 
     @Test
@@ -33,7 +37,7 @@ class PreferenceUseCasesTest {
         when(repository.findByUserId(3L)).thenReturn(Optional.empty());
 
         // When creating if absent
-        new CreatePreferenceIfAbsentUseCaseImpl(repository).execute(3L, "n@x.com");
+        new CreatePreferenceIfAbsentUseCaseImpl(repository).execute(new CreatePreferenceIfAbsentCommand(3L, "n@x.com"));
 
         // Then a new enabled preference is saved
         ArgumentCaptor<UserNotificationPreference> captor =
@@ -50,7 +54,7 @@ class PreferenceUseCasesTest {
         when(repository.findByUserId(3L)).thenReturn(Optional.of(pref(3L, "e", true)));
 
         // When creating if absent / Then nothing is saved
-        new CreatePreferenceIfAbsentUseCaseImpl(repository).execute(3L, "n@x.com");
+        new CreatePreferenceIfAbsentUseCaseImpl(repository).execute(new CreatePreferenceIfAbsentCommand(3L, "n@x.com"));
         verify(repository, never()).save(any());
     }
 
@@ -60,12 +64,12 @@ class PreferenceUseCasesTest {
         when(repository.findByUserId(3L)).thenReturn(Optional.of(pref(3L, "e@x.com", false)));
 
         // When getting it
-        NotificationPreferenceResponse result = new GetPreferenceUseCaseImpl(repository).execute(3L);
+        UserNotificationPreference result = new GetPreferenceUseCaseImpl(repository).execute(new GetPreferenceCommand(3L));
 
         // Then the stored values are returned
-        assertThat(result.getUserId()).isEqualTo(3L);
-        assertThat(result.getEmail()).isEqualTo("e@x.com");
-        assertThat(result.isMonthlyEmailEnabled()).isFalse();
+        assertThat(result.userId()).isEqualTo(3L);
+        assertThat(result.email()).isEqualTo("e@x.com");
+        assertThat(result.monthlyEmailEnabled()).isFalse();
     }
 
     @Test
@@ -73,13 +77,10 @@ class PreferenceUseCasesTest {
         // Given no stored preference
         when(repository.findByUserId(3L)).thenReturn(Optional.empty());
 
-        // When getting it
-        NotificationPreferenceResponse result = new GetPreferenceUseCaseImpl(repository).execute(3L);
-
-        // Then a default enabled preference with empty email is returned
-        assertThat(result.getUserId()).isEqualTo(3L);
-        assertThat(result.getEmail()).isEmpty();
-        assertThat(result.isMonthlyEmailEnabled()).isTrue();
+        // When getting it / Then a UserNotFoundException is thrown (preference not found)
+        org.junit.jupiter.api.Assertions.assertThrows(
+                com.financialapp.notifications.domain.exception.UserNotFoundException.class,
+                () -> new GetPreferenceUseCaseImpl(repository).execute(new GetPreferenceCommand(3L)));
     }
 
     @Test
@@ -89,26 +90,22 @@ class PreferenceUseCasesTest {
         when(repository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
         // When disabling monthly email
-        NotificationPreferenceResponse result = new UpdatePreferenceUseCaseImpl(repository).execute(3L, false);
+        UserNotificationPreference result = new UpdatePreferenceUseCaseImpl(repository).execute(new UpdatePreferenceCommand(3L, false));
 
         // Then the saved preference reflects the toggle
-        assertThat(result.getUserId()).isEqualTo(3L);
-        assertThat(result.getEmail()).isEqualTo("e@x.com");
-        assertThat(result.isMonthlyEmailEnabled()).isFalse();
+        assertThat(result.userId()).isEqualTo(3L);
+        assertThat(result.email()).isEqualTo("e@x.com");
+        assertThat(result.monthlyEmailEnabled()).isFalse();
     }
 
     @Test
     void updatePreference_createsDefaultWhenMissing() {
         // Given no existing preference
         when(repository.findByUserId(3L)).thenReturn(Optional.empty());
-        when(repository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
-        // When enabling monthly email
-        NotificationPreferenceResponse result = new UpdatePreferenceUseCaseImpl(repository).execute(3L, true);
-
-        // Then a default-email preference is created with the requested flag
-        assertThat(result.getUserId()).isEqualTo(3L);
-        assertThat(result.getEmail()).isEmpty();
-        assertThat(result.isMonthlyEmailEnabled()).isTrue();
+        // When enabling monthly email / Then a UserNotFoundException is thrown (preference not found)
+        org.junit.jupiter.api.Assertions.assertThrows(
+                com.financialapp.notifications.domain.exception.UserNotFoundException.class,
+                () -> new UpdatePreferenceUseCaseImpl(repository).execute(new UpdatePreferenceCommand(3L, true)));
     }
 }

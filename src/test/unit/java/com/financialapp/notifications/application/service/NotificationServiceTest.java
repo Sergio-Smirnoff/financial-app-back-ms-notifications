@@ -2,10 +2,10 @@ package com.financialapp.notifications.application.service;
 
 import com.financialapp.notifications.domain.messaging.EmailSender;
 import com.financialapp.notifications.domain.messaging.InAppNotificationSender;
-import com.financialapp.notifications.domain.model.entity.Notification;
-import com.financialapp.notifications.domain.model.entity.UserNotificationPreference;
-import com.financialapp.notifications.domain.model.entity.enums.NotificationChannel;
-import com.financialapp.notifications.domain.model.entity.enums.NotificationType;
+import com.financialapp.notifications.domain.model.notification.Notification;
+import com.financialapp.notifications.domain.model.notification.NotificationChannel;
+import com.financialapp.notifications.domain.model.notification.NotificationType;
+import com.financialapp.notifications.domain.model.notification.UserNotificationPreference;
 import com.financialapp.notifications.domain.repository.NotificationRepository;
 import com.financialapp.notifications.domain.repository.UserNotificationPreferenceRepository;
 import org.junit.jupiter.api.Test;
@@ -30,11 +30,10 @@ class NotificationServiceTest {
     @Mock UserNotificationPreferenceRepository preferenceRepository;
     @Mock InAppNotificationSender inAppNotificationSender;
     @Mock EmailSender emailSender;
-    @InjectMocks NotificationService service;
+    @InjectMocks NotificationServiceImpl service;
 
     private Notification notification(NotificationChannel channel) {
-        return Notification.builder().id(1L).userId(9L).type(NotificationType.PAYMENT_DUE)
-                .title("t").message("m").channel(channel).build();
+        return new Notification(1L, 9L, NotificationType.PAYMENT_DUE, "t", "m", channel, false, null, null);
     }
 
     @Test
@@ -59,7 +58,7 @@ class NotificationServiceTest {
         Notification n = notification(NotificationChannel.EMAIL);
         when(notificationRepository.save(n)).thenReturn(n);
         when(preferenceRepository.findByUserId(9L)).thenReturn(Optional.of(
-                UserNotificationPreference.builder().userId(9L).email("to@x.com").build()));
+                new UserNotificationPreference(null, 9L, "to@x.com", true, null, null)));
 
         // When notifying
         service.notify(n);
@@ -89,7 +88,7 @@ class NotificationServiceTest {
         Notification n = notification(NotificationChannel.BOTH);
         when(notificationRepository.save(n)).thenReturn(n);
         when(preferenceRepository.findByUserId(9L)).thenReturn(Optional.of(
-                UserNotificationPreference.builder().userId(9L).email("to@x.com").build()));
+                new UserNotificationPreference(null, 9L, "to@x.com", true, null, null)));
 
         // When notifying
         service.notify(n);

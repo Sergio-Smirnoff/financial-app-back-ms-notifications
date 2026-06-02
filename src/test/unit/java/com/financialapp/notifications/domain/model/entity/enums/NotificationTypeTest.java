@@ -1,5 +1,6 @@
 package com.financialapp.notifications.domain.model.entity.enums;
 
+import com.financialapp.notifications.domain.model.notification.NotificationType;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

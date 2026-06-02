@@ -1,7 +1,8 @@
 package com.financialapp.notifications.domain.model.entity;
 
-import com.financialapp.notifications.domain.model.entity.enums.NotificationChannel;
-import com.financialapp.notifications.domain.model.entity.enums.NotificationType;
+import com.financialapp.notifications.domain.model.notification.Notification;
+import com.financialapp.notifications.domain.model.notification.NotificationChannel;
+import com.financialapp.notifications.domain.model.notification.NotificationType;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
@@ -32,10 +33,8 @@ class NotificationTest {
     void markAsRead_flipsReadKeepingEverythingElse() {
         // Given an unread notification
         LocalDateTime created = LocalDateTime.of(2026, 1, 1, 0, 0);
-        Notification original = Notification.builder()
-                .id(1L).userId(2L).type(NotificationType.LOAN_REMINDER).title("t").message("m")
-                .channel(NotificationChannel.IN_APP).read(false).metadata("meta").createdAt(created)
-                .build();
+        Notification original = new Notification(1L, 2L, NotificationType.LOAN_REMINDER,
+                "t", "m", NotificationChannel.IN_APP, false, "meta", created);
 
         // When marking it as read
         Notification read = original.markAsRead();
@@ -55,9 +54,9 @@ class NotificationTest {
     @Test
     void equalsHashCodeToString_distinguishInstances() {
         // Given two equal and one different notification
-        Notification a = Notification.builder().id(1L).userId(2L).title("t").build();
-        Notification b = Notification.builder().id(1L).userId(2L).title("t").build();
-        Notification c = Notification.builder().id(9L).userId(2L).title("t").build();
+        Notification a = new Notification(1L, 2L, null, "t", null, null, false, null, null);
+        Notification b = new Notification(1L, 2L, null, "t", null, null, false, null, null);
+        Notification c = new Notification(9L, 2L, null, "t", null, null, false, null, null);
 
         // Then equality and toString behave as a value record
         assertThat(a).isEqualTo(b).hasSameHashCodeAs(b).isNotEqualTo(c);

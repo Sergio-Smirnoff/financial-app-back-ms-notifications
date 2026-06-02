@@ -1,7 +1,7 @@
 package com.financialapp.notifications.infrastructure.scheduler;
 
-import com.financialapp.notifications.domain.usecase.notifications.CleanupNotificationsUseCase;
-import com.financialapp.notifications.domain.usecase.notifications.SendMonthlySummariesUseCase;
+import com.financialapp.notifications.domain.usecase.notification.CleanupNotificationsUseCase;
+import com.financialapp.notifications.domain.usecase.notification.SendMonthlySummariesUseCase;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;

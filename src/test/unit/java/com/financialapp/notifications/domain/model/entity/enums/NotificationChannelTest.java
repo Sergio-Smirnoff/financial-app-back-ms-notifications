@@ -1,5 +1,6 @@
 package com.financialapp.notifications.domain.model.entity.enums;
 
+import com.financialapp.notifications.domain.model.notification.NotificationChannel;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;

@@ -1,8 +1,8 @@
 package com.financialapp.notifications.infrastructure.sse;
 
-import com.financialapp.notifications.domain.model.entity.Notification;
-import com.financialapp.notifications.domain.model.entity.enums.NotificationChannel;
-import com.financialapp.notifications.domain.model.entity.enums.NotificationType;
+import com.financialapp.notifications.domain.model.notification.Notification;
+import com.financialapp.notifications.domain.model.notification.NotificationChannel;
+import com.financialapp.notifications.domain.model.notification.NotificationType;
 import org.junit.jupiter.api.Test;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -15,8 +15,8 @@ class SseInAppNotificationSenderTest {
     private final SseInAppNotificationSender sender = new SseInAppNotificationSender();
 
     private Notification notification() {
-        return Notification.builder().id(1L).userId(7L).type(NotificationType.PAYMENT_DUE)
-                .title("t").message("m").channel(NotificationChannel.IN_APP).build();
+        return new Notification(1L, 7L, NotificationType.PAYMENT_DUE,
+                "t", "m", NotificationChannel.IN_APP, false, null, null);
     }
 
     @Test

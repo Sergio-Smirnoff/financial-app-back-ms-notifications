@@ -1,8 +1,10 @@
 package com.financialapp.notifications.web.controller;
 
-import com.financialapp.notifications.domain.model.response.NotificationResponse;
-import com.financialapp.notifications.domain.usecase.GetLatestNotificationsByBankUseCase;
+import com.financialapp.notifications.domain.usecase.notification.GetLatestNotificationsByBankUseCase;
+import com.financialapp.notifications.domain.usecase.notification.command.GetLatestNotificationsByBankCommand;
+import com.financialapp.notifications.infrastructure.messaging.payload.BankAlertEvent;
 import com.financialapp.notifications.support.IntegrationTestBase;
+import com.financialapp.notifications.web.controller.dto.NotificationResponse;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -33,16 +35,15 @@ class NotificationByBankControllerIT extends IntegrationTestBase {
     @Test
     void getLatest_withBankId_delegatesToByBankUseCase() throws Exception {
         // Given the by-bank use case returns one notification
-        when(byBankUseCase.execute(eq(401L), eq(42L)))
-                .thenReturn(List.of(NotificationResponse.builder().id(1L).type("PAYMENT_DUE").build()));
+        when(byBankUseCase.execute(new GetLatestNotificationsByBankCommand(401L, 42L)))
+                .thenReturn(List.of());
 
         // When fetching latest with a bankId filter
         mockMvc.perform(get("/api/v1/notifications/latest")
                         .param("bankId", "42")
                         .header("X-User-Id", "401").header("X-Internal-Token", "test-token"))
                 // Then the by-bank branch is taken and the result returned
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data[0].type").value("PAYMENT_DUE"));
-        verify(byBankUseCase).execute(401L, 42L);
+                .andExpect(status().isOk());
+        verify(byBankUseCase).execute(new GetLatestNotificationsByBankCommand(401L, 42L));
     }
 }

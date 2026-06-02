@@ -1,5 +1,11 @@
 package com.financialapp.notifications.domain.model.entity.event;
 
+import com.financialapp.notifications.domain.event.BankAlert;
+import com.financialapp.notifications.domain.event.InstallmentReminder;
+import com.financialapp.notifications.domain.event.InvestmentThreshold;
+import com.financialapp.notifications.domain.event.LoanReminder;
+import com.financialapp.notifications.domain.event.PaymentDue;
+import com.financialapp.notifications.domain.event.UserRegistered;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
@@ -12,15 +18,15 @@ class EventRecordsTest {
     @Test
     void bankAlert_roundTripsAndCompares() {
         // Given a built BankAlert / Then accessors round-trip and equality holds
-        BankAlert a = BankAlert.builder().userId(1L).type("LOW_BALANCE").title("t").message("m").metadata("meta").build();
-        BankAlert b = BankAlert.builder().userId(1L).type("LOW_BALANCE").title("t").message("m").metadata("meta").build();
+        BankAlert a = new BankAlert(1L, "LOW_BALANCE", "t", "m", "meta");
+        BankAlert b = new BankAlert(1L, "LOW_BALANCE", "t", "m", "meta");
         assertThat(a.userId()).isEqualTo(1L);
         assertThat(a.type()).isEqualTo("LOW_BALANCE");
         assertThat(a.title()).isEqualTo("t");
         assertThat(a.message()).isEqualTo("m");
         assertThat(a.metadata()).isEqualTo("meta");
         assertThat(a).isEqualTo(b).hasSameHashCodeAs(b);
-        assertThat(a).isNotEqualTo(BankAlert.builder().userId(2L).build());
+        assertThat(a).isNotEqualTo(new BankAlert(2L, null, null, null, null));
         assertThat(a.toString()).contains("BankAlert");
     }
 
@@ -28,12 +34,8 @@ class EventRecordsTest {
     void installmentReminder_roundTripsAndCompares() {
         // Given a built InstallmentReminder
         LocalDate due = LocalDate.of(2026, 5, 1);
-        InstallmentReminder a = InstallmentReminder.builder().userId(1L).loanId(2L).installmentId(3L)
-                .loanDescription("loan").installmentNumber(4).dueDate(due).amount(new BigDecimal("10.50"))
-                .currency("ARS").build();
-        InstallmentReminder b = InstallmentReminder.builder().userId(1L).loanId(2L).installmentId(3L)
-                .loanDescription("loan").installmentNumber(4).dueDate(due).amount(new BigDecimal("10.50"))
-                .currency("ARS").build();
+        InstallmentReminder a = new InstallmentReminder(1L, 2L, 3L, "loan", 4, due, new BigDecimal("10.50"), "ARS");
+        InstallmentReminder b = new InstallmentReminder(1L, 2L, 3L, "loan", 4, due, new BigDecimal("10.50"), "ARS");
         assertThat(a.loanId()).isEqualTo(2L);
         assertThat(a.installmentId()).isEqualTo(3L);
         assertThat(a.loanDescription()).isEqualTo("loan");
@@ -42,19 +44,19 @@ class EventRecordsTest {
         assertThat(a.amount()).isEqualByComparingTo("10.50");
         assertThat(a.currency()).isEqualTo("ARS");
         assertThat(a).isEqualTo(b).hasSameHashCodeAs(b);
-        assertThat(a).isNotEqualTo(InstallmentReminder.builder().userId(9L).build());
+        assertThat(a).isNotEqualTo(new InstallmentReminder(9L, null, null, null, 0, null, null, null));
         assertThat(a.toString()).contains("InstallmentReminder");
     }
 
     @Test
     void investmentThreshold_roundTripsAndCompares() {
         // Given a built InvestmentThreshold
-        InvestmentThreshold a = InvestmentThreshold.builder().userId(1L).holdingId(2L).ticker("AL30").name("Bond")
-                .direction("GAIN").thresholdPct(new BigDecimal("5")).actualPct(new BigDecimal("7"))
-                .currentPrice(new BigDecimal("100")).avgPurchasePrice(new BigDecimal("90")).currency("USD").build();
-        InvestmentThreshold b = InvestmentThreshold.builder().userId(1L).holdingId(2L).ticker("AL30").name("Bond")
-                .direction("GAIN").thresholdPct(new BigDecimal("5")).actualPct(new BigDecimal("7"))
-                .currentPrice(new BigDecimal("100")).avgPurchasePrice(new BigDecimal("90")).currency("USD").build();
+        InvestmentThreshold a = new InvestmentThreshold(1L, 2L, "AL30", "Bond", "GAIN",
+                new BigDecimal("5"), new BigDecimal("7"),
+                new BigDecimal("100"), new BigDecimal("90"), "USD");
+        InvestmentThreshold b = new InvestmentThreshold(1L, 2L, "AL30", "Bond", "GAIN",
+                new BigDecimal("5"), new BigDecimal("7"),
+                new BigDecimal("100"), new BigDecimal("90"), "USD");
         assertThat(a.holdingId()).isEqualTo(2L);
         assertThat(a.ticker()).isEqualTo("AL30");
         assertThat(a.name()).isEqualTo("Bond");
@@ -65,7 +67,7 @@ class EventRecordsTest {
         assertThat(a.avgPurchasePrice()).isEqualByComparingTo("90");
         assertThat(a.currency()).isEqualTo("USD");
         assertThat(a).isEqualTo(b).hasSameHashCodeAs(b);
-        assertThat(a).isNotEqualTo(InvestmentThreshold.builder().userId(9L).build());
+        assertThat(a).isNotEqualTo(new InvestmentThreshold(9L, null, null, null, null, null, null, null, null, null));
         assertThat(a.toString()).contains("InvestmentThreshold");
     }
 
@@ -73,10 +75,8 @@ class EventRecordsTest {
     void loanReminder_roundTripsAndCompares() {
         // Given a built LoanReminder
         LocalDate next = LocalDate.of(2026, 6, 1);
-        LoanReminder a = LoanReminder.builder().userId(1L).loanId(2L).loanDescription("loan").nextPaymentDate(next)
-                .installmentAmount(new BigDecimal("20")).currency("ARS").remainingInstallments(3).build();
-        LoanReminder b = LoanReminder.builder().userId(1L).loanId(2L).loanDescription("loan").nextPaymentDate(next)
-                .installmentAmount(new BigDecimal("20")).currency("ARS").remainingInstallments(3).build();
+        LoanReminder a = new LoanReminder(1L, 2L, "loan", next, new BigDecimal("20"), "ARS", 3);
+        LoanReminder b = new LoanReminder(1L, 2L, "loan", next, new BigDecimal("20"), "ARS", 3);
         assertThat(a.loanId()).isEqualTo(2L);
         assertThat(a.loanDescription()).isEqualTo("loan");
         assertThat(a.nextPaymentDate()).isEqualTo(next);
@@ -84,7 +84,7 @@ class EventRecordsTest {
         assertThat(a.currency()).isEqualTo("ARS");
         assertThat(a.remainingInstallments()).isEqualTo(3);
         assertThat(a).isEqualTo(b).hasSameHashCodeAs(b);
-        assertThat(a).isNotEqualTo(LoanReminder.builder().userId(9L).build());
+        assertThat(a).isNotEqualTo(new LoanReminder(9L, null, null, null, null, null, 0));
         assertThat(a.toString()).contains("LoanReminder");
     }
 
@@ -92,10 +92,8 @@ class EventRecordsTest {
     void paymentDue_roundTripsAndCompares() {
         // Given a built PaymentDue
         LocalDate next = LocalDate.of(2026, 7, 1);
-        PaymentDue a = PaymentDue.builder().userId(1L).cardExpenseId(2L).description("desc").nextDueDate(next)
-                .installmentAmount(new BigDecimal("30")).currency("ARS").remainingInstallments(2).build();
-        PaymentDue b = PaymentDue.builder().userId(1L).cardExpenseId(2L).description("desc").nextDueDate(next)
-                .installmentAmount(new BigDecimal("30")).currency("ARS").remainingInstallments(2).build();
+        PaymentDue a = new PaymentDue(1L, 2L, "desc", next, new BigDecimal("30"), "ARS", 2);
+        PaymentDue b = new PaymentDue(1L, 2L, "desc", next, new BigDecimal("30"), "ARS", 2);
         assertThat(a.cardExpenseId()).isEqualTo(2L);
         assertThat(a.description()).isEqualTo("desc");
         assertThat(a.nextDueDate()).isEqualTo(next);
@@ -103,21 +101,21 @@ class EventRecordsTest {
         assertThat(a.currency()).isEqualTo("ARS");
         assertThat(a.remainingInstallments()).isEqualTo(2);
         assertThat(a).isEqualTo(b).hasSameHashCodeAs(b);
-        assertThat(a).isNotEqualTo(PaymentDue.builder().userId(9L).build());
+        assertThat(a).isNotEqualTo(new PaymentDue(9L, null, null, null, null, null, 0));
         assertThat(a.toString()).contains("PaymentDue");
     }
 
     @Test
     void userRegistered_roundTripsAndCompares() {
         // Given a built UserRegistered
-        UserRegistered a = UserRegistered.builder().userId(1L).email("e@x.com").firstName("Ada").lastName("Lovelace").build();
-        UserRegistered b = UserRegistered.builder().userId(1L).email("e@x.com").firstName("Ada").lastName("Lovelace").build();
+        UserRegistered a = new UserRegistered(1L, "e@x.com", "Ada", "Lovelace");
+        UserRegistered b = new UserRegistered(1L, "e@x.com", "Ada", "Lovelace");
         assertThat(a.userId()).isEqualTo(1L);
         assertThat(a.email()).isEqualTo("e@x.com");
         assertThat(a.firstName()).isEqualTo("Ada");
         assertThat(a.lastName()).isEqualTo("Lovelace");
         assertThat(a).isEqualTo(b).hasSameHashCodeAs(b);
-        assertThat(a).isNotEqualTo(UserRegistered.builder().userId(9L).build());
+        assertThat(a).isNotEqualTo(new UserRegistered(9L, null, null, null));
         assertThat(a.toString()).contains("UserRegistered");
     }
 }

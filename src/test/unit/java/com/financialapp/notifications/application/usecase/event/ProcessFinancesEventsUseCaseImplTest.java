@@ -1,12 +1,18 @@
 package com.financialapp.notifications.application.usecase.event;
 
 import com.financialapp.notifications.application.service.NotificationService;
-import com.financialapp.notifications.domain.model.entity.Notification;
-import com.financialapp.notifications.domain.model.entity.enums.NotificationChannel;
-import com.financialapp.notifications.domain.model.entity.enums.NotificationType;
-import com.financialapp.notifications.domain.model.entity.event.InstallmentReminder;
-import com.financialapp.notifications.domain.model.entity.event.LoanReminder;
-import com.financialapp.notifications.domain.model.entity.event.PaymentDue;
+import com.financialapp.notifications.application.usecase.event.impl.ProcessInstallmentReminderUseCaseImpl;
+import com.financialapp.notifications.application.usecase.event.impl.ProcessLoanReminderUseCaseImpl;
+import com.financialapp.notifications.application.usecase.event.impl.ProcessPaymentDueUseCaseImpl;
+import com.financialapp.notifications.domain.event.InstallmentReminder;
+import com.financialapp.notifications.domain.event.LoanReminder;
+import com.financialapp.notifications.domain.event.PaymentDue;
+import com.financialapp.notifications.domain.model.notification.Notification;
+import com.financialapp.notifications.domain.model.notification.NotificationChannel;
+import com.financialapp.notifications.domain.model.notification.NotificationType;
+import com.financialapp.notifications.domain.usecase.event.command.ProcessInstallmentReminderCommand;
+import com.financialapp.notifications.domain.usecase.event.command.ProcessLoanReminderCommand;
+import com.financialapp.notifications.domain.usecase.event.command.ProcessPaymentDueCommand;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -27,12 +33,11 @@ class ProcessFinancesEventsUseCaseImplTest {
     @Test
     void paymentDue_buildsFormattedNotification() {
         // Given a payment-due event
-        PaymentDue event = PaymentDue.builder().userId(1L).cardExpenseId(5L).description("Visa")
-                .nextDueDate(LocalDate.of(2026, 7, 10)).installmentAmount(new BigDecimal("123.456"))
-                .currency("ARS").remainingInstallments(2).build();
+        PaymentDue event = new PaymentDue(1L, 5L, "Visa",
+                LocalDate.of(2026, 7, 10), new BigDecimal("123.456"), "ARS", 2);
 
         // When executed
-        new ProcessPaymentDueUseCaseImpl(notificationService).execute(event);
+        new ProcessPaymentDueUseCaseImpl(notificationService).execute(new ProcessPaymentDueCommand(event));
 
         // Then a PAYMENT_DUE notification with a formatted message is dispatched
         Notification n = capture();
@@ -46,12 +51,11 @@ class ProcessFinancesEventsUseCaseImplTest {
     @Test
     void loanReminder_buildsFormattedNotification() {
         // Given a loan-reminder event
-        LoanReminder event = LoanReminder.builder().userId(1L).loanId(5L).loanDescription("Car loan")
-                .nextPaymentDate(LocalDate.of(2026, 8, 1)).installmentAmount(new BigDecimal("99.9"))
-                .currency("USD").remainingInstallments(4).build();
+        LoanReminder event = new LoanReminder(1L, 5L, "Car loan",
+                LocalDate.of(2026, 8, 1), new BigDecimal("99.9"), "USD", 4);
 
         // When executed
-        new ProcessLoanReminderUseCaseImpl(notificationService).execute(event);
+        new ProcessLoanReminderUseCaseImpl(notificationService).execute(new ProcessLoanReminderCommand(event));
 
         // Then a LOAN_REMINDER notification with a formatted message is dispatched
         Notification n = capture();
@@ -64,12 +68,11 @@ class ProcessFinancesEventsUseCaseImplTest {
     @Test
     void installmentReminder_buildsFormattedNotification() {
         // Given an installment-reminder event
-        InstallmentReminder event = InstallmentReminder.builder().userId(1L).loanId(5L).installmentId(6L)
-                .loanDescription("Mortgage").installmentNumber(3).dueDate(LocalDate.of(2026, 9, 15))
-                .amount(new BigDecimal("250")).currency("ARS").build();
+        InstallmentReminder event = new InstallmentReminder(1L, 5L, 6L, "Mortgage",
+                3, LocalDate.of(2026, 9, 15), new BigDecimal("250"), "ARS");
 
         // When executed
-        new ProcessInstallmentReminderUseCaseImpl(notificationService).execute(event);
+        new ProcessInstallmentReminderUseCaseImpl(notificationService).execute(new ProcessInstallmentReminderCommand(event));
 
         // Then an INSTALLMENT_REMINDER notification with a formatted message is dispatched
         Notification n = capture();

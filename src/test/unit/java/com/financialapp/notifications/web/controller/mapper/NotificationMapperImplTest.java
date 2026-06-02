@@ -1,9 +1,9 @@
 package com.financialapp.notifications.web.controller.mapper;
 
-import com.financialapp.notifications.domain.model.entity.Notification;
-import com.financialapp.notifications.domain.model.entity.enums.NotificationChannel;
-import com.financialapp.notifications.domain.model.entity.enums.NotificationType;
-import com.financialapp.notifications.domain.model.response.NotificationResponse;
+import com.financialapp.notifications.domain.model.notification.Notification;
+import com.financialapp.notifications.domain.model.notification.NotificationChannel;
+import com.financialapp.notifications.domain.model.notification.NotificationType;
+import com.financialapp.notifications.web.controller.dto.NotificationResponse;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
@@ -25,9 +25,8 @@ class NotificationMapperImplTest {
     void toResponse_populated_mapsEnumNamesAndFields() {
         // Given a fully populated notification
         LocalDateTime now = LocalDateTime.of(2026, 1, 1, 0, 0);
-        Notification notification = Notification.builder().id(1L).userId(2L)
-                .type(NotificationType.PAYMENT_DUE).title("t").message("m")
-                .channel(NotificationChannel.BOTH).read(true).metadata("meta").createdAt(now).build();
+        Notification notification = new Notification(1L, 2L, NotificationType.PAYMENT_DUE,
+                "t", "m", NotificationChannel.BOTH, true, "meta", now);
 
         // When mapped
         NotificationResponse response = mapper.toResponse(notification);

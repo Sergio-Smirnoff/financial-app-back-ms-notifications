@@ -1,9 +1,12 @@
 package com.financialapp.notifications.infrastructure.repository.notifications;
 
-import com.financialapp.notifications.domain.model.entity.Notification;
-import com.financialapp.notifications.domain.model.entity.enums.NotificationChannel;
-import com.financialapp.notifications.domain.model.entity.enums.NotificationType;
-import com.financialapp.notifications.domain.model.response.PageResult;
+import com.financialapp.notifications.domain.model.notification.Notification;
+import com.financialapp.notifications.domain.model.notification.NotificationChannel;
+import com.financialapp.notifications.domain.model.notification.NotificationType;
+import com.financialapp.notifications.domain.model.pagination.PageResult;
+import com.financialapp.notifications.infrastructure.persistence.entity.NotificationSqlEntity;
+import com.financialapp.notifications.infrastructure.persistence.repository.NotificationSqlRepository;
+import com.financialapp.notifications.infrastructure.persistence.repository.SqlNotificationPersistence;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -37,8 +40,8 @@ class SqlNotificationPersistenceTest {
     }
 
     private Notification domain() {
-        return Notification.builder().userId(7L).type(NotificationType.PAYMENT_DUE)
-                .title("t").message("m").channel(NotificationChannel.IN_APP).build();
+        return new Notification(null, 7L, NotificationType.PAYMENT_DUE,
+                "t", "m", NotificationChannel.IN_APP, false, null, null);
     }
 
     @Test

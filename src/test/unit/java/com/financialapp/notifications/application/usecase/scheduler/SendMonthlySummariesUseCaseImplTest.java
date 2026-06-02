@@ -1,13 +1,14 @@
 package com.financialapp.notifications.application.usecase.scheduler;
 
 import com.financialapp.notifications.application.service.NotificationService;
+import com.financialapp.notifications.application.usecase.scheduler.impl.SendMonthlySummariesUseCaseImpl;
 import com.financialapp.notifications.domain.gateway.FinancesGateway;
 import com.financialapp.notifications.domain.messaging.EmailSender;
-import com.financialapp.notifications.domain.model.entity.Notification;
-import com.financialapp.notifications.domain.model.entity.UserNotificationPreference;
-import com.financialapp.notifications.domain.model.entity.enums.NotificationType;
-import com.financialapp.notifications.domain.model.entity.summary.CategorySummary;
-import com.financialapp.notifications.domain.model.response.PageResult;
+import com.financialapp.notifications.domain.model.category.CategorySummary;
+import com.financialapp.notifications.domain.model.notification.Notification;
+import com.financialapp.notifications.domain.model.notification.NotificationType;
+import com.financialapp.notifications.domain.model.notification.UserNotificationPreference;
+import com.financialapp.notifications.domain.model.pagination.PageResult;
 import com.financialapp.notifications.domain.repository.UserNotificationPreferenceRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -39,8 +40,7 @@ class SendMonthlySummariesUseCaseImplTest {
     @InjectMocks SendMonthlySummariesUseCaseImpl useCase;
 
     private UserNotificationPreference pref(Long userId, String email) {
-        return UserNotificationPreference.builder().id(userId).userId(userId).email(email)
-                .monthlyEmailEnabled(true).build();
+        return new UserNotificationPreference(userId, userId, email, true, null, null);
     }
 
     @Test
@@ -54,8 +54,7 @@ class SendMonthlySummariesUseCaseImplTest {
                 .thenReturn(new PageResult<>(List.of(u2), 1, 500, 1000));
         // And a non-empty summary for user 1, empty for user 2
         when(financesGateway.getSummaryByCategory(eq(1L), anyString(), anyString())).thenReturn(List.of(
-                CategorySummary.builder().categoryName("Food").currency("ARS")
-                        .totalAmount(new BigDecimal("100")).transactionCount(2L).build()));
+                new CategorySummary("Food", null, new BigDecimal("100"), "ARS", 2L)));
         when(financesGateway.getSummaryByCategory(eq(2L), anyString(), anyString())).thenReturn(List.of());
 
         // When the job runs

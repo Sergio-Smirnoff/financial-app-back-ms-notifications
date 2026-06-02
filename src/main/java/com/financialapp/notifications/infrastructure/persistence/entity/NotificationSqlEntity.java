@@ -51,7 +51,7 @@ public class NotificationSqlEntity {
     private LocalDateTime createdAt;
 
     @PrePersist
-    protected void onCreate() {
+    public void onCreate() {
         createdAt = LocalDateTime.now();
     }
 }

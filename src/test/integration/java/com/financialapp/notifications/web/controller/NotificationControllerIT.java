@@ -1,8 +1,9 @@
 package com.financialapp.notifications.web.controller;
 
-import com.financialapp.notifications.domain.model.entity.Notification;
-import com.financialapp.notifications.domain.model.entity.enums.NotificationChannel;
-import com.financialapp.notifications.domain.model.entity.enums.NotificationType;
+
+import com.financialapp.notifications.domain.model.notification.Notification;
+import com.financialapp.notifications.domain.model.notification.NotificationChannel;
+import com.financialapp.notifications.domain.model.notification.NotificationType;
 import com.financialapp.notifications.domain.repository.NotificationRepository;
 import com.financialapp.notifications.support.IntegrationTestBase;
 import org.junit.jupiter.api.Test;
@@ -25,9 +26,9 @@ class NotificationControllerIT extends IntegrationTestBase {
     private static final String TOKEN = "test-token";
 
     private Long seed(Long userId, boolean read) {
-        Notification saved = repository.save(Notification.builder().userId(userId)
-                .type(NotificationType.PAYMENT_DUE).title("Pay").message("due")
-                .channel(NotificationChannel.IN_APP).read(read).build());
+        Notification saved = repository.save(new Notification(null, userId,
+                NotificationType.PAYMENT_DUE, "Pay", "due",
+                NotificationChannel.IN_APP, read, null, null));
         return saved.id();
     }
 

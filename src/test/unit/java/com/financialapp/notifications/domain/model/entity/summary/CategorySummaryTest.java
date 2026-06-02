@@ -1,5 +1,6 @@
 package com.financialapp.notifications.domain.model.entity.summary;
 
+import com.financialapp.notifications.domain.model.category.CategorySummary;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
@@ -11,10 +12,8 @@ class CategorySummaryTest {
     @Test
     void roundTripsAndCompares() {
         // Given a built CategorySummary
-        CategorySummary a = CategorySummary.builder().categoryName("Food").subcategoryName("Cafe")
-                .totalAmount(new BigDecimal("12.34")).currency("ARS").transactionCount(3L).build();
-        CategorySummary b = CategorySummary.builder().categoryName("Food").subcategoryName("Cafe")
-                .totalAmount(new BigDecimal("12.34")).currency("ARS").transactionCount(3L).build();
+        CategorySummary a = new CategorySummary("Food", "Cafe", new BigDecimal("12.34"), "ARS", 3L);
+        CategorySummary b = new CategorySummary("Food", "Cafe", new BigDecimal("12.34"), "ARS", 3L);
 
         // Then accessors round-trip and equality/toString behave as a record
         assertThat(a.categoryName()).isEqualTo("Food");
@@ -23,7 +22,7 @@ class CategorySummaryTest {
         assertThat(a.currency()).isEqualTo("ARS");
         assertThat(a.transactionCount()).isEqualTo(3L);
         assertThat(a).isEqualTo(b).hasSameHashCodeAs(b);
-        assertThat(a).isNotEqualTo(CategorySummary.builder().categoryName("Other").build());
+        assertThat(a).isNotEqualTo(new CategorySummary("Other", null, null, null, null));
         assertThat(a.toString()).contains("CategorySummary");
     }
 }

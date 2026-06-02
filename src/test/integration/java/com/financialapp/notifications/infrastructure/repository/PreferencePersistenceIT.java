@@ -1,7 +1,7 @@
 package com.financialapp.notifications.infrastructure.repository;
 
-import com.financialapp.notifications.domain.model.entity.UserNotificationPreference;
-import com.financialapp.notifications.domain.model.response.PageResult;
+import com.financialapp.notifications.domain.model.notification.UserNotificationPreference;
+import com.financialapp.notifications.domain.model.pagination.PageResult;
 import com.financialapp.notifications.domain.repository.UserNotificationPreferenceRepository;
 import com.financialapp.notifications.support.IntegrationTestBase;
 import org.junit.jupiter.api.Test;
@@ -35,8 +35,7 @@ class PreferencePersistenceIT extends IntegrationTestBase {
     void findByMonthlyEmailEnabledTrue_returnsOnlyEnabled() {
         // Given one enabled and one disabled preference
         repository.save(UserNotificationPreference.create(202L, "enabled@x.com"));
-        repository.save(UserNotificationPreference.builder().userId(203L).email("disabled@x.com")
-                .monthlyEmailEnabled(false).build());
+        repository.save(new UserNotificationPreference(null, 203L, "disabled@x.com", false, null, null));
 
         // When listing enabled preferences
         PageResult<UserNotificationPreference> page = repository.findByMonthlyEmailEnabledTrue(0, 100);

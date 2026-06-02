@@ -1,10 +1,12 @@
 package com.financialapp.notifications.application.usecase.event;
 
 import com.financialapp.notifications.application.service.NotificationService;
-import com.financialapp.notifications.domain.model.entity.Notification;
-import com.financialapp.notifications.domain.model.entity.enums.NotificationChannel;
-import com.financialapp.notifications.domain.model.entity.enums.NotificationType;
-import com.financialapp.notifications.domain.model.entity.event.BankAlert;
+import com.financialapp.notifications.application.usecase.event.impl.ProcessBankEventUseCaseImpl;
+import com.financialapp.notifications.domain.event.BankAlert;
+import com.financialapp.notifications.domain.model.notification.Notification;
+import com.financialapp.notifications.domain.model.notification.NotificationChannel;
+import com.financialapp.notifications.domain.model.notification.NotificationType;
+import com.financialapp.notifications.domain.usecase.event.command.ProcessBankEventCommand;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -25,11 +27,10 @@ class ProcessBankEventUseCaseImplTest {
     @Test
     void execute_knownType_buildsNotificationAndNotifies() {
         // Given a bank alert with a known type
-        BankAlert alert = BankAlert.builder().userId(3L).type("CARD_EXPIRING").title("Card")
-                .message("expiring").metadata("{\"bankId\":\"7\"}").build();
+        BankAlert alert = new BankAlert(3L, "CARD_EXPIRING", "Card", "expiring", "{\"bankId\":\"7\"}");
 
         // When executed
-        useCase.execute(alert);
+        useCase.execute(new ProcessBankEventCommand(alert));
 
         // Then a BOTH-channel CARD_EXPIRING notification is dispatched
         ArgumentCaptor<Notification> captor = ArgumentCaptor.forClass(Notification.class);
@@ -46,10 +47,10 @@ class ProcessBankEventUseCaseImplTest {
     @Test
     void execute_unknownType_isIgnored() {
         // Given a bank alert with an unrecognised type
-        BankAlert alert = BankAlert.builder().userId(3L).type("NOT_A_TYPE").build();
+        BankAlert alert = new BankAlert(3L, "NOT_A_TYPE", null, null, null);
 
         // When executed / Then no notification is dispatched
-        useCase.execute(alert);
+        useCase.execute(new ProcessBankEventCommand(alert));
         verifyNoInteractions(notificationService);
     }
 }

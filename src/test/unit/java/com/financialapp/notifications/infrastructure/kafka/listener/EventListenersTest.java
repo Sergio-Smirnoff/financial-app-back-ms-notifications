@@ -1,23 +1,27 @@
 package com.financialapp.notifications.infrastructure.kafka.listener;
 
-import com.financialapp.notifications.domain.model.entity.event.BankAlert;
-import com.financialapp.notifications.domain.model.entity.event.InstallmentReminder;
-import com.financialapp.notifications.domain.model.entity.event.InvestmentThreshold;
-import com.financialapp.notifications.domain.model.entity.event.LoanReminder;
-import com.financialapp.notifications.domain.model.entity.event.PaymentDue;
-import com.financialapp.notifications.domain.model.entity.event.UserRegistered;
 import com.financialapp.notifications.domain.usecase.event.ProcessBankEventUseCase;
 import com.financialapp.notifications.domain.usecase.event.ProcessInstallmentReminderUseCase;
 import com.financialapp.notifications.domain.usecase.event.ProcessInvestmentThresholdUseCase;
 import com.financialapp.notifications.domain.usecase.event.ProcessLoanReminderUseCase;
 import com.financialapp.notifications.domain.usecase.event.ProcessPaymentDueUseCase;
 import com.financialapp.notifications.domain.usecase.event.ProcessUserRegisteredUseCase;
-import com.financialapp.notifications.infrastructure.kafka.event.BankAlertEvent;
-import com.financialapp.notifications.infrastructure.kafka.event.InstallmentReminderEvent;
-import com.financialapp.notifications.infrastructure.kafka.event.InvestmentThresholdEvent;
-import com.financialapp.notifications.infrastructure.kafka.event.LoanReminderEvent;
-import com.financialapp.notifications.infrastructure.kafka.event.PaymentDueEvent;
-import com.financialapp.notifications.infrastructure.kafka.event.UserRegisteredEvent;
+import com.financialapp.notifications.domain.usecase.event.command.ProcessBankEventCommand;
+import com.financialapp.notifications.domain.usecase.event.command.ProcessInstallmentReminderCommand;
+import com.financialapp.notifications.domain.usecase.event.command.ProcessInvestmentThresholdCommand;
+import com.financialapp.notifications.domain.usecase.event.command.ProcessLoanReminderCommand;
+import com.financialapp.notifications.domain.usecase.event.command.ProcessPaymentDueCommand;
+import com.financialapp.notifications.domain.usecase.event.command.ProcessUserRegisteredCommand;
+import com.financialapp.notifications.infrastructure.messaging.listener.BankEventListener;
+import com.financialapp.notifications.infrastructure.messaging.listener.FinancesEventListener;
+import com.financialapp.notifications.infrastructure.messaging.listener.InvestmentEventListener;
+import com.financialapp.notifications.infrastructure.messaging.listener.UserEventListener;
+import com.financialapp.notifications.infrastructure.messaging.payload.BankAlertEvent;
+import com.financialapp.notifications.infrastructure.messaging.payload.InstallmentReminderEvent;
+import com.financialapp.notifications.infrastructure.messaging.payload.InvestmentThresholdEvent;
+import com.financialapp.notifications.infrastructure.messaging.payload.LoanReminderEvent;
+import com.financialapp.notifications.infrastructure.messaging.payload.PaymentDueEvent;
+import com.financialapp.notifications.infrastructure.messaging.payload.UserRegisteredEvent;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -47,10 +51,10 @@ class EventListenersTest {
                 .userId(1L).type("LOW_BALANCE").title("t").message("m").build());
 
         // Then it delegates the mapped domain alert
-        ArgumentCaptor<BankAlert> captor = ArgumentCaptor.forClass(BankAlert.class);
+        ArgumentCaptor<ProcessBankEventCommand> captor = ArgumentCaptor.forClass(ProcessBankEventCommand.class);
         verify(bankUseCase).execute(captor.capture());
-        assertThat(captor.getValue().userId()).isEqualTo(1L);
-        assertThat(captor.getValue().type()).isEqualTo("LOW_BALANCE");
+        assertThat(captor.getValue().alert().userId()).isEqualTo(1L);
+        assertThat(captor.getValue().alert().type()).isEqualTo("LOW_BALANCE");
     }
 
     @Test
@@ -63,9 +67,9 @@ class EventListenersTest {
                         .remainingInstallments(1).build()).build());
 
         // Then it delegates the mapped payment-due
-        ArgumentCaptor<PaymentDue> captor = ArgumentCaptor.forClass(PaymentDue.class);
+        ArgumentCaptor<ProcessPaymentDueCommand> captor = ArgumentCaptor.forClass(ProcessPaymentDueCommand.class);
         verify(paymentDueUseCase).execute(captor.capture());
-        assertThat(captor.getValue().cardExpenseId()).isEqualTo(2L);
+        assertThat(captor.getValue().paymentDue().cardExpenseId()).isEqualTo(2L);
     }
 
     @Test
@@ -78,9 +82,9 @@ class EventListenersTest {
                         .remainingInstallments(1).build()).build());
 
         // Then it delegates the mapped loan reminder
-        ArgumentCaptor<LoanReminder> captor = ArgumentCaptor.forClass(LoanReminder.class);
+        ArgumentCaptor<ProcessLoanReminderCommand> captor = ArgumentCaptor.forClass(ProcessLoanReminderCommand.class);
         verify(loanReminderUseCase).execute(captor.capture());
-        assertThat(captor.getValue().loanId()).isEqualTo(2L);
+        assertThat(captor.getValue().reminder().loanId()).isEqualTo(2L);
     }
 
     @Test
@@ -93,9 +97,9 @@ class EventListenersTest {
                         .amount(BigDecimal.ONE).currency("ARS").build()).build());
 
         // Then it delegates the mapped installment reminder
-        ArgumentCaptor<InstallmentReminder> captor = ArgumentCaptor.forClass(InstallmentReminder.class);
+        ArgumentCaptor<ProcessInstallmentReminderCommand> captor = ArgumentCaptor.forClass(ProcessInstallmentReminderCommand.class);
         verify(installmentReminderUseCase).execute(captor.capture());
-        assertThat(captor.getValue().installmentId()).isEqualTo(3L);
+        assertThat(captor.getValue().reminder().installmentId()).isEqualTo(3L);
     }
 
     @Test
@@ -107,9 +111,9 @@ class EventListenersTest {
                         .currentPrice(BigDecimal.TEN).avgPurchasePrice(BigDecimal.ONE).currency("USD").build()).build());
 
         // Then it delegates the mapped threshold
-        ArgumentCaptor<InvestmentThreshold> captor = ArgumentCaptor.forClass(InvestmentThreshold.class);
+        ArgumentCaptor<ProcessInvestmentThresholdCommand> captor = ArgumentCaptor.forClass(ProcessInvestmentThresholdCommand.class);
         verify(investmentUseCase).execute(captor.capture());
-        assertThat(captor.getValue().ticker()).isEqualTo("AL30");
+        assertThat(captor.getValue().threshold().ticker()).isEqualTo("AL30");
     }
 
     @Test
@@ -120,8 +124,8 @@ class EventListenersTest {
                         .firstName("Ada").lastName("L").build()).build());
 
         // Then it delegates the mapped registration
-        ArgumentCaptor<UserRegistered> captor = ArgumentCaptor.forClass(UserRegistered.class);
+        ArgumentCaptor<ProcessUserRegisteredCommand> captor = ArgumentCaptor.forClass(ProcessUserRegisteredCommand.class);
         verify(userUseCase).execute(captor.capture());
-        assertThat(captor.getValue().email()).isEqualTo("e@x.com");
+        assertThat(captor.getValue().user().email()).isEqualTo("e@x.com");
     }
 }

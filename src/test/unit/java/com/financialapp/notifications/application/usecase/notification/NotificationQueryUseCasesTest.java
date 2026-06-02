@@ -1,13 +1,24 @@
 package com.financialapp.notifications.application.usecase.notification;
 
-import com.financialapp.notifications.domain.model.entity.Notification;
-import com.financialapp.notifications.domain.model.entity.enums.NotificationChannel;
-import com.financialapp.notifications.domain.model.entity.enums.NotificationType;
-import com.financialapp.notifications.domain.model.exception.ResourceNotFoundException;
-import com.financialapp.notifications.domain.model.response.NotificationResponse;
-import com.financialapp.notifications.domain.model.response.PageResult;
-import com.financialapp.notifications.domain.model.response.UnreadCountResponse;
+import com.financialapp.notifications.application.usecase.notification.impl.AllAsReadUseCaseImpl;
+import com.financialapp.notifications.application.usecase.notification.impl.GetLatestNotificationsByBankUseCaseImpl;
+import com.financialapp.notifications.application.usecase.notification.impl.GetLatestNotificationsUseCaseImpl;
+import com.financialapp.notifications.application.usecase.notification.impl.GetNotificationUseCaseImpl;
+import com.financialapp.notifications.application.usecase.notification.impl.GetUnreadCountUseCaseImpl;
+import com.financialapp.notifications.application.usecase.notification.impl.OneAsReadUseCaseImpl;
+import com.financialapp.notifications.domain.exception.ResourceNotFoundException;
+import com.financialapp.notifications.domain.model.notification.Notification;
+import com.financialapp.notifications.domain.model.notification.NotificationChannel;
+import com.financialapp.notifications.domain.model.notification.NotificationType;
+import com.financialapp.notifications.domain.model.pagination.PageResult;
 import com.financialapp.notifications.domain.repository.NotificationRepository;
+import com.financialapp.notifications.domain.usecase.notification.command.AllAsReadCommand;
+import com.financialapp.notifications.domain.usecase.notification.command.GetLatestNotificationsByBankCommand;
+import com.financialapp.notifications.domain.usecase.notification.command.GetLatestNotificationsCommand;
+import com.financialapp.notifications.domain.usecase.notification.command.GetNotificationsCommand;
+import com.financialapp.notifications.domain.usecase.notification.command.GetUnreadCountCommand;
+import com.financialapp.notifications.domain.usecase.notification.command.MarkOneAsReadCommand;
+import com.financialapp.notifications.web.controller.dto.NotificationResponse;
 import com.financialapp.notifications.web.controller.mapper.NotificationMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,8 +42,8 @@ class NotificationQueryUseCasesTest {
     @Mock NotificationMapper mapper;
 
     private Notification notification(Long id, Long userId) {
-        return Notification.builder().id(id).userId(userId).type(NotificationType.PAYMENT_DUE)
-                .title("t").message("m").channel(NotificationChannel.IN_APP).build();
+        return new Notification(id, userId, NotificationType.PAYMENT_DUE,
+                "t", "m", NotificationChannel.IN_APP, false, null, null);
     }
 
     private NotificationResponse response(Long id) {
@@ -45,13 +56,12 @@ class NotificationQueryUseCasesTest {
         Notification n = notification(1L, 7L);
         when(repository.findByUserIdOrderByCreatedAtDesc(7L, 0, 20))
                 .thenReturn(new PageResult<>(List.of(n), 0, 20, 1));
-        when(mapper.toResponse(n)).thenReturn(response(1L));
 
         // When executing the query
-        PageResult<NotificationResponse> result = new GetNotificationUseCaseImpl(repository, mapper).execute(7L, 0, 20);
+        PageResult<Notification> result = new GetNotificationUseCaseImpl(repository).execute(new GetNotificationsCommand(7L, 0, 20));
 
-        // Then the page metadata and mapped content are carried through
-        assertThat(result.content()).extracting(NotificationResponse::getId).containsExactly(1L);
+        // Then the page metadata and content are carried through
+        assertThat(result.content()).hasSize(1);
         assertThat(result.totalElements()).isEqualTo(1);
         assertThat(result.pageNumber()).isZero();
     }
@@ -61,13 +71,13 @@ class NotificationQueryUseCasesTest {
         // Given the repo returns the latest notifications
         Notification n = notification(2L, 7L);
         when(repository.findTop5ByUserIdOrderByCreatedAtDesc(7L)).thenReturn(List.of(n));
-        when(mapper.toResponse(n)).thenReturn(response(2L));
 
         // When executing the latest query (bankId is ignored)
-        List<NotificationResponse> result = new GetLatestNotificationsUseCaseImpl(repository, mapper).execute(7L, null);
+        List<Notification> result = new GetLatestNotificationsUseCaseImpl(repository).execute(new GetLatestNotificationsCommand(7L, null));
 
-        // Then the mapped responses are returned
-        assertThat(result).extracting(NotificationResponse::getId).containsExactly(2L);
+        // Then the notifications are returned
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).id()).isEqualTo(2L);
     }
 
     @Test
@@ -75,14 +85,14 @@ class NotificationQueryUseCasesTest {
         // Given the repo returns notifications for a bank
         Notification n = notification(3L, 7L);
         when(repository.findLatestByBank(7L, "42")).thenReturn(List.of(n));
-        when(mapper.toResponse(n)).thenReturn(response(3L));
 
         // When executing the by-bank query
-        List<NotificationResponse> result =
-                new GetLatestNotificationsByBankUseCaseImpl(repository, mapper).execute(7L, 42L);
+        List<Notification> result =
+                new GetLatestNotificationsByBankUseCaseImpl(repository).execute(new GetLatestNotificationsByBankCommand(7L, 42L));
 
-        // Then the bankId was stringified for the repo and responses mapped
-        assertThat(result).extracting(NotificationResponse::getId).containsExactly(3L);
+        // Then the bankId was stringified for the repo and responses returned
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).id()).isEqualTo(3L);
         verify(repository).findLatestByBank(7L, "42");
     }
 
@@ -92,16 +102,16 @@ class NotificationQueryUseCasesTest {
         when(repository.countByUserIdAndReadFalse(7L)).thenReturn(4L);
 
         // When executing the count query
-        UnreadCountResponse result = new GetUnreadCountUseCaseImpl(repository).execute(7L);
+        long result = new GetUnreadCountUseCaseImpl(repository).execute(new GetUnreadCountCommand(7L));
 
-        // Then the count is wrapped in the response
-        assertThat(result.getCount()).isEqualTo(4L);
+        // Then the count is returned
+        assertThat(result).isEqualTo(4L);
     }
 
     @Test
     void allAsRead_delegatesToRepository() {
         // Given the all-as-read use case / When executed
-        new AllAsReadUseCaseImpl(repository).execute(7L);
+        new AllAsReadUseCaseImpl(repository).execute(new AllAsReadCommand(7L));
 
         // Then it delegates the mark-all to the repository
         verify(repository).markAllAsRead(7L);
@@ -114,7 +124,7 @@ class NotificationQueryUseCasesTest {
         when(repository.findById(5L)).thenReturn(Optional.of(n));
 
         // When marking it read
-        new OneAsReadUseCaseImpl(repository).execute(7L, 5L);
+        new OneAsReadUseCaseImpl(repository).execute(new MarkOneAsReadCommand(7L, 5L));
 
         // Then the read copy is saved
         verify(repository).save(n.markAsRead());
@@ -126,7 +136,7 @@ class NotificationQueryUseCasesTest {
         when(repository.findById(5L)).thenReturn(Optional.of(notification(5L, 999L)));
 
         // When marking it read / Then it is treated as not found and nothing is saved
-        assertThatThrownBy(() -> new OneAsReadUseCaseImpl(repository).execute(7L, 5L))
+        assertThatThrownBy(() -> new OneAsReadUseCaseImpl(repository).execute(new MarkOneAsReadCommand(7L, 5L)))
                 .isInstanceOf(ResourceNotFoundException.class);
         verify(repository, never()).save(any());
     }
@@ -137,7 +147,7 @@ class NotificationQueryUseCasesTest {
         when(repository.findById(5L)).thenReturn(Optional.empty());
 
         // When marking it read / Then it is rejected as not found
-        assertThatThrownBy(() -> new OneAsReadUseCaseImpl(repository).execute(7L, 5L))
+        assertThatThrownBy(() -> new OneAsReadUseCaseImpl(repository).execute(new MarkOneAsReadCommand(7L, 5L)))
                 .isInstanceOf(ResourceNotFoundException.class);
         verify(repository, never()).save(any());
     }

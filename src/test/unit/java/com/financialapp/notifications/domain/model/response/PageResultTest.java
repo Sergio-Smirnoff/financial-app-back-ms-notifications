@@ -1,5 +1,6 @@
 package com.financialapp.notifications.domain.model.response;
 
+import com.financialapp.notifications.domain.model.pagination.PageResult;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
