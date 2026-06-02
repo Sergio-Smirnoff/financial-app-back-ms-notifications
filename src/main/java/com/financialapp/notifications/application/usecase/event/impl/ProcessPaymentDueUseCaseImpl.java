@@ -10,9 +10,13 @@ import com.financialapp.notifications.domain.model.notification.NotificationType
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Locale;
+
 @Service
 @RequiredArgsConstructor
 public class ProcessPaymentDueUseCaseImpl implements ProcessPaymentDueUseCase {
+
+    private static final Locale MESSAGE_LOCALE = Locale.of("es", "AR");
 
     private final NotificationService notificationService;
 
@@ -20,7 +24,7 @@ public class ProcessPaymentDueUseCaseImpl implements ProcessPaymentDueUseCase {
     public void execute(ProcessPaymentDueCommand command) {
         PaymentDue paymentDue = command.paymentDue();
         String title = "Payment Due: " + paymentDue.description();
-        String message = String.format(
+        String message = String.format(MESSAGE_LOCALE,
                 "Your payment of %.2f %s for '%s' is due on %s. %d installment(s) remaining.",
                 paymentDue.installmentAmount().doubleValue(), paymentDue.currency(), paymentDue.description(),
                 paymentDue.nextDueDate(), paymentDue.remainingInstallments());
