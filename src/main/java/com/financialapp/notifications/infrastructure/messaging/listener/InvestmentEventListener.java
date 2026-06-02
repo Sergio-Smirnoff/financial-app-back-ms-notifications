@@ -1,8 +1,8 @@
-package com.financialapp.notifications.infrastructure.kafka.listener;
+package com.financialapp.notifications.infrastructure.messaging.listener;
 
 import com.financialapp.notifications.domain.usecase.event.ProcessInvestmentThresholdUseCase;
-import com.financialapp.notifications.infrastructure.kafka.event.InvestmentThresholdEvent;
-import com.financialapp.notifications.infrastructure.kafka.mapper.InvestmentThresholdMapper;
+import com.financialapp.notifications.infrastructure.messaging.payload.InvestmentThresholdEvent;
+import com.financialapp.notifications.infrastructure.messaging.mapper.InvestmentThresholdMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;

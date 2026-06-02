@@ -1,4 +1,4 @@
-package com.financialapp.notifications.infrastructure.kafka.config;
+package com.financialapp.notifications.infrastructure.config;
 
 import org.apache.kafka.clients.admin.NewTopic;
 import org.springframework.context.annotation.Bean;

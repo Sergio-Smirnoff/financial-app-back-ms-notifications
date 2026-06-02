@@ -1,6 +1,6 @@
-package com.financialapp.notifications.infrastructure.kafka.mapper;
+package com.financialapp.notifications.infrastructure.messaging.mapper;
 
-import com.financialapp.notifications.infrastructure.kafka.event.UserRegisteredEvent;
+import com.financialapp.notifications.infrastructure.messaging.payload.UserRegisteredEvent;
 import com.financialapp.notifications.domain.event.UserRegistered;
 
 public class UserRegisteredMapper {

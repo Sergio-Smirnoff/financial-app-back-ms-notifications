@@ -1,22 +1,20 @@
-package com.financialapp.notifications.infrastructure.kafka.event;
+package com.financialapp.notifications.infrastructure.messaging.payload;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
 import java.time.Instant;
-import java.time.LocalDate;
 
 @Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class LoanReminderEvent {
+public class UserRegisteredEvent {
 
     @Builder.Default
-    private String eventType = "LOAN_REMINDER";
+    private String eventType = "USER_REGISTERED";
     private Long userId;
     @Builder.Default
     private Instant timestamp = Instant.now();
@@ -27,11 +25,8 @@ public class LoanReminderEvent {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class Payload {
-        private Long loanId;
-        private String loanDescription;
-        private LocalDate nextPaymentDate;
-        private BigDecimal installmentAmount;
-        private String currency;
-        private int remainingInstallments;
+        private String email;
+        private String firstName;
+        private String lastName;
     }
 }

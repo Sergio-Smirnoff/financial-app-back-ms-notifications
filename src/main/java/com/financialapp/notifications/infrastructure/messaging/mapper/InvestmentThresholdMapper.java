@@ -1,6 +1,6 @@
-package com.financialapp.notifications.infrastructure.kafka.mapper;
+package com.financialapp.notifications.infrastructure.messaging.mapper;
 
-import com.financialapp.notifications.infrastructure.kafka.event.InvestmentThresholdEvent;
+import com.financialapp.notifications.infrastructure.messaging.payload.InvestmentThresholdEvent;
 import com.financialapp.notifications.domain.event.InvestmentThreshold;
 
 public class InvestmentThresholdMapper {

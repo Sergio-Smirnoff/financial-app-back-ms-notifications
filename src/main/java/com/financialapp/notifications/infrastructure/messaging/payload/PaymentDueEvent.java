@@ -1,4 +1,4 @@
-package com.financialapp.notifications.infrastructure.kafka.event;
+package com.financialapp.notifications.infrastructure.messaging.payload;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

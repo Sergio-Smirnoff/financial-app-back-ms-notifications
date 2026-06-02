@@ -1,6 +1,6 @@
-package com.financialapp.notifications.infrastructure.kafka.mapper;
+package com.financialapp.notifications.infrastructure.messaging.mapper;
 
-import com.financialapp.notifications.infrastructure.kafka.event.LoanReminderEvent;
+import com.financialapp.notifications.infrastructure.messaging.payload.LoanReminderEvent;
 import com.financialapp.notifications.domain.event.LoanReminder;
 
 public class LoanReminderMapper {

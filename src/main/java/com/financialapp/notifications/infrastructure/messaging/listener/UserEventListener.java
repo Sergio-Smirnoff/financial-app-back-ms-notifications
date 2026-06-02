@@ -1,8 +1,8 @@
-package com.financialapp.notifications.infrastructure.kafka.listener;
+package com.financialapp.notifications.infrastructure.messaging.listener;
 
 import com.financialapp.notifications.domain.usecase.event.ProcessUserRegisteredUseCase;
-import com.financialapp.notifications.infrastructure.kafka.event.UserRegisteredEvent;
-import com.financialapp.notifications.infrastructure.kafka.mapper.UserRegisteredMapper;
+import com.financialapp.notifications.infrastructure.messaging.payload.UserRegisteredEvent;
+import com.financialapp.notifications.infrastructure.messaging.mapper.UserRegisteredMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;

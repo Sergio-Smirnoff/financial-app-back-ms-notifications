@@ -1,4 +1,4 @@
-package com.financialapp.notifications.infrastructure.kafka.event;
+package com.financialapp.notifications.infrastructure.messaging.payload;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -7,15 +7,16 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.LocalDate;
 
 @Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class InvestmentThresholdEvent {
+public class InstallmentReminderEvent {
 
     @Builder.Default
-    private String eventType = "INVESTMENT_THRESHOLD";
+    private String eventType = "INSTALLMENT_REMINDER";
     private Long userId;
     @Builder.Default
     private Instant timestamp = Instant.now();
@@ -26,14 +27,12 @@ public class InvestmentThresholdEvent {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class Payload {
-        private Long holdingId;
-        private String ticker;
-        private String name;
-        private String direction; // GAIN or LOSS
-        private BigDecimal thresholdPct;
-        private BigDecimal actualPct;
-        private BigDecimal currentPrice;
-        private BigDecimal avgPurchasePrice;
+        private Long loanId;
+        private Long installmentId;
+        private String loanDescription;
+        private int installmentNumber;
+        private LocalDate dueDate;
+        private BigDecimal amount;
         private String currency;
     }
 }

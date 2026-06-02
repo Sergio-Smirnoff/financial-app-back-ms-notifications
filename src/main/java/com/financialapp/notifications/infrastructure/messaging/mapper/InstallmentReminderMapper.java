@@ -1,7 +1,7 @@
-package com.financialapp.notifications.infrastructure.kafka.mapper;
+package com.financialapp.notifications.infrastructure.messaging.mapper;
 
 import com.financialapp.notifications.domain.event.InstallmentReminder;
-import com.financialapp.notifications.infrastructure.kafka.event.InstallmentReminderEvent;
+import com.financialapp.notifications.infrastructure.messaging.payload.InstallmentReminderEvent;
 import org.springframework.stereotype.Component;
 
 @Component

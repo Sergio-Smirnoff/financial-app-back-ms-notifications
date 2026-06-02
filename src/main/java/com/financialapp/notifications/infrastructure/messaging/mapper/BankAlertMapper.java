@@ -1,6 +1,6 @@
-package com.financialapp.notifications.infrastructure.kafka.mapper;
+package com.financialapp.notifications.infrastructure.messaging.mapper;
 
-import com.financialapp.notifications.infrastructure.kafka.event.BankAlertEvent;
+import com.financialapp.notifications.infrastructure.messaging.payload.BankAlertEvent;
 import com.financialapp.notifications.domain.event.BankAlert;
 
 public class BankAlertMapper {

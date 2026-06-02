@@ -1,6 +1,6 @@
-package com.financialapp.notifications.infrastructure.kafka.mapper;
+package com.financialapp.notifications.infrastructure.messaging.mapper;
 
-import com.financialapp.notifications.infrastructure.kafka.event.PaymentDueEvent;
+import com.financialapp.notifications.infrastructure.messaging.payload.PaymentDueEvent;
 import com.financialapp.notifications.domain.event.PaymentDue;
 
 public class PaymentDueMapper {

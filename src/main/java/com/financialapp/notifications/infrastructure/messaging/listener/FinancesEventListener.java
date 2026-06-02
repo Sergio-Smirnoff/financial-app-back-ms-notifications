@@ -1,14 +1,14 @@
-package com.financialapp.notifications.infrastructure.kafka.listener;
+package com.financialapp.notifications.infrastructure.messaging.listener;
 
 import com.financialapp.notifications.domain.usecase.event.ProcessInstallmentReminderUseCase;
 import com.financialapp.notifications.domain.usecase.event.ProcessLoanReminderUseCase;
 import com.financialapp.notifications.domain.usecase.event.ProcessPaymentDueUseCase;
-import com.financialapp.notifications.infrastructure.kafka.event.InstallmentReminderEvent;
-import com.financialapp.notifications.infrastructure.kafka.event.LoanReminderEvent;
-import com.financialapp.notifications.infrastructure.kafka.event.PaymentDueEvent;
-import com.financialapp.notifications.infrastructure.kafka.mapper.InstallmentReminderMapper;
-import com.financialapp.notifications.infrastructure.kafka.mapper.LoanReminderMapper;
-import com.financialapp.notifications.infrastructure.kafka.mapper.PaymentDueMapper;
+import com.financialapp.notifications.infrastructure.messaging.payload.InstallmentReminderEvent;
+import com.financialapp.notifications.infrastructure.messaging.payload.LoanReminderEvent;
+import com.financialapp.notifications.infrastructure.messaging.payload.PaymentDueEvent;
+import com.financialapp.notifications.infrastructure.messaging.mapper.InstallmentReminderMapper;
+import com.financialapp.notifications.infrastructure.messaging.mapper.LoanReminderMapper;
+import com.financialapp.notifications.infrastructure.messaging.mapper.PaymentDueMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
