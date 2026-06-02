@@ -1,7 +1,7 @@
 package com.financialapp.notifications.domain.usecase;
 
-import com.financialapp.notifications.domain.model.response.NotificationPreferenceResponse;
+import com.financialapp.notifications.domain.model.entity.UserNotificationPreference;
 
 public interface GetPreferenceUseCase {
-    NotificationPreferenceResponse execute(Long userId);
+    UserNotificationPreference execute(Long userId);
 }

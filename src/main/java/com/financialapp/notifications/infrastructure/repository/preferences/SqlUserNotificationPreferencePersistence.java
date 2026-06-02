@@ -2,7 +2,7 @@ package com.financialapp.notifications.infrastructure.repository.preferences;
 
 import com.financialapp.notifications.domain.repository.UserNotificationPreferenceRepository;
 import com.financialapp.notifications.domain.model.entity.UserNotificationPreference;
-import com.financialapp.notifications.domain.model.response.PageResult;
+import com.financialapp.notifications.domain.model.pagination.PageResult;
 import com.financialapp.notifications.infrastructure.repository.preferences.mapper.UserNotificationPreferenceMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -36,8 +36,7 @@ public class SqlUserNotificationPreferencePersistence implements UserNotificatio
                 springPage.getNumber(),
                 springPage.getSize(),
                 springPage.getTotalElements(),
-                springPage.getTotalPages()
-        );
+                springPage.getTotalPages());
     }
 
     @Override

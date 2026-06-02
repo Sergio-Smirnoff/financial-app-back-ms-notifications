@@ -1,8 +1,8 @@
 package com.financialapp.notifications.domain.usecase;
 
-import com.financialapp.notifications.domain.model.response.NotificationResponse;
-import com.financialapp.notifications.domain.model.response.PageResult;
+import com.financialapp.notifications.domain.model.entity.Notification;
+import com.financialapp.notifications.domain.model.pagination.PageResult;
 
 public interface GetNotificationUseCase {
-    PageResult<NotificationResponse> execute(Long userId, int page, int size);
+    PageResult<Notification> execute(Long userId, int page, int size);
 }

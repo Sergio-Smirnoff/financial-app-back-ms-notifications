@@ -2,7 +2,7 @@ package com.financialapp.notifications.infrastructure.repository.notifications;
 
 import com.financialapp.notifications.domain.repository.NotificationRepository;
 import com.financialapp.notifications.domain.model.entity.Notification;
-import com.financialapp.notifications.domain.model.response.PageResult;
+import com.financialapp.notifications.domain.model.pagination.PageResult;
 import com.financialapp.notifications.infrastructure.repository.notifications.mapper.NotificationMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -45,8 +45,7 @@ public class SqlNotificationPersistence implements NotificationRepository {
                 springPage.getNumber(),
                 springPage.getSize(),
                 springPage.getTotalElements(),
-                springPage.getTotalPages()
-        );
+                springPage.getTotalPages());
     }
 
     @Override

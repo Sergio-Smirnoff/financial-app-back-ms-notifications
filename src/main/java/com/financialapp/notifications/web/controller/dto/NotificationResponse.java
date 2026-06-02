@@ -1,4 +1,4 @@
-package com.financialapp.notifications.domain.model.response;
+package com.financialapp.notifications.web.controller.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

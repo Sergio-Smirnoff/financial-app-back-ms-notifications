@@ -1,4 +1,4 @@
-package com.financialapp.notifications.domain.model.response;
+package com.financialapp.notifications.domain.model.pagination;
 
 import java.util.List;
 

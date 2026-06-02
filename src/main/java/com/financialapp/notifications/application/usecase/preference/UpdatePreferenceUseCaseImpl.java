@@ -2,7 +2,6 @@ package com.financialapp.notifications.application.usecase.preference;
 
 import com.financialapp.notifications.domain.repository.UserNotificationPreferenceRepository;
 import com.financialapp.notifications.domain.model.entity.UserNotificationPreference;
-import com.financialapp.notifications.domain.model.response.NotificationPreferenceResponse;
 import com.financialapp.notifications.domain.usecase.UpdatePreferenceUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -15,7 +14,7 @@ public class UpdatePreferenceUseCaseImpl implements UpdatePreferenceUseCase {
     private final UserNotificationPreferenceRepository preferenceRepository;
 
     @Transactional
-    public NotificationPreferenceResponse execute(Long userId, boolean monthlyEmailEnabled) {
+    public UserNotificationPreference execute(Long userId, boolean monthlyEmailEnabled) {
         UserNotificationPreference preference = preferenceRepository.findByUserId(userId)
                 .orElseGet(() -> UserNotificationPreference.builder()
                         .userId(userId)
@@ -24,14 +23,6 @@ public class UpdatePreferenceUseCaseImpl implements UpdatePreferenceUseCase {
                         .build());
 
         preference = preference.withMonthlyEmailEnabled(monthlyEmailEnabled);
-        return toResponse(preferenceRepository.save(preference));
-    }
-
-    private NotificationPreferenceResponse toResponse(UserNotificationPreference preference) {
-        return NotificationPreferenceResponse.builder()
-                .userId(preference.userId())
-                .email(preference.email())
-                .monthlyEmailEnabled(preference.monthlyEmailEnabled())
-                .build();
+        return preferenceRepository.save(preference);
     }
 }

@@ -1,4 +1,4 @@
-package com.financialapp.notifications.domain.model.response;
+package com.financialapp.notifications.web.controller.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;

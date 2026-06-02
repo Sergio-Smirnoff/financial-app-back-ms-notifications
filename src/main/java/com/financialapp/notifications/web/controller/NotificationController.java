@@ -1,15 +1,17 @@
 package com.financialapp.notifications.web.controller;
 
-import com.financialapp.notifications.domain.model.response.ApiResponse;
-import com.financialapp.notifications.domain.model.response.NotificationResponse;
-import com.financialapp.notifications.domain.model.response.PageResult;
-import com.financialapp.notifications.domain.model.response.UnreadCountResponse;
+import com.financialapp.notifications.domain.model.entity.Notification;
+import com.financialapp.notifications.domain.model.pagination.PageResult;
+import com.financialapp.notifications.web.controller.dto.ApiResponse;
+import com.financialapp.notifications.web.controller.dto.NotificationResponse;
+import com.financialapp.notifications.web.controller.dto.UnreadCountResponse;
 import com.financialapp.notifications.domain.usecase.AllAsReadUseCase;
 import com.financialapp.notifications.domain.usecase.GetLatestNotificationsByBankUseCase;
 import com.financialapp.notifications.domain.usecase.GetLatestNotificationsUseCase;
 import com.financialapp.notifications.domain.usecase.GetNotificationUseCase;
 import com.financialapp.notifications.domain.usecase.GetUnreadCountUseCase;
 import com.financialapp.notifications.domain.usecase.OneAsReadUsecase;
+import com.financialapp.notifications.web.controller.mapper.NotificationMapper;
 import com.financialapp.notifications.web.controller.mapper.PageResultMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -34,6 +36,7 @@ public class NotificationController {
     private final GetUnreadCountUseCase getUnreadCountUseCase;
     private final OneAsReadUsecase markAsReadUseCase;
     private final AllAsReadUseCase markAllAsReadUseCase;
+    private final NotificationMapper notificationMapper;
 
     @GetMapping
     @Operation(summary = "Get paginated notifications")
@@ -41,10 +44,10 @@ public class NotificationController {
             @RequestHeader("X-User-Id") Long userId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
-        PageResult<NotificationResponse> pageResult =
-                getNotificationUseCase.execute(userId, page, size);
+        PageResult<Notification> pageResult = getNotificationUseCase.execute(userId, page, size);
         Pageable pageable = PageRequest.of(page, size);
-        Page<NotificationResponse> notifications = PageResultMapper.toPage(pageResult, pageable);
+        Page<NotificationResponse> notifications = PageResultMapper.toPage(pageResult, pageable,
+                notificationMapper::toResponse);
         return ResponseEntity.ok(ApiResponse.ok(notifications));
     }
 
@@ -53,9 +56,12 @@ public class NotificationController {
     public ResponseEntity<ApiResponse<List<NotificationResponse>>> getLatest(
             @RequestHeader("X-User-Id") Long userId,
             @RequestParam(required = false) Long bankId) {
-        List<NotificationResponse> notifications = bankId != null
+        List<NotificationResponse> notifications = (bankId != null
                 ? getLatestNotificationsByBankUseCase.execute(userId, bankId)
-                : getLatestNotificationsUseCase.execute(userId, null);
+                : getLatestNotificationsUseCase.execute(userId, null))
+                .stream()
+                .map(notificationMapper::toResponse)
+                .toList();
         return ResponseEntity.ok(ApiResponse.ok(notifications));
     }
 
@@ -63,7 +69,9 @@ public class NotificationController {
     @Operation(summary = "Get unread notification count")
     public ResponseEntity<ApiResponse<UnreadCountResponse>> getUnreadCount(
             @RequestHeader("X-User-Id") Long userId) {
-        UnreadCountResponse count = getUnreadCountUseCase.execute(userId);
+        UnreadCountResponse count = UnreadCountResponse.builder()
+                .count(getUnreadCountUseCase.execute(userId))
+                .build();
         return ResponseEntity.ok(ApiResponse.ok(count));
     }
 
