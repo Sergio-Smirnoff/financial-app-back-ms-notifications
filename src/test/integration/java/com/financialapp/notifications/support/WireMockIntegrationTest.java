@@ -8,11 +8,11 @@ import org.springframework.test.context.DynamicPropertySource;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 
 /**
- * Base for integration tests that need the downstream finances HTTP boundary stubbed.
- * A dynamic-port WireMock server with stub files under classpath {@code wiremock/},
- * with the WebClient base URL redirected at it via {@link DynamicPropertySource}.
+ * Full-context IT base that additionally stubs the downstream finances HTTP boundary. A
+ * dynamic-port WireMock server with stub files under classpath {@code wiremock/}, with the
+ * FinancesClient WebClient base URL redirected at it via {@link DynamicPropertySource}.
  */
-public abstract class WireMockIntegrationTest {
+public abstract class WireMockIntegrationTest extends IntegrationTestBase {
 
     @RegisterExtension
     protected static final WireMockExtension wireMock = WireMockExtension.newInstance()
