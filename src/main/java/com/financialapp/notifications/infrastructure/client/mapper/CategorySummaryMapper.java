@@ -1,6 +1,6 @@
 package com.financialapp.notifications.infrastructure.client.mapper;
 
-import com.financialapp.notifications.domain.model.entity.summary.CategorySummary;
+import com.financialapp.notifications.domain.model.category.CategorySummary;
 import com.financialapp.notifications.infrastructure.client.dto.CategorySummaryResponse;
 
 public class CategorySummaryMapper {

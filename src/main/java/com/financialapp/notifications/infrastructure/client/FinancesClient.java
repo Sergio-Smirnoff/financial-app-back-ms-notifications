@@ -1,7 +1,7 @@
 package com.financialapp.notifications.infrastructure.client;
 
 import com.financialapp.notifications.domain.gateway.FinancesGateway;
-import com.financialapp.notifications.domain.model.entity.summary.CategorySummary;
+import com.financialapp.notifications.domain.model.category.CategorySummary;
 import com.financialapp.notifications.infrastructure.client.dto.CategorySummaryResponse;
 import com.financialapp.notifications.infrastructure.client.mapper.CategorySummaryMapper;
 import lombok.RequiredArgsConstructor;

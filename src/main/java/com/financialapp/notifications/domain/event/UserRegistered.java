@@ -1,4 +1,4 @@
-package com.financialapp.notifications.domain.model.entity.event;
+package com.financialapp.notifications.domain.event;
 
 public record UserRegistered(
         Long userId,

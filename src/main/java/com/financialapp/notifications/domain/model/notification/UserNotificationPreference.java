@@ -1,4 +1,4 @@
-package com.financialapp.notifications.domain.model.entity;
+package com.financialapp.notifications.domain.model.notification;
 
 import java.time.LocalDateTime;
 

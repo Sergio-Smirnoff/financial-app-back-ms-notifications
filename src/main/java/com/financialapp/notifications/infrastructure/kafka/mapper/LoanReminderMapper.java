@@ -1,7 +1,7 @@
 package com.financialapp.notifications.infrastructure.kafka.mapper;
 
 import com.financialapp.notifications.infrastructure.kafka.event.LoanReminderEvent;
-import com.financialapp.notifications.domain.model.entity.event.LoanReminder;
+import com.financialapp.notifications.domain.event.LoanReminder;
 
 public class LoanReminderMapper {
     public static LoanReminder toDomain(LoanReminderEvent event) {

@@ -2,10 +2,10 @@ package com.financialapp.notifications.application.usecase.event;
 
 import com.financialapp.notifications.application.service.NotificationService;
 import com.financialapp.notifications.domain.usecase.event.ProcessPaymentDueUseCase;
-import com.financialapp.notifications.domain.model.entity.Notification;
-import com.financialapp.notifications.domain.model.entity.event.PaymentDue;
-import com.financialapp.notifications.domain.model.entity.enums.NotificationChannel;
-import com.financialapp.notifications.domain.model.entity.enums.NotificationType;
+import com.financialapp.notifications.domain.model.notification.Notification;
+import com.financialapp.notifications.domain.event.PaymentDue;
+import com.financialapp.notifications.domain.model.notification.NotificationChannel;
+import com.financialapp.notifications.domain.model.notification.NotificationType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

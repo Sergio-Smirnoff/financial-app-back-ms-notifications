@@ -1,4 +1,4 @@
-package com.financialapp.notifications.domain.model.entity.enums;
+package com.financialapp.notifications.domain.model.notification;
 
 public enum NotificationType {
     PAYMENT_DUE,

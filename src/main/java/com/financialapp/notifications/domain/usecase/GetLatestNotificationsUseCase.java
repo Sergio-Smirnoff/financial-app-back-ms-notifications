@@ -2,7 +2,7 @@ package com.financialapp.notifications.domain.usecase;
 
 import java.util.List;
 
-import com.financialapp.notifications.domain.model.entity.Notification;
+import com.financialapp.notifications.domain.model.notification.Notification;
 
 public interface GetLatestNotificationsUseCase {
     List<Notification> execute(Long userId, Long bankId);

@@ -1,7 +1,4 @@
-package com.financialapp.notifications.domain.model.entity;
-
-import com.financialapp.notifications.domain.model.entity.enums.NotificationChannel;
-import com.financialapp.notifications.domain.model.entity.enums.NotificationType;
+package com.financialapp.notifications.domain.model.notification;
 
 import java.time.LocalDateTime;
 

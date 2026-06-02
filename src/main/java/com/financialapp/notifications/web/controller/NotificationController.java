@@ -1,6 +1,6 @@
 package com.financialapp.notifications.web.controller;
 
-import com.financialapp.notifications.domain.model.entity.Notification;
+import com.financialapp.notifications.domain.model.notification.Notification;
 import com.financialapp.notifications.domain.model.pagination.PageResult;
 import com.financialapp.notifications.web.controller.dto.ApiResponse;
 import com.financialapp.notifications.web.controller.dto.NotificationResponse;

@@ -1,4 +1,4 @@
-package com.financialapp.notifications.domain.model.entity.summary;
+package com.financialapp.notifications.domain.model.category;
 
 import java.math.BigDecimal;
 

@@ -1,7 +1,7 @@
 package com.financialapp.notifications.infrastructure.kafka.mapper;
 
 import com.financialapp.notifications.infrastructure.kafka.event.UserRegisteredEvent;
-import com.financialapp.notifications.domain.model.entity.event.UserRegistered;
+import com.financialapp.notifications.domain.event.UserRegistered;
 
 public class UserRegisteredMapper {
     public static UserRegistered toDomain(UserRegisteredEvent event) {

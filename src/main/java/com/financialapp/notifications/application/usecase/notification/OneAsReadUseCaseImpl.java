@@ -1,6 +1,6 @@
 package com.financialapp.notifications.application.usecase.notification;
 
-import com.financialapp.notifications.domain.model.entity.Notification;
+import com.financialapp.notifications.domain.model.notification.Notification;
 import com.financialapp.notifications.domain.model.exception.ResourceNotFoundException;
 import com.financialapp.notifications.domain.repository.NotificationRepository;
 import com.financialapp.notifications.domain.usecase.OneAsReadUsecase;

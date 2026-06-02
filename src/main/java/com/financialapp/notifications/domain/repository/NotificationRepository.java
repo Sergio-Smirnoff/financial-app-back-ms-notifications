@@ -1,6 +1,6 @@
 package com.financialapp.notifications.domain.repository;
 
-import com.financialapp.notifications.domain.model.entity.Notification;
+import com.financialapp.notifications.domain.model.notification.Notification;
 import com.financialapp.notifications.domain.model.pagination.PageResult;
 
 import java.util.List;

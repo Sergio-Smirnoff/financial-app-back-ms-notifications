@@ -1,7 +1,7 @@
 package com.financialapp.notifications.infrastructure.kafka.mapper;
 
 import com.financialapp.notifications.infrastructure.kafka.event.PaymentDueEvent;
-import com.financialapp.notifications.domain.model.entity.event.PaymentDue;
+import com.financialapp.notifications.domain.event.PaymentDue;
 
 public class PaymentDueMapper {
     public static PaymentDue toDomain(PaymentDueEvent event) {

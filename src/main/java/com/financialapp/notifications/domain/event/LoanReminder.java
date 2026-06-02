@@ -1,13 +1,13 @@
-package com.financialapp.notifications.domain.model.entity.event;
+package com.financialapp.notifications.domain.event;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-public record PaymentDue(
+public record LoanReminder(
         Long userId,
-        Long cardExpenseId,
-        String description,
-        LocalDate nextDueDate,
+        Long loanId,
+        String loanDescription,
+        LocalDate nextPaymentDate,
         BigDecimal installmentAmount,
         String currency,
         int remainingInstallments

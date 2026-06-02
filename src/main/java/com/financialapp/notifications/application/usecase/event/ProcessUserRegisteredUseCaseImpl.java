@@ -1,12 +1,12 @@
 package com.financialapp.notifications.application.usecase.event;
 
 import com.financialapp.notifications.application.service.NotificationService;
-import com.financialapp.notifications.domain.model.entity.Notification;
-import com.financialapp.notifications.domain.model.entity.event.UserRegistered;
+import com.financialapp.notifications.domain.model.notification.Notification;
+import com.financialapp.notifications.domain.event.UserRegistered;
 import com.financialapp.notifications.domain.usecase.CreatePreferenceIfAbsentUseCase;
 import com.financialapp.notifications.domain.usecase.event.ProcessUserRegisteredUseCase;
-import com.financialapp.notifications.domain.model.entity.enums.NotificationChannel;
-import com.financialapp.notifications.domain.model.entity.enums.NotificationType;
+import com.financialapp.notifications.domain.model.notification.NotificationChannel;
+import com.financialapp.notifications.domain.model.notification.NotificationType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

@@ -1,6 +1,6 @@
 package com.financialapp.notifications.infrastructure.repository.preferences.mapper;
 
-import com.financialapp.notifications.domain.model.entity.UserNotificationPreference;
+import com.financialapp.notifications.domain.model.notification.UserNotificationPreference;
 import com.financialapp.notifications.infrastructure.repository.preferences.UserNotificationPreferenceSqlEntity;
 
 public class UserNotificationPreferenceMapper {

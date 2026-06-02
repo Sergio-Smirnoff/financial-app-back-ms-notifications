@@ -1,7 +1,7 @@
 package com.financialapp.notifications.infrastructure.repository.notifications;
 
-import com.financialapp.notifications.domain.model.entity.enums.NotificationChannel;
-import com.financialapp.notifications.domain.model.entity.enums.NotificationType;
+import com.financialapp.notifications.domain.model.notification.NotificationChannel;
+import com.financialapp.notifications.domain.model.notification.NotificationType;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;
