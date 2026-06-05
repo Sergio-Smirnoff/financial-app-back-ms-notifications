@@ -1,12 +1,19 @@
 package com.financialapp.notifications.domain.exception;
 
-public class ResourceNotFoundException extends RuntimeException {
+import com.financialapp.commons.core.error.DomainException;
+import com.financialapp.commons.core.error.ErrorCode;
+
+public class ResourceNotFoundException extends DomainException {
 
     public ResourceNotFoundException(String message) {
-        super(message);
+        super(DomainError.RESOURCE_NOT_FOUND, message);
     }
 
     public ResourceNotFoundException(String resource, Long id) {
-        super(resource + " not found with id: " + id);
+        super(DomainError.RESOURCE_NOT_FOUND, resource + " not found with id: " + id);
+    }
+
+    protected ResourceNotFoundException(ErrorCode error, String message) {
+        super(error, message);
     }
 }

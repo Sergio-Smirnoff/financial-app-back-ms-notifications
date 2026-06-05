@@ -41,7 +41,7 @@ class NotificationControllerIT extends IntegrationTestBase {
         mockMvc.perform(get("/api/v1/notifications")
                         .header("X-User-Id", "301").header("X-Internal-Token", TOKEN))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.status").value(200))
                 .andExpect(jsonPath("$.data.content[0].type").value("PAYMENT_DUE"))
                 .andExpect(jsonPath("$.data.content[0].title").value("Pay"));
     }
@@ -91,7 +91,7 @@ class NotificationControllerIT extends IntegrationTestBase {
         mockMvc.perform(put("/api/v1/notifications/{id}/read", 999999)
                         .header("X-User-Id", "305").header("X-Internal-Token", TOKEN))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.success").value(false));
+                .andExpect(jsonPath("$.code").value("resource_not_found"));
     }
 
     @Test

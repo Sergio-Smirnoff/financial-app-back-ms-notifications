@@ -2,7 +2,9 @@ package com.financialapp.notifications.web.controller;
 
 import com.financialapp.notifications.domain.model.notification.Notification;
 import com.financialapp.notifications.domain.model.pagination.PageResult;
-import com.financialapp.notifications.web.controller.dto.ApiResponse;
+import com.financialapp.commons.core.response.ApiResponse;
+import com.financialapp.commons.web.openapi.ApiErrorCodes;
+import com.financialapp.notifications.domain.exception.DomainError;
 import com.financialapp.notifications.web.controller.dto.NotificationResponse;
 import com.financialapp.notifications.web.controller.dto.UnreadCountResponse;
 import com.financialapp.notifications.domain.usecase.notification.AllAsReadUseCase;
@@ -83,6 +85,7 @@ public class NotificationController {
 
     @PutMapping("/{id}/read")
     @Operation(summary = "Mark notification as read")
+    @ApiErrorCodes(catalog = DomainError.class, value = {"resource_not_found", "business_rule_violation"})
     public ResponseEntity<ApiResponse<Void>> markAsRead(
             @RequestHeader("X-User-Id") Long userId,
             @PathVariable Long id) {
@@ -92,6 +95,7 @@ public class NotificationController {
 
     @PutMapping("/read-all")
     @Operation(summary = "Mark all notifications as read")
+    @ApiErrorCodes(catalog = DomainError.class, value = {"business_rule_violation"})
     public ResponseEntity<ApiResponse<Void>> markAllAsRead(
             @RequestHeader("X-User-Id") Long userId) {
         markAllAsReadUseCase.execute(new AllAsReadCommand(userId));

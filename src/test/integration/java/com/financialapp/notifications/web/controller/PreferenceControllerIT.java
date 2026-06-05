@@ -56,7 +56,7 @@ class PreferenceControllerIT extends IntegrationTestBase {
                         .content("{}"))
                 // Then the validation handler returns a 400 with the field message
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.success").value(false))
-                .andExpect(jsonPath("$.message").value("Validation failed"));
+                .andExpect(jsonPath("$.code").value("validation_error"))
+                .andExpect(jsonPath("$.message").value("Request validation failed"));
     }
 }

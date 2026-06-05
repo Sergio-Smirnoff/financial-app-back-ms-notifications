@@ -5,7 +5,9 @@ import com.financialapp.notifications.domain.usecase.preference.GetPreferenceUse
 import com.financialapp.notifications.domain.usecase.preference.UpdatePreferenceUseCase;
 import com.financialapp.notifications.domain.usecase.preference.command.GetPreferenceCommand;
 import com.financialapp.notifications.domain.usecase.preference.command.UpdatePreferenceCommand;
-import com.financialapp.notifications.web.controller.dto.ApiResponse;
+import com.financialapp.commons.core.response.ApiResponse;
+import com.financialapp.commons.web.openapi.ApiErrorCodes;
+import com.financialapp.notifications.domain.exception.DomainError;
 import com.financialapp.notifications.web.controller.dto.NotificationPreferenceResponse;
 import com.financialapp.notifications.web.controller.request.NotificationPreferenceRequest;
 import io.swagger.v3.oas.annotations.Operation;
@@ -26,6 +28,7 @@ public class PreferenceController {
 
     @GetMapping
     @Operation(summary = "Get user notification preferences")
+    @ApiErrorCodes(catalog = DomainError.class, value = {"user_not_found"})
     public ResponseEntity<ApiResponse<NotificationPreferenceResponse>> getPreference(
             @RequestHeader("X-User-Id") Long userId) {
         NotificationPreferenceResponse pref = toResponse(getPreferenceUseCase.execute(new GetPreferenceCommand(userId)));
@@ -34,6 +37,7 @@ public class PreferenceController {
 
     @PutMapping
     @Operation(summary = "Update notification preferences")
+    @ApiErrorCodes(catalog = DomainError.class, value = {"user_not_found", "business_rule_violation"})
     public ResponseEntity<ApiResponse<NotificationPreferenceResponse>> updatePreference(
             @RequestHeader("X-User-Id") Long userId,
             @Valid @RequestBody NotificationPreferenceRequest request) {
