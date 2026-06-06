@@ -6,6 +6,7 @@ import com.financialapp.notifications.application.usecase.notification.impl.GetL
 import com.financialapp.notifications.application.usecase.notification.impl.GetNotificationUseCaseImpl;
 import com.financialapp.notifications.application.usecase.notification.impl.GetUnreadCountUseCaseImpl;
 import com.financialapp.notifications.application.usecase.notification.impl.OneAsReadUseCaseImpl;
+import com.financialapp.notifications.domain.exception.BusinessException;
 import com.financialapp.notifications.domain.exception.ResourceNotFoundException;
 import com.financialapp.notifications.domain.model.notification.Notification;
 import com.financialapp.notifications.domain.model.notification.NotificationChannel;
@@ -31,6 +32,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -150,5 +152,110 @@ class NotificationQueryUseCasesTest {
         assertThatThrownBy(() -> new OneAsReadUseCaseImpl(repository).execute(new MarkOneAsReadCommand(7L, 5L)))
                 .isInstanceOf(ResourceNotFoundException.class);
         verify(repository, never()).save(any());
+    }
+
+    @Test
+    void getNotification_rejectsNullUserId() {
+        assertThatThrownBy(() -> new GetNotificationUseCaseImpl(repository).execute(new GetNotificationsCommand(null, 0, 20)))
+                .isInstanceOf(BusinessException.class);
+        verify(repository, never()).findByUserIdOrderByCreatedAtDesc(any(), anyInt(), anyInt());
+    }
+
+    @Test
+    void getNotification_rejectsNonPositiveUserId() {
+        assertThatThrownBy(() -> new GetNotificationUseCaseImpl(repository).execute(new GetNotificationsCommand(0L, 0, 20)))
+                .isInstanceOf(BusinessException.class);
+    }
+
+    @Test
+    void getNotification_rejectsNegativePage() {
+        assertThatThrownBy(() -> new GetNotificationUseCaseImpl(repository).execute(new GetNotificationsCommand(7L, -1, 20)))
+                .isInstanceOf(BusinessException.class);
+    }
+
+    @Test
+    void getNotification_rejectsNonPositiveSize() {
+        assertThatThrownBy(() -> new GetNotificationUseCaseImpl(repository).execute(new GetNotificationsCommand(7L, 0, 0)))
+                .isInstanceOf(BusinessException.class);
+    }
+
+    @Test
+    void getNotification_rejectsSizeAboveLimit() {
+        assertThatThrownBy(() -> new GetNotificationUseCaseImpl(repository).execute(new GetNotificationsCommand(7L, 0, 101)))
+                .isInstanceOf(BusinessException.class);
+    }
+
+    @Test
+    void getLatest_rejectsNullUserId() {
+        assertThatThrownBy(() -> new GetLatestNotificationsUseCaseImpl(repository).execute(new GetLatestNotificationsCommand(null, null)))
+                .isInstanceOf(BusinessException.class);
+    }
+
+    @Test
+    void getLatest_rejectsNonPositiveUserId() {
+        assertThatThrownBy(() -> new GetLatestNotificationsUseCaseImpl(repository).execute(new GetLatestNotificationsCommand(-1L, null)))
+                .isInstanceOf(BusinessException.class);
+    }
+
+    @Test
+    void getLatestByBank_rejectsNullUserId() {
+        assertThatThrownBy(() -> new GetLatestNotificationsByBankUseCaseImpl(repository).execute(new GetLatestNotificationsByBankCommand(null, 42L)))
+                .isInstanceOf(BusinessException.class);
+    }
+
+    @Test
+    void getLatestByBank_rejectsNonPositiveUserId() {
+        assertThatThrownBy(() -> new GetLatestNotificationsByBankUseCaseImpl(repository).execute(new GetLatestNotificationsByBankCommand(0L, 42L)))
+                .isInstanceOf(BusinessException.class);
+    }
+
+    @Test
+    void getLatestByBank_rejectsNullBankId() {
+        assertThatThrownBy(() -> new GetLatestNotificationsByBankUseCaseImpl(repository).execute(new GetLatestNotificationsByBankCommand(7L, null)))
+                .isInstanceOf(BusinessException.class);
+    }
+
+    @Test
+    void getLatestByBank_rejectsNonPositiveBankId() {
+        assertThatThrownBy(() -> new GetLatestNotificationsByBankUseCaseImpl(repository).execute(new GetLatestNotificationsByBankCommand(7L, 0L)))
+                .isInstanceOf(BusinessException.class);
+    }
+
+    @Test
+    void getUnreadCount_rejectsNullUserId() {
+        assertThatThrownBy(() -> new GetUnreadCountUseCaseImpl(repository).execute(new GetUnreadCountCommand(null)))
+                .isInstanceOf(BusinessException.class);
+    }
+
+    @Test
+    void getUnreadCount_rejectsNonPositiveUserId() {
+        assertThatThrownBy(() -> new GetUnreadCountUseCaseImpl(repository).execute(new GetUnreadCountCommand(-5L)))
+                .isInstanceOf(BusinessException.class);
+    }
+
+    @Test
+    void allAsRead_rejectsNullUserId() {
+        assertThatThrownBy(() -> new AllAsReadUseCaseImpl(repository).execute(new AllAsReadCommand(null)))
+                .isInstanceOf(BusinessException.class);
+        verify(repository, never()).markAllAsRead(any());
+    }
+
+    @Test
+    void allAsRead_rejectsNonPositiveUserId() {
+        assertThatThrownBy(() -> new AllAsReadUseCaseImpl(repository).execute(new AllAsReadCommand(0L)))
+                .isInstanceOf(BusinessException.class);
+    }
+
+    @Test
+    void oneAsRead_rejectsNullUserId() {
+        assertThatThrownBy(() -> new OneAsReadUseCaseImpl(repository).execute(new MarkOneAsReadCommand(null, 5L)))
+                .isInstanceOf(BusinessException.class);
+        verify(repository, never()).findById(any());
+    }
+
+    @Test
+    void oneAsRead_rejectsNonPositiveUserId() {
+        assertThatThrownBy(() -> new OneAsReadUseCaseImpl(repository).execute(new MarkOneAsReadCommand(-1L, 5L)))
+                .isInstanceOf(BusinessException.class);
     }
 }
