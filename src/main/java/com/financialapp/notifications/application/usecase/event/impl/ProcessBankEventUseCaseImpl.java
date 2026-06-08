@@ -7,6 +7,8 @@ import com.financialapp.notifications.domain.model.notification.NotificationType
 import com.financialapp.notifications.domain.event.BankAlert;
 import com.financialapp.notifications.domain.usecase.event.ProcessBankEventUseCase;
 import com.financialapp.notifications.domain.usecase.event.command.ProcessBankEventCommand;
+import com.financialapp.notifications.domain.usecase.preference.GetPreferenceUseCase;
+import com.financialapp.notifications.domain.usecase.preference.command.GetPreferenceCommand;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -17,6 +19,7 @@ import org.springframework.stereotype.Service;
 public class ProcessBankEventUseCaseImpl implements ProcessBankEventUseCase {
 
     private final NotificationService notificationService;
+    private final GetPreferenceUseCase getPreferenceUseCase;
 
     @Override
     public void execute(ProcessBankEventCommand command) {
@@ -29,10 +32,19 @@ public class ProcessBankEventUseCaseImpl implements ProcessBankEventUseCase {
             return;
         }
 
+        NotificationChannel channel = resolveChannel(alert.userId());
         var newNotification = Notification.create(alert.userId(), type, alert.title(), alert.message(),
-                NotificationChannel.BOTH, alert.metadata());
+                channel, alert.metadata());
 
-        notificationService.notify(
-                newNotification);
+        notificationService.notify(newNotification);
+    }
+
+    private NotificationChannel resolveChannel(Long userId) {
+        try {
+            getPreferenceUseCase.execute(new GetPreferenceCommand(userId));
+            return NotificationChannel.BOTH;
+        } catch (Exception e) {
+            return NotificationChannel.IN_APP;
+        }
     }
 }

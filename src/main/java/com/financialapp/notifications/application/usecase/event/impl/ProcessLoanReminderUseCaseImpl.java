@@ -7,6 +7,8 @@ import com.financialapp.notifications.domain.model.notification.Notification;
 import com.financialapp.notifications.domain.event.LoanReminder;
 import com.financialapp.notifications.domain.model.notification.NotificationChannel;
 import com.financialapp.notifications.domain.model.notification.NotificationType;
+import com.financialapp.notifications.domain.usecase.preference.GetPreferenceUseCase;
+import com.financialapp.notifications.domain.usecase.preference.command.GetPreferenceCommand;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -19,19 +21,28 @@ public class ProcessLoanReminderUseCaseImpl implements ProcessLoanReminderUseCas
     private static final Locale MESSAGE_LOCALE = Locale.of("es", "AR");
 
     private final NotificationService notificationService;
+    private final GetPreferenceUseCase getPreferenceUseCase;
 
     @Override
     public void execute(ProcessLoanReminderCommand command) {
         LoanReminder reminder = command.reminder();
-        String title = "Loan Payment Due: " + reminder.loanDescription();
+        String title = "Loan Payment Due: " + reminder.loanName();
         String message = String.format(MESSAGE_LOCALE,
-                "Your loan payment of %.2f %s for '%s' is due on %s. %d installment(s) remaining.",
-                reminder.installmentAmount().doubleValue(), reminder.currency(), reminder.loanDescription(),
-                reminder.nextPaymentDate(), reminder.remainingInstallments());
+                "Installment #%d of loan '%s' is due on %s.",
+                reminder.installmentNumber(), reminder.loanName(), reminder.dueDate());
 
+        NotificationChannel channel = resolveChannel(reminder.userId());
         var newNotification = Notification.create(
-                reminder.userId(), NotificationType.LOAN_REMINDER, title, message,
-                NotificationChannel.BOTH, null);
+                reminder.userId(), NotificationType.LOAN_REMINDER, title, message, channel, null);
         notificationService.notify(newNotification);
+    }
+
+    private NotificationChannel resolveChannel(Long userId) {
+        try {
+            getPreferenceUseCase.execute(new GetPreferenceCommand(userId));
+            return NotificationChannel.BOTH;
+        } catch (Exception e) {
+            return NotificationChannel.IN_APP;
+        }
     }
 }

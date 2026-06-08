@@ -1,19 +1,21 @@
 package com.financialapp.notifications.infrastructure.messaging.mapper;
 
-import com.financialapp.notifications.infrastructure.messaging.payload.PaymentDueEvent;
 import com.financialapp.notifications.domain.event.PaymentDue;
+import com.financialapp.notifications.infrastructure.messaging.payload.CardInstallmentDueData;
 
 public class PaymentDueMapper {
-    public static PaymentDue toDomain(PaymentDueEvent event) {
-        PaymentDueEvent.Payload p = event.getPayload();
+
+    public static PaymentDue toDomain(CardInstallmentDueData data) {
         return new PaymentDue(
-                event.getUserId(),
-                p.getCardExpenseId(),
-                p.getDescription(),
-                p.getNextDueDate(),
-                p.getInstallmentAmount(),
-                p.getCurrency(),
-                p.getRemainingInstallments()
+                data.userId(),
+                data.cardNumber(),
+                data.installmentId(),
+                data.installmentNumber(),
+                data.totalInstallments(),
+                data.description(),
+                data.dueDate(),
+                data.amount(),
+                data.currency()
         );
     }
 }

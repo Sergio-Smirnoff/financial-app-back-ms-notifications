@@ -1,38 +1,23 @@
 package com.financialapp.notifications.infrastructure.kafka.config;
 
 import com.financialapp.notifications.infrastructure.config.KafkaConfig;
-import com.financialapp.notifications.infrastructure.config.KafkaErrorHandlerConfig;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.junit.jupiter.api.Test;
-import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.kafka.listener.DefaultErrorHandler;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
 class KafkaConfigTest {
 
     @Test
     void kafkaConfig_declaresAllTopicsWithExpectedNames() {
-        // Given the topic config / When the @Bean methods are invoked
         KafkaConfig config = new KafkaConfig();
 
-        // Then each topic is named as expected
-        assertThat(config.paymentDueTopic()).extracting(NewTopic::name).isEqualTo("payment.due");
-        assertThat(config.loanReminderTopic()).extracting(NewTopic::name).isEqualTo("loan.reminder");
-        assertThat(config.installmentReminderTopic()).extracting(NewTopic::name).isEqualTo("installment.reminder");
-        assertThat(config.investmentThresholdTopic()).extracting(NewTopic::name).isEqualTo("investment.threshold.reached");
-        assertThat(config.userRegisteredTopic()).extracting(NewTopic::name).isEqualTo("user.registered");
-    }
-
-    @Test
-    @SuppressWarnings("unchecked")
-    void errorHandlerConfig_buildsDefaultErrorHandler() {
-        // Given a Kafka template / When the error-handler bean is built
-        KafkaTemplate<Object, Object> template = mock(KafkaTemplate.class);
-        DefaultErrorHandler handler = new KafkaErrorHandlerConfig().errorHandler(template);
-
-        // Then a configured error handler is produced
-        assertThat(handler).isNotNull();
+        assertThat(config.usersUserRegisteredTopic()).extracting(NewTopic::name).isEqualTo("users.user.registered");
+        assertThat(config.banksAccountLowBalanceTopic()).extracting(NewTopic::name).isEqualTo("banks.account.low_balance");
+        assertThat(config.banksAccountBalanceAdjustedTopic()).extracting(NewTopic::name).isEqualTo("banks.account.balance_adjusted");
+        assertThat(config.banksLoanReminderTopic()).extracting(NewTopic::name).isEqualTo("banks.loan.reminder");
+        assertThat(config.banksCardExpiringTopic()).extracting(NewTopic::name).isEqualTo("banks.card.expiring");
+        assertThat(config.banksCardInstallmentDueTopic()).extracting(NewTopic::name).isEqualTo("banks.card.installment_due");
+        assertThat(config.investmentsThresholdBreachedTopic()).extracting(NewTopic::name).isEqualTo("investments.threshold.breached");
     }
 }

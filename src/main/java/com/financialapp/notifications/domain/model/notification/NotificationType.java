@@ -10,5 +10,6 @@ public enum NotificationType {
     CARD_EXPIRING,
     LOW_BALANCE,
     TRANSFER_SENT,
-    TRANSFER_RECEIVED
+    TRANSFER_RECEIVED,
+    BALANCE_ADJUSTED
 }

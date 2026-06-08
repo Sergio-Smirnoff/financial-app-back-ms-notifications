@@ -36,11 +36,9 @@ spring:
     consumer:
       group-id: notifications-group
       auto-offset-reset: earliest
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.apache.kafka.common.serialization.ByteArrayDeserializer
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      value-serializer: io.cloudevents.kafka.CloudEventSerializer
   mail:
     host: ${MAIL_HOST:localhost}
     port: ${MAIL_PORT:587}
