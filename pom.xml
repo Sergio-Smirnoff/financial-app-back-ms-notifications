@@ -29,17 +29,14 @@
         <dependency>
             <groupId>com.financialapp</groupId>
             <artifactId>commons-messaging</artifactId>
-            <version>1.0.0</version>
         </dependency>
         <dependency>
             <groupId>io.cloudevents</groupId>
             <artifactId>cloudevents-kafka</artifactId>
-            <version>4.0.1</version>
         </dependency>
         <dependency>
             <groupId>io.cloudevents</groupId>
             <artifactId>cloudevents-json-jackson</artifactId>
-            <version>4.0.1</version>
         </dependency>
 
         <dependency>
