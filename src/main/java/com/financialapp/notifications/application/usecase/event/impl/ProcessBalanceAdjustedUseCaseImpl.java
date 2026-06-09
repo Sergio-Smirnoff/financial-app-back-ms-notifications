@@ -1,5 +1,6 @@
 package com.financialapp.notifications.application.usecase.event.impl;
 
+import com.financialapp.notifications.application.service.NotificationChannelResolver;
 import com.financialapp.notifications.domain.event.BalanceAdjusted;
 import com.financialapp.notifications.domain.model.notification.Notification;
 import com.financialapp.notifications.domain.model.notification.NotificationChannel;
@@ -7,8 +8,6 @@ import com.financialapp.notifications.domain.model.notification.NotificationType
 import com.financialapp.notifications.domain.service.NotificationService;
 import com.financialapp.notifications.domain.usecase.event.ProcessBalanceAdjustedUseCase;
 import com.financialapp.notifications.domain.usecase.event.command.ProcessBalanceAdjustedCommand;
-import com.financialapp.notifications.domain.usecase.preference.GetPreferenceUseCase;
-import com.financialapp.notifications.domain.usecase.preference.command.GetPreferenceCommand;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +20,7 @@ public class ProcessBalanceAdjustedUseCaseImpl implements ProcessBalanceAdjusted
     private static final Locale MESSAGE_LOCALE = Locale.of("es", "AR");
 
     private final NotificationService notificationService;
-    private final GetPreferenceUseCase getPreferenceUseCase;
+    private final NotificationChannelResolver channelResolver;
 
     @Override
     public void execute(ProcessBalanceAdjustedCommand command) {
@@ -32,18 +31,9 @@ public class ProcessBalanceAdjustedUseCaseImpl implements ProcessBalanceAdjusted
                 "Your account '%s' was %s %.2f %s.",
                 ba.accountName(), direction, ba.amount().doubleValue(), ba.currency());
 
-        NotificationChannel channel = resolveChannel(ba.userId());
+        NotificationChannel channel = channelResolver.resolve(ba.userId());
         var newNotification = Notification.create(
                 ba.userId(), NotificationType.BALANCE_ADJUSTED, title, message, channel, null);
         notificationService.notify(newNotification);
-    }
-
-    private NotificationChannel resolveChannel(Long userId) {
-        try {
-            getPreferenceUseCase.execute(new GetPreferenceCommand(userId));
-            return NotificationChannel.BOTH;
-        } catch (Exception e) {
-            return NotificationChannel.IN_APP;
-        }
     }
 }

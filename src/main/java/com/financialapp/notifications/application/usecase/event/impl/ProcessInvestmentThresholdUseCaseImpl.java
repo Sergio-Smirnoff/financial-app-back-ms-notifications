@@ -1,5 +1,6 @@
 package com.financialapp.notifications.application.usecase.event.impl;
 
+import com.financialapp.notifications.application.service.NotificationChannelResolver;
 import com.financialapp.notifications.domain.service.NotificationService;
 import com.financialapp.notifications.domain.usecase.event.ProcessInvestmentThresholdUseCase;
 import com.financialapp.notifications.domain.usecase.event.command.ProcessInvestmentThresholdCommand;
@@ -7,8 +8,6 @@ import com.financialapp.notifications.domain.model.notification.Notification;
 import com.financialapp.notifications.domain.event.InvestmentThreshold;
 import com.financialapp.notifications.domain.model.notification.NotificationChannel;
 import com.financialapp.notifications.domain.model.notification.NotificationType;
-import com.financialapp.notifications.domain.usecase.preference.GetPreferenceUseCase;
-import com.financialapp.notifications.domain.usecase.preference.command.GetPreferenceCommand;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +20,7 @@ public class ProcessInvestmentThresholdUseCaseImpl implements ProcessInvestmentT
     private static final Locale MESSAGE_LOCALE = Locale.of("es", "AR");
 
     private final NotificationService notificationService;
-    private final GetPreferenceUseCase getPreferenceUseCase;
+    private final NotificationChannelResolver channelResolver;
 
     @Override
     public void execute(ProcessInvestmentThresholdCommand command) {
@@ -38,18 +37,9 @@ public class ProcessInvestmentThresholdUseCaseImpl implements ProcessInvestmentT
                 t.currentPrice(), t.currency(),
                 t.avgPurchasePrice(), t.currency());
 
-        NotificationChannel channel = resolveChannel(t.userId());
+        NotificationChannel channel = channelResolver.resolve(t.userId());
         var newNotification = Notification.create(
                 t.userId(), NotificationType.INVESTMENT_THRESHOLD, title, message, channel, null);
         notificationService.notify(newNotification);
-    }
-
-    private NotificationChannel resolveChannel(Long userId) {
-        try {
-            getPreferenceUseCase.execute(new GetPreferenceCommand(userId));
-            return NotificationChannel.BOTH;
-        } catch (Exception e) {
-            return NotificationChannel.IN_APP;
-        }
     }
 }
