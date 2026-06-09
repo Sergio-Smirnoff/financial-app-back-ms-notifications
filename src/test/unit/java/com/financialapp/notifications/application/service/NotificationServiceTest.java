@@ -30,6 +30,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
+
 @ExtendWith(MockitoExtension.class)
 class NotificationServiceTest {
 
@@ -145,5 +146,68 @@ class NotificationServiceTest {
         verify(deliveryRepository).updateStatus(captor.capture());
         assertThat(captor.getValue().status()).isEqualTo(DeliveryStatus.FAILED);
         assertThat(captor.getValue().lastError()).contains("SMTP down");
+    }
+
+    @Test
+    void retryDelivery_inApp_success_marksDeliverySent() {
+        Notification n = notification(NotificationChannel.IN_APP);
+        NotificationDelivery failedDelivery = pendingDelivery(NotificationChannel.IN_APP);
+
+        service.retryDelivery(failedDelivery, n);
+
+        verify(inAppNotificationSender).sendToUser(9L, n);
+        ArgumentCaptor<NotificationDelivery> captor = ArgumentCaptor.forClass(NotificationDelivery.class);
+        verify(deliveryRepository).updateStatus(captor.capture());
+        assertThat(captor.getValue().status()).isEqualTo(DeliveryStatus.SENT);
+        assertThat(captor.getValue().nextRetryAt()).isNull();
+    }
+
+    @Test
+    void retryDelivery_inApp_senderThrows_marksDeliveryFailedWithRetry() {
+        Notification n = notification(NotificationChannel.IN_APP);
+        NotificationDelivery failedDelivery = pendingDelivery(NotificationChannel.IN_APP);
+        doThrow(new RuntimeException("SSE down")).when(inAppNotificationSender).sendToUser(any(), any());
+
+        service.retryDelivery(failedDelivery, n);
+
+        ArgumentCaptor<NotificationDelivery> captor = ArgumentCaptor.forClass(NotificationDelivery.class);
+        verify(deliveryRepository).updateStatus(captor.capture());
+        assertThat(captor.getValue().status()).isEqualTo(DeliveryStatus.FAILED);
+        assertThat(captor.getValue().lastError()).contains("SSE down");
+        assertThat(captor.getValue().nextRetryAt()).isNotNull();
+        assertThat(captor.getValue().attempts()).isEqualTo(1);
+    }
+
+    @Test
+    void retryDelivery_email_success_marksDeliverySent() {
+        Notification n = notification(NotificationChannel.EMAIL);
+        NotificationDelivery failedDelivery = pendingDelivery(NotificationChannel.EMAIL);
+        when(preferenceRepository.findByUserId(9L)).thenReturn(Optional.of(
+                new UserNotificationPreference(null, 9L, "to@x.com", true, null, null)));
+
+        service.retryDelivery(failedDelivery, n);
+
+        verify(emailSender).sendSimpleNotification("to@x.com", "t", "m");
+        ArgumentCaptor<NotificationDelivery> captor = ArgumentCaptor.forClass(NotificationDelivery.class);
+        verify(deliveryRepository).updateStatus(captor.capture());
+        assertThat(captor.getValue().status()).isEqualTo(DeliveryStatus.SENT);
+    }
+
+    @Test
+    void retryDelivery_email_senderThrows_marksDeliveryFailedWithIncrementedAttempts() {
+        Notification n = notification(NotificationChannel.EMAIL);
+        NotificationDelivery failedDelivery = pendingDelivery(NotificationChannel.EMAIL);
+        when(preferenceRepository.findByUserId(9L)).thenReturn(Optional.of(
+                new UserNotificationPreference(null, 9L, "to@x.com", true, null, null)));
+        doThrow(new RuntimeException("SMTP down")).when(emailSender).sendSimpleNotification(any(), any(), any());
+
+        service.retryDelivery(failedDelivery, n);
+
+        ArgumentCaptor<NotificationDelivery> captor = ArgumentCaptor.forClass(NotificationDelivery.class);
+        verify(deliveryRepository).updateStatus(captor.capture());
+        assertThat(captor.getValue().status()).isEqualTo(DeliveryStatus.FAILED);
+        assertThat(captor.getValue().lastError()).contains("SMTP down");
+        assertThat(captor.getValue().nextRetryAt()).isNotNull();
+        assertThat(captor.getValue().attempts()).isEqualTo(1);
     }
 }
