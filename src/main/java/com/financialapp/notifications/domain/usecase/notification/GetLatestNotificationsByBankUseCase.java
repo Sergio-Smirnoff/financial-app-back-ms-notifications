@@ -6,5 +6,5 @@ import com.financialapp.notifications.domain.model.notification.Notification;
 import com.financialapp.notifications.domain.usecase.notification.command.GetLatestNotificationsByBankCommand;
 
 public interface GetLatestNotificationsByBankUseCase {
-    public List<Notification> execute(GetLatestNotificationsByBankCommand command);
+    List<Notification> execute(GetLatestNotificationsByBankCommand command);
 }

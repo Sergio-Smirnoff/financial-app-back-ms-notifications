@@ -1,5 +1,6 @@
 package com.financialapp.notifications.application.usecase.event.impl;
 
+import com.financialapp.notifications.application.service.NotificationChannelResolver;
 import com.financialapp.notifications.domain.service.NotificationService;
 import com.financialapp.notifications.domain.usecase.event.ProcessLoanReminderUseCase;
 import com.financialapp.notifications.domain.usecase.event.command.ProcessLoanReminderCommand;
@@ -19,19 +20,19 @@ public class ProcessLoanReminderUseCaseImpl implements ProcessLoanReminderUseCas
     private static final Locale MESSAGE_LOCALE = Locale.of("es", "AR");
 
     private final NotificationService notificationService;
+    private final NotificationChannelResolver channelResolver;
 
     @Override
     public void execute(ProcessLoanReminderCommand command) {
         LoanReminder reminder = command.reminder();
-        String title = "Loan Payment Due: " + reminder.loanDescription();
+        String title = "Loan Payment Due: " + reminder.loanName();
         String message = String.format(MESSAGE_LOCALE,
-                "Your loan payment of %.2f %s for '%s' is due on %s. %d installment(s) remaining.",
-                reminder.installmentAmount().doubleValue(), reminder.currency(), reminder.loanDescription(),
-                reminder.nextPaymentDate(), reminder.remainingInstallments());
+                "Installment #%d of loan '%s' is due on %s.",
+                reminder.installmentNumber(), reminder.loanName(), reminder.dueDate());
 
+        NotificationChannel channel = channelResolver.resolve(reminder.userId());
         var newNotification = Notification.create(
-                reminder.userId(), NotificationType.LOAN_REMINDER, title, message,
-                NotificationChannel.BOTH, null);
+                reminder.userId(), NotificationType.LOAN_REMINDER, title, message, channel, null);
         notificationService.notify(newNotification);
     }
 }

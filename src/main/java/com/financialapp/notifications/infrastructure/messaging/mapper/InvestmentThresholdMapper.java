@@ -1,22 +1,22 @@
 package com.financialapp.notifications.infrastructure.messaging.mapper;
 
-import com.financialapp.notifications.infrastructure.messaging.payload.InvestmentThresholdEvent;
 import com.financialapp.notifications.domain.event.InvestmentThreshold;
+import com.financialapp.notifications.infrastructure.messaging.payload.InvestmentThresholdData;
 
 public class InvestmentThresholdMapper {
-    public static InvestmentThreshold toDomain(InvestmentThresholdEvent event) {
-        InvestmentThresholdEvent.Payload p = event.getPayload();
+
+    public static InvestmentThreshold toDomain(InvestmentThresholdData data) {
         return new InvestmentThreshold(
-                event.getUserId(),
-                p.getHoldingId(),
-                p.getTicker(),
-                p.getName(),
-                p.getDirection(),
-                p.getThresholdPct(),
-                p.getActualPct(),
-                p.getCurrentPrice(),
-                p.getAvgPurchasePrice(),
-                p.getCurrency()
+                data.userId(),
+                data.holdingId(),
+                data.ticker(),
+                data.name(),
+                data.direction(),
+                data.thresholdPct(),
+                data.actualPct(),
+                data.currentPrice(),
+                data.avgPurchasePrice(),
+                data.currency()
         );
     }
 }

@@ -2,7 +2,6 @@ package com.financialapp.notifications.web.controller;
 
 import com.financialapp.notifications.domain.usecase.notification.GetLatestNotificationsByBankUseCase;
 import com.financialapp.notifications.domain.usecase.notification.command.GetLatestNotificationsByBankCommand;
-import com.financialapp.notifications.infrastructure.messaging.payload.BankAlertEvent;
 import com.financialapp.notifications.support.IntegrationTestBase;
 import com.financialapp.notifications.web.controller.dto.NotificationResponse;
 import org.junit.jupiter.api.Test;

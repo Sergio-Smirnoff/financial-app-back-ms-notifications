@@ -1,64 +1,59 @@
 package com.financialapp.notifications.infrastructure.kafka;
 
+import com.financialapp.notifications.domain.model.notification.Notification;
 import com.financialapp.notifications.domain.repository.NotificationRepository;
-import com.financialapp.notifications.infrastructure.messaging.payload.PaymentDueEvent;
-import com.financialapp.notifications.infrastructure.messaging.payload.UserRegisteredEvent;
 import com.financialapp.notifications.support.IntegrationTestBase;
+import io.cloudevents.CloudEvent;
+import io.cloudevents.core.builder.CloudEventBuilder;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.concurrent.TimeUnit;
-import java.util.function.BooleanSupplier;
+import java.net.URI;
+import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
 
-/**
- * End-to-end Kafka IT: publishes events to the embedded broker and verifies the real
- * {@code @KafkaListener} consumers process them into persisted notifications.
- */
 class KafkaListenerE2EIT extends IntegrationTestBase {
 
-    @Autowired KafkaTemplate<String, Object> kafkaTemplate;
+    @Autowired KafkaTemplate<String, CloudEvent> kafkaTemplate;
     @Autowired NotificationRepository notificationRepository;
 
-    private boolean awaitTrue(BooleanSupplier condition) throws InterruptedException {
-        long deadline = System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(20);
-        while (System.currentTimeMillis() < deadline) {
-            if (condition.getAsBoolean()) {
-                return true;
-            }
-            Thread.sleep(200);
-        }
-        return condition.getAsBoolean();
+    private CloudEvent event(String type, String json) {
+        return CloudEventBuilder.v1()
+                .withId(UUID.randomUUID().toString())
+                .withSource(URI.create("/financial-app/test"))
+                .withType(type)
+                .withData("application/json", json.getBytes(StandardCharsets.UTF_8))
+                .build();
     }
 
     @Test
-    void userRegisteredEvent_isConsumed_andWelcomeNotificationPersisted() throws InterruptedException {
-        // Given a user-registered event published to its topic
-        kafkaTemplate.send("user.registered", UserRegisteredEvent.builder().userId(701L)
-                .payload(UserRegisteredEvent.Payload.builder().email("u701@x.com")
-                        .firstName("Ada").lastName("L").build()).build());
+    void userRegisteredEvent_flowsThroughBrokerAndPersistsNotification() {
+        long userId = 900_001L;
+        kafkaTemplate.send("users.user.registered", event("users.user.registered",
+                "{\"userId\":" + userId + ",\"email\":\"e2e@x.com\",\"firstName\":\"Ada\",\"lastName\":\"L\"}"));
 
-        // When the listener consumes it / Then a welcome notification is persisted for the user
-        boolean persisted = awaitTrue(() ->
-                notificationRepository.countByUserIdAndReadFalse(701L) >= 1);
-        assertThat(persisted).isTrue();
+        await().atMost(Duration.ofSeconds(20)).untilAsserted(() -> {
+            List<Notification> notifications = notificationRepository.findTop5ByUserIdOrderByCreatedAtDesc(userId);
+            assertThat(notifications).isNotEmpty();
+        });
     }
 
     @Test
-    void paymentDueEvent_isConsumed_andNotificationPersisted() throws InterruptedException {
-        // Given a payment-due event published to its topic
-        kafkaTemplate.send("payment.due", PaymentDueEvent.builder().userId(702L)
-                .payload(PaymentDueEvent.Payload.builder().cardExpenseId(1L).description("Visa")
-                        .nextDueDate(LocalDate.of(2026, 7, 1)).installmentAmount(new BigDecimal("10"))
-                        .currency("ARS").remainingInstallments(1).build()).build());
+    void lowBalanceEvent_flowsThroughBrokerAndPersistsNotification() {
+        long userId = 900_002L;
+        kafkaTemplate.send("banks.account.low_balance", event("banks.account.low_balance",
+                "{\"userId\":" + userId + ",\"accountName\":\"Savings\",\"accountCbu\":\"001\"," +
+                "\"bankNumber\":\"BANCO\",\"balance\":50,\"currency\":\"ARS\"}"));
 
-        // When the listener consumes it / Then a payment-due notification is persisted
-        boolean persisted = awaitTrue(() ->
-                notificationRepository.countByUserIdAndReadFalse(702L) >= 1);
-        assertThat(persisted).isTrue();
+        await().atMost(Duration.ofSeconds(20)).untilAsserted(() -> {
+            List<Notification> notifications = notificationRepository.findTop5ByUserIdOrderByCreatedAtDesc(userId);
+            assertThat(notifications).isNotEmpty();
+        });
     }
 }

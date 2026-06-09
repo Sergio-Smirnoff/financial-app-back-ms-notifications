@@ -26,7 +26,6 @@ public class ProcessUserRegisteredUseCaseImpl implements ProcessUserRegisteredUs
     @Transactional
     public void execute(ProcessUserRegisteredCommand command) {
         UserRegistered user = command.user();
-        // create preferences
         createPreferenceIfAbsentUseCase.execute(new CreatePreferenceIfAbsentCommand(command.user().userId(), command.user().email()));
 
         String title = "Welcome to Financial App!";
@@ -39,5 +38,4 @@ public class ProcessUserRegisteredUseCaseImpl implements ProcessUserRegisteredUs
                 NotificationChannel.BOTH, null);
         notificationService.notify(newNotification);
     }
-
 }

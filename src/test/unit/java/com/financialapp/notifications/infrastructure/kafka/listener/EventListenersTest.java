@@ -1,27 +1,31 @@
 package com.financialapp.notifications.infrastructure.kafka.listener;
 
-import com.financialapp.notifications.domain.usecase.event.ProcessBankEventUseCase;
-import com.financialapp.notifications.domain.usecase.event.ProcessInstallmentReminderUseCase;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.financialapp.commons.messaging.domain.gateway.ProcessedEventGateway;
+import com.financialapp.commons.messaging.domain.model.EventId;
+import com.financialapp.commons.messaging.infrastructure.messaging.consume.IdempotentEventProcessor;
+import com.financialapp.commons.messaging.infrastructure.messaging.serde.CloudEventSerde;
+import com.financialapp.notifications.domain.usecase.event.ProcessBalanceAdjustedUseCase;
+import com.financialapp.notifications.domain.usecase.event.ProcessCardExpiringUseCase;
 import com.financialapp.notifications.domain.usecase.event.ProcessInvestmentThresholdUseCase;
 import com.financialapp.notifications.domain.usecase.event.ProcessLoanReminderUseCase;
+import com.financialapp.notifications.domain.usecase.event.ProcessLowBalanceUseCase;
 import com.financialapp.notifications.domain.usecase.event.ProcessPaymentDueUseCase;
 import com.financialapp.notifications.domain.usecase.event.ProcessUserRegisteredUseCase;
-import com.financialapp.notifications.domain.usecase.event.command.ProcessBankEventCommand;
-import com.financialapp.notifications.domain.usecase.event.command.ProcessInstallmentReminderCommand;
+import com.financialapp.notifications.domain.usecase.event.command.ProcessBalanceAdjustedCommand;
+import com.financialapp.notifications.domain.usecase.event.command.ProcessCardExpiringCommand;
 import com.financialapp.notifications.domain.usecase.event.command.ProcessInvestmentThresholdCommand;
 import com.financialapp.notifications.domain.usecase.event.command.ProcessLoanReminderCommand;
+import com.financialapp.notifications.domain.usecase.event.command.ProcessLowBalanceCommand;
 import com.financialapp.notifications.domain.usecase.event.command.ProcessPaymentDueCommand;
 import com.financialapp.notifications.domain.usecase.event.command.ProcessUserRegisteredCommand;
 import com.financialapp.notifications.infrastructure.messaging.listener.BankEventListener;
-import com.financialapp.notifications.infrastructure.messaging.listener.FinancesEventListener;
 import com.financialapp.notifications.infrastructure.messaging.listener.InvestmentEventListener;
 import com.financialapp.notifications.infrastructure.messaging.listener.UserEventListener;
-import com.financialapp.notifications.infrastructure.messaging.payload.BankAlertEvent;
-import com.financialapp.notifications.infrastructure.messaging.payload.InstallmentReminderEvent;
-import com.financialapp.notifications.infrastructure.messaging.payload.InvestmentThresholdEvent;
-import com.financialapp.notifications.infrastructure.messaging.payload.LoanReminderEvent;
-import com.financialapp.notifications.infrastructure.messaging.payload.PaymentDueEvent;
-import com.financialapp.notifications.infrastructure.messaging.payload.UserRegisteredEvent;
+import io.cloudevents.CloudEvent;
+import io.cloudevents.core.builder.CloudEventBuilder;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -29,103 +33,147 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
+import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class EventListenersTest {
 
-    @Mock ProcessBankEventUseCase bankUseCase;
-    @Mock ProcessPaymentDueUseCase paymentDueUseCase;
-    @Mock ProcessLoanReminderUseCase loanReminderUseCase;
-    @Mock ProcessInstallmentReminderUseCase installmentReminderUseCase;
-    @Mock ProcessInvestmentThresholdUseCase investmentUseCase;
     @Mock ProcessUserRegisteredUseCase userUseCase;
+    @Mock ProcessInvestmentThresholdUseCase investmentUseCase;
+    @Mock ProcessLowBalanceUseCase lowBalanceUseCase;
+    @Mock ProcessBalanceAdjustedUseCase balanceAdjustedUseCase;
+    @Mock ProcessLoanReminderUseCase loanReminderUseCase;
+    @Mock ProcessCardExpiringUseCase cardExpiringUseCase;
+    @Mock ProcessPaymentDueUseCase paymentDueUseCase;
+    @Mock ProcessedEventGateway processedEventGateway;
 
-    @Test
-    void bankEventListener_mapsAndDelegates() {
-        // Given a bank-alert event / When the listener handles it
-        new BankEventListener(bankUseCase).handleBankAlert(BankAlertEvent.builder()
-                .userId(1L).type("LOW_BALANCE").title("t").message("m").build());
+    private IdempotentEventProcessor processor;
 
-        // Then it delegates the mapped domain alert
-        ArgumentCaptor<ProcessBankEventCommand> captor = ArgumentCaptor.forClass(ProcessBankEventCommand.class);
-        verify(bankUseCase).execute(captor.capture());
-        assertThat(captor.getValue().alert().userId()).isEqualTo(1L);
-        assertThat(captor.getValue().alert().type()).isEqualTo("LOW_BALANCE");
+    @BeforeEach
+    void setUp() {
+        when(processedEventGateway.isProcessed(any(EventId.class))).thenReturn(false);
+        processor = new IdempotentEventProcessor(processedEventGateway,
+                new CloudEventSerde(new ObjectMapper().registerModule(new JavaTimeModule())));
+    }
+
+    private CloudEvent buildEvent(String id, String type, String json) {
+        return CloudEventBuilder.v1()
+                .withId(id)
+                .withSource(URI.create("/test"))
+                .withType(type)
+                .withData("application/json", json.getBytes(StandardCharsets.UTF_8))
+                .build();
     }
 
     @Test
-    void financesEventListener_handlesPaymentDue() {
-        // Given a payment-due event / When the listener handles it
-        FinancesEventListener listener = new FinancesEventListener(paymentDueUseCase, loanReminderUseCase, installmentReminderUseCase);
-        listener.handlePaymentDue(PaymentDueEvent.builder().userId(1L)
-                .payload(PaymentDueEvent.Payload.builder().cardExpenseId(2L).description("d")
-                        .nextDueDate(LocalDate.now()).installmentAmount(BigDecimal.ONE).currency("ARS")
-                        .remainingInstallments(1).build()).build());
+    void userEventListener_routesCloudEventToUseCase() {
+        CloudEvent event = buildEvent("e-user-1", "users.user.registered",
+                "{\"userId\":1,\"email\":\"a@b.com\",\"firstName\":\"Ada\",\"lastName\":\"L\"}");
 
-        // Then it delegates the mapped payment-due
-        ArgumentCaptor<ProcessPaymentDueCommand> captor = ArgumentCaptor.forClass(ProcessPaymentDueCommand.class);
-        verify(paymentDueUseCase).execute(captor.capture());
-        assertThat(captor.getValue().paymentDue().cardExpenseId()).isEqualTo(2L);
+        new UserEventListener(userUseCase, processor).handleUserRegistered(event);
+
+        ArgumentCaptor<ProcessUserRegisteredCommand> captor = ArgumentCaptor.forClass(ProcessUserRegisteredCommand.class);
+        verify(userUseCase).execute(captor.capture());
+        assertThat(captor.getValue().user().email()).isEqualTo("a@b.com");
+        assertThat(captor.getValue().user().firstName()).isEqualTo("Ada");
     }
 
     @Test
-    void financesEventListener_handlesLoanReminder() {
-        // Given a loan-reminder event / When the listener handles it
-        FinancesEventListener listener = new FinancesEventListener(paymentDueUseCase, loanReminderUseCase, installmentReminderUseCase);
-        listener.handleLoanReminder(LoanReminderEvent.builder().userId(1L)
-                .payload(LoanReminderEvent.Payload.builder().loanId(2L).loanDescription("l")
-                        .nextPaymentDate(LocalDate.now()).installmentAmount(BigDecimal.ONE).currency("ARS")
-                        .remainingInstallments(1).build()).build());
+    void investmentEventListener_routesCloudEventToUseCase() {
+        CloudEvent event = buildEvent("e-inv-1", "investments.threshold.breached",
+                "{\"userId\":1,\"holdingId\":2,\"ticker\":\"AL30\",\"name\":\"Bond\",\"direction\":\"GAIN\"," +
+                "\"thresholdPct\":5,\"actualPct\":7,\"currentPrice\":100,\"avgPurchasePrice\":90,\"currency\":\"USD\"}");
 
-        // Then it delegates the mapped loan reminder
-        ArgumentCaptor<ProcessLoanReminderCommand> captor = ArgumentCaptor.forClass(ProcessLoanReminderCommand.class);
-        verify(loanReminderUseCase).execute(captor.capture());
-        assertThat(captor.getValue().reminder().loanId()).isEqualTo(2L);
-    }
+        new InvestmentEventListener(investmentUseCase, processor).handleThresholdBreached(event);
 
-    @Test
-    void financesEventListener_handlesInstallmentReminder() {
-        // Given an installment-reminder event / When the listener handles it
-        FinancesEventListener listener = new FinancesEventListener(paymentDueUseCase, loanReminderUseCase, installmentReminderUseCase);
-        listener.handleInstallmentReminder(InstallmentReminderEvent.builder().userId(1L)
-                .payload(InstallmentReminderEvent.Payload.builder().loanId(2L).installmentId(3L)
-                        .loanDescription("l").installmentNumber(1).dueDate(LocalDate.now())
-                        .amount(BigDecimal.ONE).currency("ARS").build()).build());
-
-        // Then it delegates the mapped installment reminder
-        ArgumentCaptor<ProcessInstallmentReminderCommand> captor = ArgumentCaptor.forClass(ProcessInstallmentReminderCommand.class);
-        verify(installmentReminderUseCase).execute(captor.capture());
-        assertThat(captor.getValue().reminder().installmentId()).isEqualTo(3L);
-    }
-
-    @Test
-    void investmentEventListener_mapsAndDelegates() {
-        // Given an investment-threshold event / When the listener handles it
-        new InvestmentEventListener(investmentUseCase).handleThresholdReached(InvestmentThresholdEvent.builder()
-                .userId(1L).payload(InvestmentThresholdEvent.Payload.builder().holdingId(2L).ticker("AL30")
-                        .name("Bond").direction("GAIN").thresholdPct(BigDecimal.ONE).actualPct(BigDecimal.TEN)
-                        .currentPrice(BigDecimal.TEN).avgPurchasePrice(BigDecimal.ONE).currency("USD").build()).build());
-
-        // Then it delegates the mapped threshold
         ArgumentCaptor<ProcessInvestmentThresholdCommand> captor = ArgumentCaptor.forClass(ProcessInvestmentThresholdCommand.class);
         verify(investmentUseCase).execute(captor.capture());
         assertThat(captor.getValue().threshold().ticker()).isEqualTo("AL30");
     }
 
     @Test
-    void userEventListener_mapsAndDelegates() {
-        // Given a user-registered event / When the listener handles it
-        new UserEventListener(userUseCase).handleUserRegistered(UserRegisteredEvent.builder()
-                .userId(1L).payload(UserRegisteredEvent.Payload.builder().email("e@x.com")
-                        .firstName("Ada").lastName("L").build()).build());
+    void bankEventListener_routesLowBalanceToUseCase() {
+        CloudEvent event = buildEvent("e-lb-1", "banks.account.low_balance",
+                "{\"userId\":1,\"accountName\":\"Savings\",\"accountCbu\":\"001\",\"bankNumber\":\"BANCO\",\"balance\":50,\"currency\":\"ARS\"}");
 
-        // Then it delegates the mapped registration
-        ArgumentCaptor<ProcessUserRegisteredCommand> captor = ArgumentCaptor.forClass(ProcessUserRegisteredCommand.class);
-        verify(userUseCase).execute(captor.capture());
-        assertThat(captor.getValue().user().email()).isEqualTo("e@x.com");
+        BankEventListener listener = new BankEventListener(
+                lowBalanceUseCase, balanceAdjustedUseCase, loanReminderUseCase,
+                cardExpiringUseCase, paymentDueUseCase, processor);
+        listener.handleLowBalance(event);
+
+        ArgumentCaptor<ProcessLowBalanceCommand> captor = ArgumentCaptor.forClass(ProcessLowBalanceCommand.class);
+        verify(lowBalanceUseCase).execute(captor.capture());
+        assertThat(captor.getValue().lowBalance().accountName()).isEqualTo("Savings");
+    }
+
+    @Test
+    void bankEventListener_routesLoanReminderToUseCase() {
+        LocalDate due = LocalDate.of(2026, 8, 1);
+        CloudEvent event = buildEvent("e-lr-1", "banks.loan.reminder",
+                "{\"userId\":1,\"loanId\":2,\"installmentId\":3,\"installmentNumber\":4,\"loanName\":\"Car Loan\",\"dueDate\":\"" + due + "\"}");
+
+        BankEventListener listener = new BankEventListener(
+                lowBalanceUseCase, balanceAdjustedUseCase, loanReminderUseCase,
+                cardExpiringUseCase, paymentDueUseCase, processor);
+        listener.handleLoanReminder(event);
+
+        ArgumentCaptor<ProcessLoanReminderCommand> captor = ArgumentCaptor.forClass(ProcessLoanReminderCommand.class);
+        verify(loanReminderUseCase).execute(captor.capture());
+        assertThat(captor.getValue().reminder().loanName()).isEqualTo("Car Loan");
+    }
+
+    @Test
+    void bankEventListener_routesCardExpiringToUseCase() {
+        CloudEvent event = buildEvent("e-ce-1", "banks.card.expiring",
+                "{\"userId\":1,\"cardNumber\":\"4111111111111234\",\"bankNumber\":\"BANK01\",\"expiringDate\":\"2027-12\"}");
+
+        BankEventListener listener = new BankEventListener(
+                lowBalanceUseCase, balanceAdjustedUseCase, loanReminderUseCase,
+                cardExpiringUseCase, paymentDueUseCase, processor);
+        listener.handleCardExpiring(event);
+
+        ArgumentCaptor<ProcessCardExpiringCommand> captor = ArgumentCaptor.forClass(ProcessCardExpiringCommand.class);
+        verify(cardExpiringUseCase).execute(captor.capture());
+        assertThat(captor.getValue().cardExpiring().cardNumber()).isEqualTo("4111111111111234");
+    }
+
+    @Test
+    void bankEventListener_routesBalanceAdjustedToUseCase() {
+        CloudEvent event = buildEvent("e-ba-1", "banks.account.balance_adjusted",
+                "{\"userId\":1,\"accountName\":\"Checking\",\"accountCbu\":\"002\",\"bankNumber\":\"BANCO\"," +
+                "\"amount\":200,\"currency\":\"ARS\",\"credit\":true}");
+
+        BankEventListener listener = new BankEventListener(
+                lowBalanceUseCase, balanceAdjustedUseCase, loanReminderUseCase,
+                cardExpiringUseCase, paymentDueUseCase, processor);
+        listener.handleBalanceAdjusted(event);
+
+        ArgumentCaptor<ProcessBalanceAdjustedCommand> captor = ArgumentCaptor.forClass(ProcessBalanceAdjustedCommand.class);
+        verify(balanceAdjustedUseCase).execute(captor.capture());
+        assertThat(captor.getValue().balanceAdjusted().accountName()).isEqualTo("Checking");
+        assertThat(captor.getValue().balanceAdjusted().credit()).isTrue();
+    }
+
+    @Test
+    void bankEventListener_routesCardInstallmentDueToUseCase() {
+        CloudEvent event = buildEvent("e-cid-1", "banks.card.installment_due",
+                "{\"userId\":1,\"cardNumber\":\"4111111111111234\",\"installmentId\":5,\"installmentNumber\":2," +
+                "\"totalInstallments\":12,\"description\":\"TV\",\"dueDate\":\"2026-08-15\",\"amount\":150,\"currency\":\"ARS\"}");
+
+        BankEventListener listener = new BankEventListener(
+                lowBalanceUseCase, balanceAdjustedUseCase, loanReminderUseCase,
+                cardExpiringUseCase, paymentDueUseCase, processor);
+        listener.handleCardInstallmentDue(event);
+
+        ArgumentCaptor<ProcessPaymentDueCommand> captor = ArgumentCaptor.forClass(ProcessPaymentDueCommand.class);
+        verify(paymentDueUseCase).execute(captor.capture());
+        assertThat(captor.getValue().paymentDue().description()).isEqualTo("TV");
     }
 }

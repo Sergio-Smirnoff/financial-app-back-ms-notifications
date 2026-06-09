@@ -15,7 +15,8 @@ class NotificationTypeTest {
                         NotificationType.INSTALLMENT_REMINDER, NotificationType.INVESTMENT_THRESHOLD,
                         NotificationType.USER_REGISTERED, NotificationType.MONTHLY_SUMMARY,
                         NotificationType.CARD_EXPIRING, NotificationType.LOW_BALANCE,
-                        NotificationType.TRANSFER_SENT, NotificationType.TRANSFER_RECEIVED);
+                        NotificationType.TRANSFER_SENT, NotificationType.TRANSFER_RECEIVED,
+                        NotificationType.BALANCE_ADJUSTED);
     }
 
     @Test
