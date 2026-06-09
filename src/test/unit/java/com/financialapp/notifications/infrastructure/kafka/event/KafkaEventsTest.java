@@ -1,15 +1,15 @@
 package com.financialapp.notifications.infrastructure.kafka.event;
 
-import com.financialapp.notifications.infrastructure.messaging.payload.BankAlertEvent;
-import com.financialapp.notifications.infrastructure.messaging.payload.InstallmentReminderEvent;
-import com.financialapp.notifications.infrastructure.messaging.payload.InvestmentThresholdEvent;
-import com.financialapp.notifications.infrastructure.messaging.payload.LoanReminderEvent;
-import com.financialapp.notifications.infrastructure.messaging.payload.PaymentDueEvent;
-import com.financialapp.notifications.infrastructure.messaging.payload.UserRegisteredEvent;
+import com.financialapp.notifications.infrastructure.messaging.payload.BalanceAdjustedData;
+import com.financialapp.notifications.infrastructure.messaging.payload.CardExpiringData;
+import com.financialapp.notifications.infrastructure.messaging.payload.CardInstallmentDueData;
+import com.financialapp.notifications.infrastructure.messaging.payload.InvestmentThresholdData;
+import com.financialapp.notifications.infrastructure.messaging.payload.LoanReminderData;
+import com.financialapp.notifications.infrastructure.messaging.payload.LowBalanceData;
+import com.financialapp.notifications.infrastructure.messaging.payload.UserRegisteredData;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
-import java.time.Instant;
 import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -17,112 +17,90 @@ import static org.assertj.core.api.Assertions.assertThat;
 class KafkaEventsTest {
 
     @Test
-    void bankAlertEvent_buildsAndExposesFields() {
-        // Given / When built
-        BankAlertEvent e = BankAlertEvent.builder().userId(1L).type("LOW_BALANCE").title("t").message("m").metadata("meta").build();
-
-        // Then accessors and equals/toString behave (Lombok @Data)
-        assertThat(e.getUserId()).isEqualTo(1L);
-        assertThat(e.getType()).isEqualTo("LOW_BALANCE");
-        assertThat(e.getTitle()).isEqualTo("t");
-        assertThat(e.getMessage()).isEqualTo("m");
-        assertThat(e.getMetadata()).isEqualTo("meta");
-        assertThat(e).isEqualTo(BankAlertEvent.builder().userId(1L).type("LOW_BALANCE").title("t").message("m").metadata("meta").build());
-        assertThat(e.toString()).contains("BankAlertEvent");
+    void userRegisteredData_recordEqualityAndAccessors() {
+        UserRegisteredData a = new UserRegisteredData(1L, "e@x.com", "Ada", "L");
+        UserRegisteredData b = new UserRegisteredData(1L, "e@x.com", "Ada", "L");
+        assertThat(a.userId()).isEqualTo(1L);
+        assertThat(a.email()).isEqualTo("e@x.com");
+        assertThat(a.firstName()).isEqualTo("Ada");
+        assertThat(a.lastName()).isEqualTo("L");
+        assertThat(a).isEqualTo(b).hasSameHashCodeAs(b);
+        assertThat(a.toString()).contains("UserRegisteredData");
     }
 
     @Test
-    void installmentReminderEvent_defaultsTypeAndTimestamp_andExposesPayload() {
-        // Given a payload / When built with defaults
-        InstallmentReminderEvent.Payload payload = InstallmentReminderEvent.Payload.builder()
-                .loanId(2L).installmentId(3L).loanDescription("loan").installmentNumber(4)
-                .dueDate(LocalDate.of(2026, 5, 1)).amount(new BigDecimal("10")).currency("ARS").build();
-        InstallmentReminderEvent e = InstallmentReminderEvent.builder().userId(1L).payload(payload).build();
-
-        // Then defaults are applied and payload accessors expose fields
-        assertThat(e.getEventType()).isEqualTo("INSTALLMENT_REMINDER");
-        assertThat(e.getTimestamp()).isNotNull();
-        assertThat(e.getUserId()).isEqualTo(1L);
-        assertThat(e.getPayload().getLoanId()).isEqualTo(2L);
-        assertThat(e.getPayload().getInstallmentId()).isEqualTo(3L);
-        assertThat(e.getPayload().getLoanDescription()).isEqualTo("loan");
-        assertThat(e.getPayload().getInstallmentNumber()).isEqualTo(4);
-        assertThat(e.getPayload().getDueDate()).isEqualTo(LocalDate.of(2026, 5, 1));
-        assertThat(e.getPayload().getAmount()).isEqualByComparingTo("10");
-        assertThat(e.getPayload().getCurrency()).isEqualTo("ARS");
+    void lowBalanceData_recordEqualityAndAccessors() {
+        LowBalanceData a = new LowBalanceData(1L, "Savings", "001", "BANCO", new BigDecimal("50.00"), "ARS");
+        assertThat(a.userId()).isEqualTo(1L);
+        assertThat(a.accountName()).isEqualTo("Savings");
+        assertThat(a.accountCbu()).isEqualTo("001");
+        assertThat(a.bankNumber()).isEqualTo("BANCO");
+        assertThat(a.balance()).isEqualByComparingTo("50.00");
+        assertThat(a.currency()).isEqualTo("ARS");
+        assertThat(a).isEqualTo(new LowBalanceData(1L, "Savings", "001", "BANCO", new BigDecimal("50.00"), "ARS"));
     }
 
     @Test
-    void investmentThresholdEvent_defaultsAndPayload() {
-        // Given a payload / When built
-        InvestmentThresholdEvent.Payload payload = InvestmentThresholdEvent.Payload.builder()
-                .holdingId(2L).ticker("AL30").name("Bond").direction("GAIN").thresholdPct(new BigDecimal("5"))
-                .actualPct(new BigDecimal("7")).currentPrice(new BigDecimal("100"))
-                .avgPurchasePrice(new BigDecimal("90")).currency("USD").build();
-        InvestmentThresholdEvent e = InvestmentThresholdEvent.builder().userId(1L)
-                .timestamp(Instant.EPOCH).payload(payload).build();
-
-        // Then defaults/overrides and payload accessors expose fields
-        assertThat(e.getEventType()).isEqualTo("INVESTMENT_THRESHOLD");
-        assertThat(e.getTimestamp()).isEqualTo(Instant.EPOCH);
-        assertThat(e.getPayload().getHoldingId()).isEqualTo(2L);
-        assertThat(e.getPayload().getTicker()).isEqualTo("AL30");
-        assertThat(e.getPayload().getName()).isEqualTo("Bond");
-        assertThat(e.getPayload().getDirection()).isEqualTo("GAIN");
-        assertThat(e.getPayload().getThresholdPct()).isEqualByComparingTo("5");
-        assertThat(e.getPayload().getActualPct()).isEqualByComparingTo("7");
-        assertThat(e.getPayload().getCurrentPrice()).isEqualByComparingTo("100");
-        assertThat(e.getPayload().getAvgPurchasePrice()).isEqualByComparingTo("90");
-        assertThat(e.getPayload().getCurrency()).isEqualTo("USD");
+    void balanceAdjustedData_recordEqualityAndAccessors() {
+        BalanceAdjustedData a = new BalanceAdjustedData(1L, "Checking", "002", "BANCO", new BigDecimal("100"), "ARS", true);
+        assertThat(a.userId()).isEqualTo(1L);
+        assertThat(a.accountName()).isEqualTo("Checking");
+        assertThat(a.amount()).isEqualByComparingTo("100");
+        assertThat(a.currency()).isEqualTo("ARS");
+        assertThat(a.credit()).isTrue();
     }
 
     @Test
-    void loanReminderEvent_defaultsAndPayload() {
-        // Given a payload / When built
-        LoanReminderEvent.Payload payload = LoanReminderEvent.Payload.builder()
-                .loanId(2L).loanDescription("loan").nextPaymentDate(LocalDate.of(2026, 6, 1))
-                .installmentAmount(new BigDecimal("20")).currency("ARS").remainingInstallments(3).build();
-        LoanReminderEvent e = LoanReminderEvent.builder().userId(1L).payload(payload).build();
-
-        // Then defaults and payload accessors expose fields
-        assertThat(e.getEventType()).isEqualTo("LOAN_REMINDER");
-        assertThat(e.getTimestamp()).isNotNull();
-        assertThat(e.getPayload().getLoanId()).isEqualTo(2L);
-        assertThat(e.getPayload().getLoanDescription()).isEqualTo("loan");
-        assertThat(e.getPayload().getNextPaymentDate()).isEqualTo(LocalDate.of(2026, 6, 1));
-        assertThat(e.getPayload().getInstallmentAmount()).isEqualByComparingTo("20");
-        assertThat(e.getPayload().getCurrency()).isEqualTo("ARS");
-        assertThat(e.getPayload().getRemainingInstallments()).isEqualTo(3);
+    void loanReminderData_recordEqualityAndAccessors() {
+        LocalDate due = LocalDate.of(2026, 7, 1);
+        LoanReminderData a = new LoanReminderData(1L, 2L, 3L, 4, "Car Loan", due);
+        assertThat(a.userId()).isEqualTo(1L);
+        assertThat(a.loanId()).isEqualTo(2L);
+        assertThat(a.installmentId()).isEqualTo(3L);
+        assertThat(a.installmentNumber()).isEqualTo(4);
+        assertThat(a.loanName()).isEqualTo("Car Loan");
+        assertThat(a.dueDate()).isEqualTo(due);
     }
 
     @Test
-    void paymentDueEvent_defaultsAndPayload() {
-        // Given a payload / When built
-        PaymentDueEvent.Payload payload = PaymentDueEvent.Payload.builder()
-                .cardExpenseId(2L).description("desc").nextDueDate(LocalDate.of(2026, 7, 1))
-                .installmentAmount(new BigDecimal("30")).currency("ARS").remainingInstallments(2).build();
-        PaymentDueEvent e = PaymentDueEvent.builder().userId(1L).payload(payload).build();
-
-        // Then defaults and payload accessors expose fields
-        assertThat(e.getEventType()).isEqualTo("PAYMENT_DUE");
-        assertThat(e.getTimestamp()).isNotNull();
-        assertThat(e.getPayload().getCardExpenseId()).isEqualTo(2L);
-        assertThat(e.getPayload().getDescription()).isEqualTo("desc");
-        assertThat(e.getPayload().getNextDueDate()).isEqualTo(LocalDate.of(2026, 7, 1));
-        assertThat(e.getPayload().getInstallmentAmount()).isEqualByComparingTo("30");
-        assertThat(e.getPayload().getCurrency()).isEqualTo("ARS");
-        assertThat(e.getPayload().getRemainingInstallments()).isEqualTo(2);
+    void cardExpiringData_recordEqualityAndAccessors() {
+        CardExpiringData a = new CardExpiringData(1L, "4111111111111234", "BANK01", "2027-12");
+        assertThat(a.userId()).isEqualTo(1L);
+        assertThat(a.cardNumber()).isEqualTo("4111111111111234");
+        assertThat(a.bankNumber()).isEqualTo("BANK01");
+        assertThat(a.expiringDate()).isEqualTo("2027-12");
     }
 
     @Test
-    void userRegisteredEvent_defaultsAndPayload() {
-        UserRegisteredEvent.Payload payload = UserRegisteredEvent.Payload.builder()
-                .email("e@x.com").firstName("Ada").lastName("L").build();
-        UserRegisteredEvent e = UserRegisteredEvent.builder().userId(1L).payload(payload).build();
+    void cardInstallmentDueData_recordEqualityAndAccessors() {
+        LocalDate due = LocalDate.of(2026, 8, 15);
+        CardInstallmentDueData a = new CardInstallmentDueData(1L, "4111111111111234", 5L, 2, 12,
+                "TV Purchase", due, new BigDecimal("150.00"), "ARS");
+        assertThat(a.userId()).isEqualTo(1L);
+        assertThat(a.cardNumber()).isEqualTo("4111111111111234");
+        assertThat(a.installmentId()).isEqualTo(5L);
+        assertThat(a.installmentNumber()).isEqualTo(2);
+        assertThat(a.totalInstallments()).isEqualTo(12);
+        assertThat(a.description()).isEqualTo("TV Purchase");
+        assertThat(a.dueDate()).isEqualTo(due);
+        assertThat(a.amount()).isEqualByComparingTo("150.00");
+        assertThat(a.currency()).isEqualTo("ARS");
+    }
 
-        assertThat(e.getEventType()).isEqualTo("USER_REGISTERED");
-        assertThat(e.getPayload().getEmail()).isEqualTo("e@x.com");
-        assertThat(e.getPayload().getFirstName()).isEqualTo("Ada");
-        assertThat(e.getPayload().getLastName()).isEqualTo("L");
+    @Test
+    void investmentThresholdData_recordEqualityAndAccessors() {
+        InvestmentThresholdData a = new InvestmentThresholdData(1L, 2L, "AL30", "Bond", "GAIN",
+                new BigDecimal("5"), new BigDecimal("7"), new BigDecimal("100"),
+                new BigDecimal("90"), "USD");
+        assertThat(a.userId()).isEqualTo(1L);
+        assertThat(a.holdingId()).isEqualTo(2L);
+        assertThat(a.ticker()).isEqualTo("AL30");
+        assertThat(a.name()).isEqualTo("Bond");
+        assertThat(a.direction()).isEqualTo("GAIN");
+        assertThat(a.thresholdPct()).isEqualByComparingTo("5");
+        assertThat(a.actualPct()).isEqualByComparingTo("7");
+        assertThat(a.currentPrice()).isEqualByComparingTo("100");
+        assertThat(a.avgPurchasePrice()).isEqualByComparingTo("90");
+        assertThat(a.currency()).isEqualTo("USD");
     }
 }

@@ -26,6 +26,18 @@
             <groupId>com.financialapp</groupId>
             <artifactId>commons-web</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.financialapp</groupId>
+            <artifactId>commons-messaging</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.cloudevents</groupId>
+            <artifactId>cloudevents-kafka</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.cloudevents</groupId>
+            <artifactId>cloudevents-json-jackson</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>

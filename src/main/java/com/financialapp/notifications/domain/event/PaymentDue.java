@@ -5,10 +5,12 @@ import java.time.LocalDate;
 
 public record PaymentDue(
         Long userId,
-        Long cardExpenseId,
+        String cardNumber,
+        Long installmentId,
+        int installmentNumber,
+        int totalInstallments,
         String description,
-        LocalDate nextDueDate,
-        BigDecimal installmentAmount,
-        String currency,
-        int remainingInstallments
+        LocalDate dueDate,
+        BigDecimal amount,
+        String currency
 ) {}

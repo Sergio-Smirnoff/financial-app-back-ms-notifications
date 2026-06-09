@@ -1,5 +1,6 @@
 package com.financialapp.notifications.application.usecase.event.impl;
 
+import com.financialapp.notifications.application.service.NotificationChannelResolver;
 import com.financialapp.notifications.domain.service.NotificationService;
 import com.financialapp.notifications.domain.usecase.event.ProcessInvestmentThresholdUseCase;
 import com.financialapp.notifications.domain.usecase.event.command.ProcessInvestmentThresholdCommand;
@@ -19,6 +20,7 @@ public class ProcessInvestmentThresholdUseCaseImpl implements ProcessInvestmentT
     private static final Locale MESSAGE_LOCALE = Locale.of("es", "AR");
 
     private final NotificationService notificationService;
+    private final NotificationChannelResolver channelResolver;
 
     @Override
     public void execute(ProcessInvestmentThresholdCommand command) {
@@ -35,9 +37,9 @@ public class ProcessInvestmentThresholdUseCaseImpl implements ProcessInvestmentT
                 t.currentPrice(), t.currency(),
                 t.avgPurchasePrice(), t.currency());
 
+        NotificationChannel channel = channelResolver.resolve(t.userId());
         var newNotification = Notification.create(
-                t.userId(), NotificationType.INVESTMENT_THRESHOLD, title, message,
-                NotificationChannel.BOTH, null);
+                t.userId(), NotificationType.INVESTMENT_THRESHOLD, title, message, channel, null);
         notificationService.notify(newNotification);
     }
 }
