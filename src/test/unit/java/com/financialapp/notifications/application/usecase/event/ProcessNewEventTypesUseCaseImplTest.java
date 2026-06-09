@@ -118,4 +118,30 @@ class ProcessNewEventTypesUseCaseImplTest {
         assertThat(n.title()).contains("****1234");
         assertThat(n.message()).contains("2027-12");
     }
+
+    @Test
+    void processCardExpiring_shortCardNumber_isLeftUnmasked() {
+        stubEmailDisabled();
+        CardExpiring event = new CardExpiring(1L, "12", "BANK01", "2027-12");
+
+        new ProcessCardExpiringUseCaseImpl(notificationService, channelResolver)
+                .execute(new ProcessCardExpiringCommand(event));
+
+        Notification n = captureNotification();
+        assertThat(n.title()).contains("12");
+        assertThat(n.title()).doesNotContain("****");
+    }
+
+    @Test
+    void processCardExpiring_nullCardNumber_isLeftUnmasked() {
+        stubEmailDisabled();
+        CardExpiring event = new CardExpiring(1L, null, "BANK01", "2027-12");
+
+        new ProcessCardExpiringUseCaseImpl(notificationService, channelResolver)
+                .execute(new ProcessCardExpiringCommand(event));
+
+        Notification n = captureNotification();
+        assertThat(n.type()).isEqualTo(NotificationType.CARD_EXPIRING);
+        assertThat(n.title()).doesNotContain("****");
+    }
 }

@@ -210,4 +210,30 @@ class NotificationServiceTest {
         assertThat(captor.getValue().nextRetryAt()).isNotNull();
         assertThat(captor.getValue().attempts()).isEqualTo(1);
     }
+
+    @Test
+    void retryDelivery_email_noPreference_returnsWithoutSendingOrUpdating() {
+        Notification n = notification(NotificationChannel.EMAIL);
+        NotificationDelivery delivery = pendingDelivery(NotificationChannel.EMAIL);
+        when(preferenceRepository.findByUserId(9L)).thenReturn(Optional.empty());
+
+        service.retryDelivery(delivery, n);
+
+        verify(emailSender, never()).sendSimpleNotification(any(), any(), any());
+        verify(deliveryRepository, never()).updateStatus(any());
+    }
+
+    @Test
+    void retryDelivery_neitherInAppNorEmailChannel_marksSentWithoutSending() {
+        Notification n = notification(NotificationChannel.BOTH);
+        NotificationDelivery delivery = pendingDelivery(NotificationChannel.BOTH);
+
+        service.retryDelivery(delivery, n);
+
+        verify(inAppNotificationSender, never()).sendToUser(any(), any());
+        verify(emailSender, never()).sendSimpleNotification(any(), any(), any());
+        ArgumentCaptor<NotificationDelivery> captor = ArgumentCaptor.forClass(NotificationDelivery.class);
+        verify(deliveryRepository).updateStatus(captor.capture());
+        assertThat(captor.getValue().status()).isEqualTo(DeliveryStatus.SENT);
+    }
 }

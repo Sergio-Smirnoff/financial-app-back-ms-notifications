@@ -145,6 +145,23 @@ class EventListenersTest {
     }
 
     @Test
+    void bankEventListener_routesBalanceAdjustedToUseCase() {
+        CloudEvent event = buildEvent("e-ba-1", "banks.account.balance_adjusted",
+                "{\"userId\":1,\"accountName\":\"Checking\",\"accountCbu\":\"002\",\"bankNumber\":\"BANCO\"," +
+                "\"amount\":200,\"currency\":\"ARS\",\"credit\":true}");
+
+        BankEventListener listener = new BankEventListener(
+                lowBalanceUseCase, balanceAdjustedUseCase, loanReminderUseCase,
+                cardExpiringUseCase, paymentDueUseCase, processor);
+        listener.handleBalanceAdjusted(event);
+
+        ArgumentCaptor<ProcessBalanceAdjustedCommand> captor = ArgumentCaptor.forClass(ProcessBalanceAdjustedCommand.class);
+        verify(balanceAdjustedUseCase).execute(captor.capture());
+        assertThat(captor.getValue().balanceAdjusted().accountName()).isEqualTo("Checking");
+        assertThat(captor.getValue().balanceAdjusted().credit()).isTrue();
+    }
+
+    @Test
     void bankEventListener_routesCardInstallmentDueToUseCase() {
         CloudEvent event = buildEvent("e-cid-1", "banks.card.installment_due",
                 "{\"userId\":1,\"cardNumber\":\"4111111111111234\",\"installmentId\":5,\"installmentNumber\":2," +
