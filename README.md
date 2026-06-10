@@ -76,13 +76,12 @@ ms-notifications/src/main/java/com/financialapp/notifications/
 │   ├── email/SmtpEmailSender.java
 │   ├── gateway/impl/FinancesClient.java
 │   ├── messaging/
-│   │   ├── listener/
-│   │   │   ├── BankEventListener.java
-│   │   │   ├── FinancesEventListener.java
-│   │   │   ├── InvestmentEventListener.java
-│   │   │   └── UserEventListener.java
-│   │   ├── mapper/
-│   │   └── payload/
+│   │   ├── listener/                        # @KafkaListener<CloudEvent> → IdempotentEventProcessor
+│   │   │   ├── BankEventListener.java        # 5 banks.* topics
+│   │   │   ├── InvestmentEventListener.java  # investments.threshold.breached
+│   │   │   └── UserEventListener.java        # users.user.registered
+│   │   ├── mapper/                          # CloudEvent data → domain
+│   │   └── payload/                         # CloudEvent data records
 │   ├── persistence/
 │   │   ├── entity/
 │   │   │   ├── NotificationSqlEntity.java
@@ -156,16 +155,19 @@ ApiExceptionHandler` (commons-web); endpoints declare throwable codes with `@Api
 
 ## Kafka Consumers
 
-All listeners share group ID `notifications-group`. Converter: `ByteArrayJsonMessageConverter` backed by Jackson.
+All listeners consume `CloudEvent` values (CloudEvents 1.0 Kafka binding, binary mode) on group ID `notifications-group`. The consumer factory, `CloudEventDeserializer`, ce_id dedup (`ProcessedEventGateway` → `processed_event`) and DLQ (`<topic>.DLT`) come from the shared `commons-messaging` module via `IdempotentEventProcessor`.
 
-| Topic | Payload | Use Case |
-|-------|---------|----------|
-| `user.registered` | `UserRegisteredEvent` | `ProcessUserRegisteredUseCase` — welcome notification + create preference if absent |
-| `payment.due` | `PaymentDueEvent` | `ProcessPaymentDueUseCase` |
-| `loan.reminder` | `LoanReminderEvent` | `ProcessLoanReminderUseCase` |
-| `installment.reminder` | `InstallmentReminderEvent` | `ProcessInstallmentReminderUseCase` |
-| `bank-alerts` | `BankAlertEvent` | `ProcessBankEventUseCase` — handles `CARD_EXPIRING`, `LOW_BALANCE`, `TRANSFER_SENT`, `TRANSFER_RECEIVED` |
-| `investment.threshold.reached` | `InvestmentThresholdEvent` | `ProcessInvestmentThresholdUseCase` — GAIN or LOSS direction |
+| Topic (`= ce_type`) | `data` record | Use Case |
+|---------------------|---------------|----------|
+| `users.user.registered` | `UserRegisteredData` | `ProcessUserRegisteredUseCase` — welcome notification + create preference if absent |
+| `banks.account.low_balance` | `LowBalanceData` | `ProcessLowBalanceUseCase` |
+| `banks.account.balance_adjusted` | `BalanceAdjustedData` | `ProcessBalanceAdjustedUseCase` |
+| `banks.loan.reminder` | `LoanReminderData` | `ProcessLoanReminderUseCase` |
+| `banks.card.expiring` | `CardExpiringData` | `ProcessCardExpiringUseCase` |
+| `banks.card.installment_due` | `CardInstallmentDueData` | `ProcessPaymentDueUseCase` |
+| `investments.threshold.breached` | `InvestmentThresholdData` | `ProcessInvestmentThresholdUseCase` — GAIN or LOSS direction |
+
+> The old `bank-alerts` umbrella was split into the five typed `banks.*` events. Reminders are produced by **ms-banks** (owns loans/cards post-DDD), not ms-finances.
 
 ---
 
