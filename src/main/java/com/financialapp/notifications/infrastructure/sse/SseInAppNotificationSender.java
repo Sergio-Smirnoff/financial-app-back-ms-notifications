@@ -35,6 +35,12 @@ public class SseInAppNotificationSender implements InAppNotificationSender {
 
         userEmitters.add(emitter);
 
+        try {
+            emitter.send(SseEmitter.event().reconnectTime(15_000L).comment("connected"));
+        } catch (Exception e) {
+            log.debug("Failed initial SSE handshake for userId={}", userId);
+        }
+
         Runnable cleanup = () -> {
             userEmitters.remove(emitter);
             if (userEmitters.isEmpty()) {
