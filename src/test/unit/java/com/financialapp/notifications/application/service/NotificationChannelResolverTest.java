@@ -1,8 +1,10 @@
 package com.financialapp.notifications.application.service;
 
+import com.financialapp.notifications.domain.model.notification.NotificationCategory;
 import com.financialapp.notifications.domain.model.notification.NotificationChannel;
-import com.financialapp.notifications.domain.model.notification.UserNotificationPreference;
-import com.financialapp.notifications.domain.repository.UserNotificationPreferenceRepository;
+import com.financialapp.notifications.domain.model.notification.NotificationPreference;
+import com.financialapp.notifications.domain.model.notification.NotificationType;
+import com.financialapp.notifications.domain.repository.NotificationPreferenceRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -12,34 +14,81 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class NotificationChannelResolverTest {
 
-    @Mock UserNotificationPreferenceRepository preferenceRepository;
-    @InjectMocks NotificationChannelResolver resolver;
+    @Mock
+    private NotificationPreferenceRepository preferenceRepository;
+
+    @InjectMocks
+    private NotificationChannelResolver resolver;
 
     @Test
-    void resolve_emailEnabled_returnsBoth() {
-        when(preferenceRepository.findByUserId(42L)).thenReturn(Optional.of(
-                new UserNotificationPreference(1L, 42L, "user@x.com", true, null, null)));
+    void resolve_paymentDueEmailDisabled_returnsInApp_evenIfSummaryEmailEnabled() {
+        NotificationPreference paymentDuePref = new NotificationPreference(
+                1L, 42L, NotificationCategory.PAYMENT_DUE, true, false, null, null);
 
-        assertThat(resolver.resolve(42L)).isEqualTo(NotificationChannel.BOTH);
+        when(preferenceRepository.findByUserIdAndCategory(42L, NotificationCategory.PAYMENT_DUE))
+                .thenReturn(Optional.of(paymentDuePref));
+
+        Optional<NotificationChannel> result = resolver.resolve(42L, NotificationType.PAYMENT_DUE);
+
+        assertThat(result).contains(NotificationChannel.IN_APP);
     }
 
     @Test
-    void resolve_emailDisabled_returnsInApp() {
-        when(preferenceRepository.findByUserId(42L)).thenReturn(Optional.of(
-                new UserNotificationPreference(1L, 42L, "user@x.com", false, null, null)));
+    void resolve_lazyDefaultCreationWhenAbsent() {
+        when(preferenceRepository.findByUserIdAndCategory(42L, NotificationCategory.BUDGET))
+                .thenReturn(Optional.empty());
+        when(preferenceRepository.save(any(NotificationPreference.class)))
+                .thenAnswer(inv -> inv.getArgument(0));
 
-        assertThat(resolver.resolve(42L)).isEqualTo(NotificationChannel.IN_APP);
+        Optional<NotificationChannel> result = resolver.resolve(42L, NotificationType.BUDGET_THRESHOLD_REACHED);
+
+        assertThat(result).contains(NotificationChannel.IN_APP);
+        verify(preferenceRepository).save(any(NotificationPreference.class));
     }
 
     @Test
-    void resolve_noPreference_returnsInApp() {
-        when(preferenceRepository.findByUserId(99L)).thenReturn(Optional.empty());
+    void resolve_neitherChannelEnabled_returnsEmpty() {
+        NotificationPreference disabledPref = new NotificationPreference(
+                1L, 42L, NotificationCategory.PAYMENT_DUE, false, false, null, null);
 
-        assertThat(resolver.resolve(99L)).isEqualTo(NotificationChannel.IN_APP);
+        when(preferenceRepository.findByUserIdAndCategory(42L, NotificationCategory.PAYMENT_DUE))
+                .thenReturn(Optional.of(disabledPref));
+
+        Optional<NotificationChannel> result = resolver.resolve(42L, NotificationType.PAYMENT_DUE);
+
+        assertThat(result).isEmpty();
+    }
+
+    @Test
+    void resolve_monthlySummaryWithBothEnabled_returnsBoth() {
+        NotificationPreference summaryPref = new NotificationPreference(
+                1L, 42L, NotificationCategory.SUMMARY, true, true, null, null);
+
+        when(preferenceRepository.findByUserIdAndCategory(42L, NotificationCategory.SUMMARY))
+                .thenReturn(Optional.of(summaryPref));
+
+        Optional<NotificationChannel> result = resolver.resolve(42L, NotificationType.MONTHLY_SUMMARY);
+
+        assertThat(result).contains(NotificationChannel.BOTH);
+    }
+
+    @Test
+    void resolve_onlyEmailEnabled_returnsEmail() {
+        NotificationPreference pref = new NotificationPreference(
+                1L, 42L, NotificationCategory.PORTFOLIO_ALERTS, false, true, null, null);
+
+        when(preferenceRepository.findByUserIdAndCategory(42L, NotificationCategory.PORTFOLIO_ALERTS))
+                .thenReturn(Optional.of(pref));
+
+        Optional<NotificationChannel> result = resolver.resolve(42L, NotificationType.INVESTMENT_THRESHOLD);
+
+        assertThat(result).contains(NotificationChannel.EMAIL);
     }
 }

@@ -32,9 +32,10 @@ public class ProcessPaymentDueUseCaseImpl implements ProcessPaymentDueUseCase {
                 paymentDue.amount().doubleValue(), paymentDue.currency(),
                 paymentDue.description(), paymentDue.dueDate());
 
-        NotificationChannel channel = channelResolver.resolve(paymentDue.userId());
-        var newNotification = Notification.create(
-                paymentDue.userId(), NotificationType.PAYMENT_DUE, title, message, channel, null);
-        notificationService.notify(newNotification);
+        channelResolver.resolve(paymentDue.userId(), NotificationType.PAYMENT_DUE).ifPresent(channel -> {
+            var newNotification = Notification.create(
+                    paymentDue.userId(), NotificationType.PAYMENT_DUE, title, message, channel, null);
+            notificationService.notify(newNotification);
+        });
     }
 }

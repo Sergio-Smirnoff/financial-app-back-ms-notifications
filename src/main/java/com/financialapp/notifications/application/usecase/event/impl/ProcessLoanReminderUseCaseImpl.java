@@ -30,9 +30,10 @@ public class ProcessLoanReminderUseCaseImpl implements ProcessLoanReminderUseCas
                 "Installment #%d of loan '%s' is due on %s.",
                 reminder.installmentNumber(), reminder.loanName(), reminder.dueDate());
 
-        NotificationChannel channel = channelResolver.resolve(reminder.userId());
-        var newNotification = Notification.create(
-                reminder.userId(), NotificationType.LOAN_REMINDER, title, message, channel, null);
-        notificationService.notify(newNotification);
+        channelResolver.resolve(reminder.userId(), NotificationType.LOAN_REMINDER).ifPresent(channel -> {
+            var newNotification = Notification.create(
+                    reminder.userId(), NotificationType.LOAN_REMINDER, title, message, channel, null);
+            notificationService.notify(newNotification);
+        });
     }
 }

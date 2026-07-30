@@ -31,9 +31,10 @@ public class ProcessBalanceAdjustedUseCaseImpl implements ProcessBalanceAdjusted
                 "Your account '%s' was %s %.2f %s.",
                 ba.accountName(), direction, ba.amount().doubleValue(), ba.currency());
 
-        NotificationChannel channel = channelResolver.resolve(ba.userId());
-        var newNotification = Notification.create(
-                ba.userId(), NotificationType.BALANCE_ADJUSTED, title, message, channel, null);
-        notificationService.notify(newNotification);
+        channelResolver.resolve(ba.userId(), NotificationType.BALANCE_ADJUSTED).ifPresent(channel -> {
+            var newNotification = Notification.create(
+                    ba.userId(), NotificationType.BALANCE_ADJUSTED, title, message, channel, null);
+            notificationService.notify(newNotification);
+        });
     }
 }

@@ -30,9 +30,10 @@ public class ProcessLowBalanceUseCaseImpl implements ProcessLowBalanceUseCase {
                 "Your account '%s' has a low balance of %.2f %s. Please review your finances.",
                 lb.accountName(), lb.balance().doubleValue(), lb.currency());
 
-        NotificationChannel channel = channelResolver.resolve(lb.userId());
-        var newNotification = Notification.create(
-                lb.userId(), NotificationType.LOW_BALANCE, title, message, channel, null);
-        notificationService.notify(newNotification);
+        channelResolver.resolve(lb.userId(), NotificationType.LOW_BALANCE).ifPresent(channel -> {
+            var newNotification = Notification.create(
+                    lb.userId(), NotificationType.LOW_BALANCE, title, message, channel, null);
+            notificationService.notify(newNotification);
+        });
     }
 }
