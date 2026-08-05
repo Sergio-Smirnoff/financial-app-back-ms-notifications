@@ -176,4 +176,37 @@ class EventListenersTest {
         verify(paymentDueUseCase).execute(captor.capture());
         assertThat(captor.getValue().paymentDue().description()).isEqualTo("TV");
     }
+
+    @Mock com.financialapp.notifications.domain.usecase.event.ProcessBudgetThresholdUseCase budgetUseCase;
+    @Mock com.financialapp.notifications.domain.usecase.event.ProcessImportStaleUseCase importStaleUseCase;
+
+    @Test
+    void financesEventListener_routesCloudEventToUseCase() {
+        CloudEvent event = buildEvent("e-bud-1", "finances.budget.threshold_reached",
+                "{\"budgetId\":100,\"userId\":1,\"categoryId\":5,\"pctUsed\":85.5,\"alertThresholdPct\":80.0,\"year\":2026,\"month\":8}");
+
+        new com.financialapp.notifications.infrastructure.messaging.listener.FinancesEventListener(budgetUseCase, processor)
+                .handleBudgetThresholdReached(event);
+
+        ArgumentCaptor<com.financialapp.notifications.domain.usecase.event.command.ProcessBudgetThresholdCommand> captor =
+                ArgumentCaptor.forClass(com.financialapp.notifications.domain.usecase.event.command.ProcessBudgetThresholdCommand.class);
+        verify(budgetUseCase).execute(captor.capture());
+        assertThat(captor.getValue().budgetThreshold().userId()).isEqualTo(1L);
+        assertThat(captor.getValue().budgetThreshold().pctUsed()).isEqualByComparingTo("85.5");
+    }
+
+    @Test
+    void uploadEventListener_routesCloudEventToUseCase() {
+        CloudEvent event = buildEvent("e-up-1", "upload.import.stale",
+                "{\"userId\":1,\"accountCbu\":\"0170099220000067797370\",\"bankNumber\":\"017\",\"daysSinceImport\":35}");
+
+        new com.financialapp.notifications.infrastructure.messaging.listener.UploadEventListener(importStaleUseCase, processor)
+                .handleImportStale(event);
+
+        ArgumentCaptor<com.financialapp.notifications.domain.usecase.event.command.ProcessImportStaleCommand> captor =
+                ArgumentCaptor.forClass(com.financialapp.notifications.domain.usecase.event.command.ProcessImportStaleCommand.class);
+        verify(importStaleUseCase).execute(captor.capture());
+        assertThat(captor.getValue().importStale().userId()).isEqualTo(1L);
+        assertThat(captor.getValue().importStale().daysSinceImport()).isEqualTo(35);
+    }
 }

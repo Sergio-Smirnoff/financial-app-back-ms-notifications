@@ -16,6 +16,8 @@ None. ms-notifications is a consumer hub and produces no domain events.
 | `banks.card.expiring` | `ProcessCardExpiringUseCase` | `BankEventListener` | `ce_id` via `processed_events` | Retries, then `banks.card.expiring.DLT` |
 | `banks.card.installment_due` | `ProcessPaymentDueUseCase` | `BankEventListener` | `ce_id` via `processed_events` | Retries, then `banks.card.installment_due.DLT` |
 | `investments.threshold.breached` | `ProcessInvestmentThresholdUseCase` | `InvestmentEventListener` | `ce_id` via `processed_events` | Retries, then `investments.threshold.breached.DLT` |
+| `finances.budget.threshold_reached` | `ProcessBudgetThresholdUseCase` | `FinancesEventListener` | `ce_id` via `processed_events` | Retries, then `finances.budget.threshold_reached.DLT` |
+| `upload.import.stale` | `ProcessImportStaleUseCase` | `UploadEventListener` | `ce_id` via `processed_events` | Retries, then `upload.import.stale.DLT` |
 
 ## Scheduled jobs
 
