@@ -1,4 +1,4 @@
-package com.financialapp.notifications.web.controller.exception;
+package com.financialapp.notifications.web.error;
 
 import com.financialapp.commons.core.response.ApiResponse;
 import com.financialapp.notifications.domain.exception.BusinessException;

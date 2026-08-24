@@ -6,11 +6,11 @@ import com.financialapp.notifications.domain.model.notification.NotificationPref
 import com.financialapp.notifications.domain.model.notification.NotificationType;
 import com.financialapp.notifications.domain.repository.NotificationPreferenceRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
-@Component
+@Service
 @RequiredArgsConstructor
 public class NotificationChannelResolver {
 
