@@ -21,8 +21,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -34,11 +36,11 @@ class ProcessNewEventTypesUseCaseImplTest {
     @Mock NotificationChannelResolver channelResolver;
 
     private void stubEmailEnabled() {
-        when(channelResolver.resolve(anyLong())).thenReturn(NotificationChannel.BOTH);
+        when(channelResolver.resolve(anyLong(), any())).thenReturn(Optional.of(NotificationChannel.BOTH));
     }
 
     private void stubEmailDisabled() {
-        when(channelResolver.resolve(anyLong())).thenReturn(NotificationChannel.IN_APP);
+        when(channelResolver.resolve(anyLong(), any())).thenReturn(Optional.of(NotificationChannel.IN_APP));
     }
 
     private Notification captureNotification() {

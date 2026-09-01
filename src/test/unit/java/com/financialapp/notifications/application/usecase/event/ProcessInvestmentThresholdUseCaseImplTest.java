@@ -16,8 +16,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -31,7 +33,7 @@ class ProcessInvestmentThresholdUseCaseImplTest {
 
     @Test
     void execute_gainDirection_usesGainWording() {
-        when(channelResolver.resolve(anyLong())).thenReturn(NotificationChannel.BOTH);
+        when(channelResolver.resolve(anyLong(), any())).thenReturn(Optional.of(NotificationChannel.BOTH));
         InvestmentThreshold event = new InvestmentThreshold(1L, 2L, "AL30", "Bond", "GAIN",
                 new BigDecimal("5"), new BigDecimal("-7.5"),
                 new BigDecimal("110"), new BigDecimal("100"), "USD");
@@ -47,7 +49,7 @@ class ProcessInvestmentThresholdUseCaseImplTest {
 
     @Test
     void execute_lossDirection_usesLossWording() {
-        when(channelResolver.resolve(anyLong())).thenReturn(NotificationChannel.BOTH);
+        when(channelResolver.resolve(anyLong(), any())).thenReturn(Optional.of(NotificationChannel.BOTH));
         InvestmentThreshold event = new InvestmentThreshold(1L, 2L, "GD30", "Bond", "LOSS",
                 new BigDecimal("5"), new BigDecimal("-8"),
                 new BigDecimal("90"), new BigDecimal("100"), "USD");
@@ -61,7 +63,7 @@ class ProcessInvestmentThresholdUseCaseImplTest {
 
     @Test
     void execute_emailDisabled_usesInAppChannel() {
-        when(channelResolver.resolve(anyLong())).thenReturn(NotificationChannel.IN_APP);
+        when(channelResolver.resolve(anyLong(), any())).thenReturn(Optional.of(NotificationChannel.IN_APP));
         InvestmentThreshold event = new InvestmentThreshold(1L, 2L, "AL30", "Bond", "GAIN",
                 new BigDecimal("5"), new BigDecimal("7"),
                 new BigDecimal("110"), new BigDecimal("100"), "USD");

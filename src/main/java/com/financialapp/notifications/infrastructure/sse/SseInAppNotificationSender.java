@@ -5,6 +5,7 @@ import com.financialapp.notifications.domain.model.notification.Notification;
 import com.financialapp.notifications.infrastructure.sse.dto.SseNotificationEntity;
 import com.financialapp.notifications.infrastructure.sse.mapper.SseNotificationMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -22,6 +23,9 @@ public class SseInAppNotificationSender implements InAppNotificationSender {
     private static final long EMITTER_TIMEOUT_MS = 300_000L; // 5 minutes
     private static final int MAX_EMITTERS_PER_USER = 3;
 
+    @Value("${notifications.sse.heartbeat-ms:15000}")
+    private long heartbeatMs;
+
     public SseEmitter createEmitter(Long userId) {
         SseEmitter emitter = new SseEmitter(EMITTER_TIMEOUT_MS);
 
@@ -34,6 +38,12 @@ public class SseInAppNotificationSender implements InAppNotificationSender {
         }
 
         userEmitters.add(emitter);
+
+        try {
+            emitter.send(SseEmitter.event().reconnectTime(heartbeatMs).comment("connected"));
+        } catch (Exception e) {
+            log.debug("Failed initial SSE handshake for userId={}", userId);
+        }
 
         Runnable cleanup = () -> {
             userEmitters.remove(emitter);
@@ -68,14 +78,6 @@ public class SseInAppNotificationSender implements InAppNotificationSender {
             }
         }
         userEmitters.removeAll(dead);
-    }
-
-    private void removeEmitter(Long userId, SseEmitter emitter) {
-        List<SseEmitter> userEmitters = emitters.get(userId);
-        if (userEmitters != null) {
-            userEmitters.remove(emitter);
-            if (userEmitters.isEmpty()) emitters.remove(userId);
-        }
     }
 
 

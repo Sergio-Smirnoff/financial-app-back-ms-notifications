@@ -142,8 +142,10 @@ ms-notifications/src/main/java/com/financialapp/notifications/
 
 | Method | Path | Purpose |
 |--------|------|---------|
-| `GET` | `/api/v1/notifications/preferences` | Get current user's notification preferences |
-| `PUT` | `/api/v1/notifications/preferences` | Update preferences (`monthlyEmailEnabled`) |
+| `GET` | `/api/v1/notifications/preferences` | Legacy: get user preferences (facade over `SUMMARY` category) |
+| `PUT` | `/api/v1/notifications/preferences` | Legacy: update preferences (`monthlyEmailEnabled`, facade over `SUMMARY`) |
+| `GET` | `/api/v1/notifications/preferences/by-category` | Get all 7 notification categories with `hasUiToggle` flag |
+| `PUT` | `/api/v1/notifications/preferences/{category}` | Update channel preferences (`inAppEnabled`, `emailEnabled`) for a category |
 
 All controllers read `X-User-Id` from the request header (injected by the gateway JWT filter).
 Responses use the shared envelope `{ status, title, code, message, data }` from `commons-core`;

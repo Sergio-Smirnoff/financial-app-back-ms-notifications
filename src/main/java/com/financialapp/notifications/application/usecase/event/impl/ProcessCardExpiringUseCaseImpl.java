@@ -27,10 +27,11 @@ public class ProcessCardExpiringUseCaseImpl implements ProcessCardExpiringUseCas
                 "Your card ending in %s expires on %s. Please renew it to avoid service interruptions.",
                 maskedCard, ce.expiringDate());
 
-        NotificationChannel channel = channelResolver.resolve(ce.userId());
-        var newNotification = Notification.create(
-                ce.userId(), NotificationType.CARD_EXPIRING, title, message, channel, null);
-        notificationService.notify(newNotification);
+        channelResolver.resolve(ce.userId(), NotificationType.CARD_EXPIRING).ifPresent(channel -> {
+            var newNotification = Notification.create(
+                    ce.userId(), NotificationType.CARD_EXPIRING, title, message, channel, null);
+            notificationService.notify(newNotification);
+        });
     }
 
     private String maskCardNumber(String cardNumber) {

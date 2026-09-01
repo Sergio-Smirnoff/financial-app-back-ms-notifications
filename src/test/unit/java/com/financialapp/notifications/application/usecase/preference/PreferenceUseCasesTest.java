@@ -3,6 +3,8 @@ package com.financialapp.notifications.application.usecase.preference;
 import com.financialapp.notifications.application.usecase.preference.impl.CreatePreferenceIfAbsentUseCaseImpl;
 import com.financialapp.notifications.application.usecase.preference.impl.GetPreferenceUseCaseImpl;
 import com.financialapp.notifications.application.usecase.preference.impl.UpdatePreferenceUseCaseImpl;
+import com.financialapp.notifications.domain.model.notification.NotificationCategory;
+import com.financialapp.notifications.domain.model.notification.NotificationPreference;
 import com.financialapp.notifications.domain.model.notification.UserNotificationPreference;
 import com.financialapp.notifications.domain.repository.UserNotificationPreferenceRepository;
 import com.financialapp.notifications.domain.usecase.preference.command.CreatePreferenceIfAbsentCommand;
@@ -26,6 +28,7 @@ import static org.mockito.Mockito.when;
 class PreferenceUseCasesTest {
 
     @Mock UserNotificationPreferenceRepository repository;
+    @Mock com.financialapp.notifications.domain.repository.NotificationPreferenceRepository preferenceRepository;
 
     private UserNotificationPreference pref(Long userId, String email, boolean enabled) {
         return new UserNotificationPreference(1L, userId, email, enabled, null, null);
@@ -63,8 +66,15 @@ class PreferenceUseCasesTest {
         // Given a stored preference
         when(repository.findByUserId(3L)).thenReturn(Optional.of(pref(3L, "e@x.com", false)));
 
+        // Stub the category-based SUMMARY lookup (returns empty → triggers save of defaults)
+        when(preferenceRepository.findByUserIdAndCategory(3L, NotificationCategory.SUMMARY))
+                .thenReturn(Optional.empty());
+        NotificationPreference savedSummary = new NotificationPreference(
+                10L, 3L, NotificationCategory.SUMMARY, true, false, null, null);
+        when(preferenceRepository.save(any())).thenReturn(savedSummary);
+
         // When getting it
-        UserNotificationPreference result = new GetPreferenceUseCaseImpl(repository).execute(new GetPreferenceCommand(3L));
+        UserNotificationPreference result = new GetPreferenceUseCaseImpl(preferenceRepository, repository).execute(new GetPreferenceCommand(3L));
 
         // Then the stored values are returned
         assertThat(result.userId()).isEqualTo(3L);
@@ -80,17 +90,23 @@ class PreferenceUseCasesTest {
         // When getting it / Then a UserNotFoundException is thrown (preference not found)
         org.junit.jupiter.api.Assertions.assertThrows(
                 com.financialapp.notifications.domain.exception.UserNotFoundException.class,
-                () -> new GetPreferenceUseCaseImpl(repository).execute(new GetPreferenceCommand(3L)));
+                () -> new GetPreferenceUseCaseImpl(preferenceRepository, repository).execute(new GetPreferenceCommand(3L)));
     }
 
     @Test
     void updatePreference_togglesExistingPreference() {
         // Given an existing enabled preference echoed back on save
         when(repository.findByUserId(3L)).thenReturn(Optional.of(pref(3L, "e@x.com", true)));
-        when(repository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        // Stub the category-based SUMMARY lookup and save
+        when(preferenceRepository.findByUserIdAndCategory(3L, NotificationCategory.SUMMARY))
+                .thenReturn(Optional.empty());
+        NotificationPreference savedSummary = new NotificationPreference(
+                10L, 3L, NotificationCategory.SUMMARY, true, false, null, null);
+        when(preferenceRepository.save(any())).thenReturn(savedSummary);
 
         // When disabling monthly email
-        UserNotificationPreference result = new UpdatePreferenceUseCaseImpl(repository).execute(new UpdatePreferenceCommand(3L, false));
+        UserNotificationPreference result = new UpdatePreferenceUseCaseImpl(preferenceRepository, repository).execute(new UpdatePreferenceCommand(3L, false));
 
         // Then the saved preference reflects the toggle
         assertThat(result.userId()).isEqualTo(3L);
@@ -106,6 +122,6 @@ class PreferenceUseCasesTest {
         // When enabling monthly email / Then a UserNotFoundException is thrown (preference not found)
         org.junit.jupiter.api.Assertions.assertThrows(
                 com.financialapp.notifications.domain.exception.UserNotFoundException.class,
-                () -> new UpdatePreferenceUseCaseImpl(repository).execute(new UpdatePreferenceCommand(3L, true)));
+                () -> new UpdatePreferenceUseCaseImpl(preferenceRepository, repository).execute(new UpdatePreferenceCommand(3L, true)));
     }
 }

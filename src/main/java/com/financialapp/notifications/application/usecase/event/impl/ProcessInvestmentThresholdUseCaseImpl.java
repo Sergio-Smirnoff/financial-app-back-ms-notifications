@@ -37,9 +37,10 @@ public class ProcessInvestmentThresholdUseCaseImpl implements ProcessInvestmentT
                 t.currentPrice(), t.currency(),
                 t.avgPurchasePrice(), t.currency());
 
-        NotificationChannel channel = channelResolver.resolve(t.userId());
-        var newNotification = Notification.create(
-                t.userId(), NotificationType.INVESTMENT_THRESHOLD, title, message, channel, null);
-        notificationService.notify(newNotification);
+        channelResolver.resolve(t.userId(), NotificationType.INVESTMENT_THRESHOLD).ifPresent(channel -> {
+            var newNotification = Notification.create(
+                    t.userId(), NotificationType.INVESTMENT_THRESHOLD, title, message, channel, null);
+            notificationService.notify(newNotification);
+        });
     }
 }
