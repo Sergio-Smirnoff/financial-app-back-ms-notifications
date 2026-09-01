@@ -1,4 +1,4 @@
-package com.financialapp.notifications.web.controller.exception;
+package com.financialapp.notifications.web.error;
 
 import com.financialapp.commons.web.error.ApiExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;

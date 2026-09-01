@@ -11,7 +11,7 @@ import com.financialapp.notifications.domain.usecase.preference.command.GetPrefe
 import com.financialapp.notifications.domain.usecase.preference.command.GetPreferencesByCategoryCommand;
 import com.financialapp.notifications.domain.usecase.preference.command.UpdateCategoryPreferenceCommand;
 import com.financialapp.notifications.domain.usecase.preference.command.UpdatePreferenceCommand;
-import com.financialapp.notifications.web.controller.exception.GlobalExceptionHandler;
+import com.financialapp.notifications.web.error.GlobalExceptionHandler;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
