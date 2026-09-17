@@ -1,8 +1,5 @@
-package com.financialapp.notifications.domain.model.response;
+package com.financialapp.notifications.web.controller.dto;
 
-import com.financialapp.notifications.web.controller.dto.NotificationPreferenceResponse;
-import com.financialapp.notifications.web.controller.dto.NotificationResponse;
-import com.financialapp.notifications.web.controller.dto.UnreadCountResponse;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
