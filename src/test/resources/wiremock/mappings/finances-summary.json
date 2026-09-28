@@ -1,5 +1,5 @@
 {
-  "request": {"method": "GET", "urlPath": "/api/v1/finances/transactions/summary-by-category"},
+  "request": {"method": "GET", "urlPath": "/api/v1/finances/categories/spend"},
   "response": {"status": 200, "headers": {"Content-Type": "application/json"},
                "bodyFileName": "finances-summary.json"}
 }

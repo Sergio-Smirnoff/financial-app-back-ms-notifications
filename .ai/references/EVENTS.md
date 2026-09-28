@@ -23,7 +23,7 @@ None. ms-notifications is a consumer hub and produces no domain events.
 
 | Job | Trigger / Cron | What it does |
 |---|---|---|
-| `MonthlySummaryScheduler` | 1st of month 09:00 (`NOTIFICATION_SCHEDULER_CRON`) | Fetches category summaries from ms-finances via `FinancesClient` and dispatches monthly summary emails |
+| `MonthlySummaryScheduler` | `NOTIFICATION_SCHEDULER_CRON` in `notification.zone` (ART) | For every user with an address, delivers the previous ART month's summary through `MonthlySummaryDelivery` — opt-in = the `SUMMARY` category's `email_enabled`; claim `monthly_summary_sent`, send the templated email, then the in-app notice; release the claim if the finances read or the email fails — the same body as `POST /monthly-summary/ensure`, so the two never send twice |
 | `NotificationCleanupScheduler` | Midnight daily (`0 0 0 * * *`) | Purges stale notification records |
 | `SseHeartbeatScheduler` | Every 30 s (fixed rate) | Sends heartbeat comment event to open SSE streams |
 
@@ -31,5 +31,5 @@ None. ms-notifications is a consumer hub and produces no domain events.
 
 | Target service / Protocol | Target / Method | Purpose |
 |---|---|---|
-| ms-finances | `GET /api/v1/finances/transactions/summary` (`FinancesClient`) | Fetches category spending totals for monthly email |
+| ms-finances | `GET /api/v1/finances/categories/spend?kind=EXPENSE` (`FinancesClient`, `X-Internal-Token`) | Fetches category spending totals for monthly email; a failure propagates to the caller |
 | SMTP Relay | `SmtpEmailSender` (Spring Mail + Thymeleaf) | Dispatches email notifications for opted-in categories |

@@ -12,7 +12,7 @@ public class MonthlySummaryScheduler {
 
     private final SendMonthlySummariesUseCase useCase;
 
-    @Scheduled(cron = "${notification.scheduler.cron:0 0 9 1 * *}")
+    @Scheduled(cron = "${notification.scheduler.cron:0 0 9 1 * *}", zone = "${notification.zone}")
     public void sendMonthlySummaries() {
         useCase.execute();
     }

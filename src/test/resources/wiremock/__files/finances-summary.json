@@ -1,4 +1,3 @@
-[
-  {"categoryName": "Food", "subcategoryName": "Cafe", "totalAmount": 1500.00,
-   "currency": "ARS", "transactionCount": 3}
-]
+{"status": 200, "title": "OK", "data": [
+  {"categoryId": 4, "categoryName": "Food", "total": "1500.00", "currency": "ARS", "transactionCount": 3}
+]}

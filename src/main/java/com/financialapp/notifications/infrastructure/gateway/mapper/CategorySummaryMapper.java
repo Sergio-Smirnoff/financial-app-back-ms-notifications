@@ -3,12 +3,14 @@ package com.financialapp.notifications.infrastructure.gateway.mapper;
 import com.financialapp.notifications.domain.model.category.CategorySummary;
 import com.financialapp.notifications.infrastructure.gateway.dto.CategorySummaryResponse;
 
+import java.math.BigDecimal;
+
 public class CategorySummaryMapper {
     public static CategorySummary toDomain(CategorySummaryResponse response) {
         return new CategorySummary(
                 response.getCategoryName(),
-                response.getSubcategoryName(),
-                response.getTotalAmount(),
+                null,
+                new BigDecimal(response.getTotal()),
                 response.getCurrency(),
                 response.getTransactionCount()
         );
