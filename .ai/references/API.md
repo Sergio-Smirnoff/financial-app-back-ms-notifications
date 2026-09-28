@@ -16,6 +16,7 @@ Endpoints and error codes. Envelope shape: parent `.ai/references/APP_STRUCTURE.
 | PUT | `/api/v1/notifications/preferences` | Legacy: update preferences (`monthlyEmailEnabled`) | `user_not_found` |
 | GET | `/api/v1/notifications/preferences/by-category` | Get preferences for all 7 categories | — |
 | PUT | `/api/v1/notifications/preferences/{category}` | Update channel toggles (`inAppEnabled`, `emailEnabled`) for a category | `business_rule_violation` |
+| POST | `/api/v1/notifications/monthly-summary/ensure` | Send the caller's previous-month (ART) summary unless already sent → `{sent, month, reason?}` (`already-sent`, `opted-out`, `no-recipient`); idempotent, safe to call on every start-up | — |
 
 ## SSE Stream Behavior (`/stream`)
 

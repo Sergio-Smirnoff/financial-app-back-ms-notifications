@@ -46,6 +46,7 @@ ms-notifications/src/main/java/com/financialapp/notifications/
 │   │   │   └── UserNotificationPreference.java
 │   │   └── pagination/PageResult.java
 │   ├── repository/
+│   │   ├── MonthlySummarySentRepository.java
 │   │   ├── NotificationRepository.java
 │   │   └── UserNotificationPreferenceRepository.java
 │   ├── service/NotificationService.java
@@ -54,14 +55,17 @@ ms-notifications/src/main/java/com/financialapp/notifications/
 │       │                    # ProcessInvestmentThresholdUseCase, ProcessLoanReminderUseCase,
 │       │                    # ProcessPaymentDueUseCase, ProcessUserRegisteredUseCase
 │       ├── notification/    # AllAsReadUseCase, CleanupNotificationsUseCase,
-│       │                    # GetLatestNotificationsByBankUseCase, GetLatestNotificationsUseCase,
-│       │                    # GetNotificationUseCase, GetUnreadCountUseCase,
+│       │                    # EnsureMonthlySummaryUseCase, GetLatestNotificationsByBankUseCase,
+│       │                    # GetLatestNotificationsUseCase, GetNotificationUseCase,
+│       │                    # GetUnreadCountUseCase, MonthlySummaryResult, MonthlySummarySkip,
 │       │                    # OneAsReadUsecase, SendMonthlySummariesUseCase
 │       └── preference/      # CreatePreferenceIfAbsentUseCase, GetPreferenceUseCase,
 │                            # UpdatePreferenceUseCase
 │
 ├── application/
-│   ├── service/NotificationServiceImpl.java
+│   ├── service/
+│   │   ├── MonthlySummaryDelivery.java
+│   │   └── NotificationServiceImpl.java
 │   └── usecase/
 │       ├── event/impl/
 │       ├── notification/impl/
@@ -70,11 +74,14 @@ ms-notifications/src/main/java/com/financialapp/notifications/
 │
 ├── infrastructure/
 │   ├── config/
+│   │   ├── ClockConfig.java
 │   │   ├── KafkaConfig.java
 │   │   ├── KafkaErrorHandlerConfig.java
 │   │   └── OpenApiConfig.java
 │   ├── email/SmtpEmailSender.java
-│   ├── gateway/impl/FinancesClient.java
+│   ├── gateway/
+│   │   ├── dto/CategorySpendEnvelope.java
+│   │   └── impl/FinancesClient.java
 │   ├── messaging/
 │   │   ├── listener/                        # @KafkaListener<CloudEvent> → IdempotentEventProcessor
 │   │   │   ├── BankEventListener.java        # 5 banks.* topics
@@ -84,11 +91,14 @@ ms-notifications/src/main/java/com/financialapp/notifications/
 │   │   └── payload/                         # CloudEvent data records
 │   ├── persistence/
 │   │   ├── entity/
+│   │   │   ├── MonthlySummarySentSqlEntity.java
 │   │   │   ├── NotificationSqlEntity.java
 │   │   │   └── UserNotificationPreferenceSqlEntity.java
 │   │   ├── mapper/
 │   │   └── repository/
+│   │       ├── MonthlySummarySentSqlRepository.java
 │   │       ├── NotificationSqlRepository.java
+│   │       ├── SqlMonthlySummarySentPersistence.java
 │   │       ├── SqlNotificationPersistence.java
 │   │       ├── SqlUserNotificationPreferencePersistence.java
 │   │       └── UserNotificationPreferenceSqlRepository.java
@@ -106,6 +116,7 @@ ms-notifications/src/main/java/com/financialapp/notifications/
     ├── dto/
     │   ├── request/NotificationPreferenceRequest.java
     │   └── response/
+    │       ├── MonthlySummaryResponse.java
     │       ├── NotificationPreferenceResponse.java
     │       ├── NotificationResponse.java
     │       └── UnreadCountResponse.java
@@ -113,6 +124,7 @@ ms-notifications/src/main/java/com/financialapp/notifications/
     ├── mapper/
     │   ├── NotificationMapper.java
     │   └── PageResultMapper.java
+    ├── MonthlySummaryController.java
     ├── NotificationController.java
     ├── NotificationStreamController.java
     └── PreferenceController.java
@@ -146,6 +158,12 @@ ms-notifications/src/main/java/com/financialapp/notifications/
 | `PUT` | `/api/v1/notifications/preferences` | Legacy: update preferences (`monthlyEmailEnabled`, facade over `SUMMARY`) |
 | `GET` | `/api/v1/notifications/preferences/by-category` | Get all 7 notification categories with `hasUiToggle` flag |
 | `PUT` | `/api/v1/notifications/preferences/{category}` | Update channel preferences (`inAppEnabled`, `emailEnabled`) for a category |
+
+### MonthlySummaryController — `POST /api/v1/notifications/monthly-summary/ensure`
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| `POST` | `/api/v1/notifications/monthly-summary/ensure` | Send the caller's previous-month summary (email + in-app notice) unless `monthly_summary_sent` already holds it; `{sent, month, reason?}` |
 
 All controllers read `X-User-Id` from the request header (injected by the gateway JWT filter).
 Responses use the shared envelope `{ status, title, code, message, data }` from `commons-core`;
