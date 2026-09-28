@@ -62,3 +62,4 @@ erDiagram
 | V3 | `processed_events` table for CloudEvent dedup (`event_id` PK) |
 | V4 | `notification_delivery` table |
 | V5 | `notification_preferences` per category & seeds `SUMMARY` from `user_notification_preferences` |
+| V6 | `monthly_summary_sent` (`user_id`, `summary_month` `YYYY-MM`, unique pair) — the once-per-month record shared by the scheduler and `POST /monthly-summary/ensure` |

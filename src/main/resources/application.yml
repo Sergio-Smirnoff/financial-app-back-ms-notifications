@@ -55,7 +55,12 @@ internal:
   auth:
     token: ${INTERNAL_AUTH_TOKEN:local-dev-token}
 
+finances:
+  service:
+    url: ${FINANCES_SERVICE_URL:http://localhost:8082}
+
 notification:
+  zone: America/Argentina/Buenos_Aires
   scheduler:
     cron: ${NOTIFICATION_SCHEDULER_CRON:0 0 0 1 * *}
 

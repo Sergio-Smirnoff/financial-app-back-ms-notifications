@@ -14,6 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 import java.util.List;
 import java.util.Optional;
@@ -54,6 +55,19 @@ class SqlUserNotificationPreferencePersistenceTest {
         PageResult<UserNotificationPreference> result = persistence.findByMonthlyEmailEnabledTrue(0, 50);
         assertThat(result.content()).hasSize(1);
         assertThat(result.totalElements()).isEqualTo(1);
+    }
+
+    @Test
+    void findAll_mapsEverySpringPageRow() {
+        Pageable pageable = PageRequest.of(0, 50, Sort.by("id"));
+        Page<UserNotificationPreferenceSqlEntity> page = new PageImpl<>(List.of(entity(7L), entity(8L)), pageable, 2);
+        when(sqlRepository.findAll(pageable)).thenReturn(page);
+
+        PageResult<UserNotificationPreference> result = persistence.findAll(0, 50);
+
+        assertThat(result.content()).extracting(UserNotificationPreference::userId).containsExactly(7L, 8L);
+        assertThat(result.totalElements()).isEqualTo(2);
+        verify(sqlRepository).findAll(pageable);
     }
 
     @Test
