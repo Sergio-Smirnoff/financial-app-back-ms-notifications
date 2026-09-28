@@ -57,6 +57,18 @@ class SqlUserNotificationPreferencePersistenceTest {
     }
 
     @Test
+    void findAll_mapsEverySpringPageRow() {
+        Pageable pageable = PageRequest.of(0, 50);
+        Page<UserNotificationPreferenceSqlEntity> page = new PageImpl<>(List.of(entity(7L), entity(8L)), pageable, 2);
+        when(sqlRepository.findAll(pageable)).thenReturn(page);
+
+        PageResult<UserNotificationPreference> result = persistence.findAll(0, 50);
+
+        assertThat(result.content()).extracting(UserNotificationPreference::userId).containsExactly(7L, 8L);
+        assertThat(result.totalElements()).isEqualTo(2);
+    }
+
+    @Test
     void save_mapsToEntityAndBack() {
         // Given the JPA repo echoes the saved entity
         when(sqlRepository.save(any())).thenReturn(entity(7L));

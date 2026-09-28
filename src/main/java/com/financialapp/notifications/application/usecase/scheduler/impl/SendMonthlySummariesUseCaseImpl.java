@@ -1,25 +1,17 @@
 package com.financialapp.notifications.application.usecase.scheduler.impl;
 
-import com.financialapp.notifications.domain.service.NotificationService;
-import com.financialapp.notifications.domain.gateway.FinancesGateway;
-import com.financialapp.notifications.domain.messaging.EmailSender;
-import com.financialapp.notifications.domain.model.notification.Notification;
-import com.financialapp.notifications.domain.model.category.CategorySummary;
+import com.financialapp.notifications.application.service.MonthlySummaryDelivery;
+import com.financialapp.notifications.domain.model.notification.UserNotificationPreference;
 import com.financialapp.notifications.domain.model.pagination.PageResult;
 import com.financialapp.notifications.domain.repository.UserNotificationPreferenceRepository;
 import com.financialapp.notifications.domain.usecase.notification.SendMonthlySummariesUseCase;
-import com.financialapp.notifications.domain.model.notification.UserNotificationPreference;
-import com.financialapp.notifications.domain.model.notification.NotificationChannel;
-import com.financialapp.notifications.domain.model.notification.NotificationType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
+import java.time.Clock;
+import java.time.YearMonth;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 @Service
@@ -27,90 +19,40 @@ import java.util.concurrent.CompletableFuture;
 @Slf4j
 public class SendMonthlySummariesUseCaseImpl implements SendMonthlySummariesUseCase {
 
-    private final UserNotificationPreferenceRepository preferenceRepository;
-    private final FinancesGateway financesGateway;
-    private final NotificationService notificationService;
-    private final EmailSender emailSender;
+    private static final int PAGE_SIZE = 500;
 
+    private final UserNotificationPreferenceRepository recipients;
+    private final MonthlySummaryDelivery delivery;
+    private final Clock clock;
+
+    @Override
     public void execute() {
         log.info("Starting monthly summary job");
-
-        LocalDate today = LocalDate.now();
-        LocalDate firstOfMonth = today.withDayOfMonth(1);
-        String dateFrom = firstOfMonth.minusMonths(1).format(DateTimeFormatter.ISO_LOCAL_DATE);
-        String dateTo = firstOfMonth.minusDays(1).format(DateTimeFormatter.ISO_LOCAL_DATE);
-
-        int pageSize = 500;
+        YearMonth month = YearMonth.now(clock).minusMonths(1);
         int pageNumber = 0;
         int totalProcessed = 0;
         PageResult<UserNotificationPreference> page;
         do {
-            page = preferenceRepository.findByMonthlyEmailEnabledTrue(pageNumber, pageSize);
-            processPage(page.content(), dateFrom, dateTo);
+            page = recipients.findAll(pageNumber, PAGE_SIZE);
+            processPage(page.content(), month);
             totalProcessed += page.content().size();
             pageNumber++;
         } while (page.hasNext());
         log.info("Monthly summary job completed, processed {} users", totalProcessed);
     }
 
-    private void processPage(List<UserNotificationPreference> prefs, String dateFrom, String dateTo) {
-        List<CompletableFuture<Void>> futures = prefs.stream()
-                .map(pref -> CompletableFuture.runAsync(() -> processSingleUser(pref, dateFrom, dateTo)))
+    private void processPage(List<UserNotificationPreference> page, YearMonth month) {
+        List<CompletableFuture<Void>> futures = page.stream()
+                .map(recipient -> CompletableFuture.runAsync(() -> processSingleUser(recipient, month)))
                 .toList();
         CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
     }
 
-    private void processSingleUser(UserNotificationPreference pref, String dateFrom, String dateTo) {
+    private void processSingleUser(UserNotificationPreference recipient, YearMonth month) {
         try {
-            processUser(pref, dateFrom, dateTo);
+            delivery.deliver(recipient, month);
         } catch (Exception e) {
-            log.error("Failed to process monthly summary for userId={}: {}", pref.userId(), e.getMessage());
+            log.error("Failed to process monthly summary for userId={}: {}", recipient.userId(), e.getMessage());
         }
-    }
-
-    private void processUser(UserNotificationPreference pref, String dateFrom, String dateTo) {
-        Long userId = pref.userId();
-        List<CategorySummary> categories = financesGateway.getSummaryByCategory(userId, dateFrom, dateTo);
-
-        String title = "Resumen Mensual - " + LocalDate.now().minusMonths(1).format(DateTimeFormatter.ofPattern("MMMM yyyy"));
-        String message = buildMessage(categories);
-
-        var newNotification = Notification.create(
-                userId,
-                NotificationType.MONTHLY_SUMMARY,
-                title,
-                message,
-                NotificationChannel.BOTH,
-                null
-        );
-        notificationService.notify(newNotification);
-
-        Map<String, Object> templateVars = new HashMap<>();
-        templateVars.put("title", title);
-        templateVars.put("firstName", "Usuario");
-        templateVars.put("message", message);
-        templateVars.put("categories", categories);
-        emailSender.sendTemplatedEmail(pref.email(), title, "monthly-summary", templateVars);
-
-        log.debug("Sent monthly summary to userId={}", userId);
-    }
-
-    private String buildMessage(List<CategorySummary> categories) {
-        if (categories.isEmpty()) {
-            return "No tuviste transacciones este mes.";
-        }
-        StringBuilder sb = new StringBuilder("Resumen de tus gastos del mes:\n");
-        categories.forEach(cat -> {
-            sb.append("- ")
-                    .append(cat.categoryName())
-                    .append(": ")
-                    .append(cat.currency())
-                    .append(" ")
-                    .append(cat.totalAmount())
-                    .append(" (")
-                    .append(cat.transactionCount())
-                    .append(" transacciones)\n");
-        });
-        return sb.toString();
     }
 }

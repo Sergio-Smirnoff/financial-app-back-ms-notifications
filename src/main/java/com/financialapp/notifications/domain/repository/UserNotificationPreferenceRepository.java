@@ -10,6 +10,8 @@ public interface UserNotificationPreferenceRepository {
 
     PageResult<UserNotificationPreference> findByMonthlyEmailEnabledTrue(int page, int size);
 
+    PageResult<UserNotificationPreference> findAll(int page, int size);
+
     UserNotificationPreference save(UserNotificationPreference preference);
 
 }

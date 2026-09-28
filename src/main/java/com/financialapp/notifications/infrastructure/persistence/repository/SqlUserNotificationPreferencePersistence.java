@@ -42,6 +42,19 @@ public class SqlUserNotificationPreferencePersistence implements UserNotificatio
     }
 
     @Override
+    public PageResult<UserNotificationPreference> findAll(int page, int size) {
+        Page<UserNotificationPreferenceSqlEntity> springPage = sqlRepository.findAll(PageRequest.of(page, size));
+        return new PageResult<>(
+                springPage.getContent().stream()
+                        .map(UserNotificationPreferenceMapper::toDomain)
+                        .collect(Collectors.toList()),
+                springPage.getNumber(),
+                springPage.getSize(),
+                springPage.getTotalElements(),
+                springPage.getTotalPages());
+    }
+
+    @Override
     @Transactional
     public UserNotificationPreference save(UserNotificationPreference preference) {
         var entity = UserNotificationPreferenceMapper.toEntity(preference);
