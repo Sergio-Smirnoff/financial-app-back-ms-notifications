@@ -52,7 +52,7 @@ public class SendMonthlySummariesUseCaseImpl implements SendMonthlySummariesUseC
         try {
             delivery.deliver(recipient, month);
         } catch (Exception e) {
-            log.error("Failed to process monthly summary for userId={}: {}", recipient.userId(), e.getMessage());
+            log.error("Failed to process monthly summary for userId={}: {}", recipient.userId(), e.getMessage(), e);
         }
     }
 }

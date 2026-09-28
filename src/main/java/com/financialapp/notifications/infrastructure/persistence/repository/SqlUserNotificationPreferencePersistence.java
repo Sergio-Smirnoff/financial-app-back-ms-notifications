@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,7 +44,7 @@ public class SqlUserNotificationPreferencePersistence implements UserNotificatio
 
     @Override
     public PageResult<UserNotificationPreference> findAll(int page, int size) {
-        Page<UserNotificationPreferenceSqlEntity> springPage = sqlRepository.findAll(PageRequest.of(page, size));
+        Page<UserNotificationPreferenceSqlEntity> springPage = sqlRepository.findAll(PageRequest.of(page, size, Sort.by("id")));
         return new PageResult<>(
                 springPage.getContent().stream()
                         .map(UserNotificationPreferenceMapper::toDomain)
