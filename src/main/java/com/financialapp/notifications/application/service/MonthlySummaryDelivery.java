@@ -15,6 +15,7 @@ import com.financialapp.notifications.domain.service.NotificationService;
 import com.financialapp.notifications.domain.usecase.notification.MonthlySummaryResult;
 import com.financialapp.notifications.domain.usecase.notification.MonthlySummarySkip;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.YearMonth;
@@ -25,6 +26,7 @@ import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class MonthlySummaryDelivery {
 
     private static final DateTimeFormatter TITLE_MONTH = DateTimeFormatter.ofPattern("MMMM yyyy");
@@ -42,13 +44,24 @@ public class MonthlySummaryDelivery {
         if (!sentRepository.claim(recipient.userId(), month)) {
             return new MonthlySummaryResult(false, month, MonthlySummarySkip.ALREADY_SENT);
         }
+        SummaryContent content;
         try {
-            send(recipient, month);
+            content = send(recipient, month);
         } catch (RuntimeException e) {
             sentRepository.release(recipient.userId(), month);
             throw e;
         }
+        notifyQuietly(recipient.userId(), content);
         return new MonthlySummaryResult(true, month, null);
+    }
+
+    private void notifyQuietly(Long userId, SummaryContent content) {
+        try {
+            notificationService.notify(Notification.create(
+                    userId, NotificationType.MONTHLY_SUMMARY, content.title(), content.message(), NotificationChannel.BOTH, null));
+        } catch (RuntimeException e) {
+            log.error("Monthly summary notify failed for userId={}: {}", userId, e.getMessage(), e);
+        }
     }
 
     private boolean summaryEmailEnabled(Long userId) {
@@ -57,7 +70,7 @@ public class MonthlySummaryDelivery {
                 .emailEnabled();
     }
 
-    private void send(UserNotificationPreference recipient, YearMonth month) {
+    private SummaryContent send(UserNotificationPreference recipient, YearMonth month) {
         Long userId = recipient.userId();
         List<CategorySummary> categories = financesGateway.getSummaryByCategory(userId,
                 month.atDay(1).format(DateTimeFormatter.ISO_LOCAL_DATE),
@@ -72,9 +85,10 @@ public class MonthlySummaryDelivery {
         templateVars.put("categories", categories);
         emailSender.sendTemplatedEmail(recipient.email(), title, "monthly-summary", templateVars);
 
-        notificationService.notify(Notification.create(
-                userId, NotificationType.MONTHLY_SUMMARY, title, message, NotificationChannel.BOTH, null));
+        return new SummaryContent(title, message);
     }
+
+    private record SummaryContent(String title, String message) {}
 
     private String buildMessage(List<CategorySummary> categories) {
         if (categories.isEmpty()) {

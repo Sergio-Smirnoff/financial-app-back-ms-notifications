@@ -37,6 +37,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -133,5 +134,18 @@ class MonthlySummaryDeliveryTest {
         assertThatThrownBy(() -> delivery.deliver(RECIPIENT, AUGUST)).hasMessage("ms-finances down");
         verify(sentRepository).release(1L, AUGUST);
         verifyNoInteractions(emailSender, notificationService);
+    }
+
+    @Test
+    void deliver_notifyFailure_afterEmailSent_stillCountsAsSent_andNeverReleases() {
+        summaryEmail(true);
+        when(sentRepository.claim(1L, AUGUST)).thenReturn(true);
+        when(financesGateway.getSummaryByCategory(anyLong(), anyString(), anyString())).thenReturn(List.of());
+        doThrow(new RuntimeException("notification persistence down")).when(notificationService).notify(any());
+
+        assertThat(delivery.deliver(RECIPIENT, AUGUST)).isEqualTo(new MonthlySummaryResult(true, AUGUST, null));
+
+        verify(emailSender, times(1)).sendTemplatedEmail(eq("u1@example.com"), anyString(), eq("monthly-summary"), any());
+        verify(sentRepository, never()).release(anyLong(), any());
     }
 }
