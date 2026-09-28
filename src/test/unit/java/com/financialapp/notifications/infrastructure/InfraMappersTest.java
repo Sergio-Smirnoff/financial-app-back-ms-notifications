@@ -23,16 +23,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 class InfraMappersTest {
 
     @Test
-    void categorySummaryMapper_mapsResponseToDomain() {
-        // Given a client DTO / When mapped (and the utility class is instantiable)
+    void categorySummaryMapper_mapsTheSpendRowToDomain() {
         new CategorySummaryMapper();
         CategorySummary domain = CategorySummaryMapper.toDomain(CategorySummaryResponse.builder()
-                .categoryName("Food").subcategoryName("Cafe").totalAmount(new BigDecimal("12.34"))
-                .currency("ARS").transactionCount(3L).build());
+                .categoryId(4L).categoryName("Food").total("12.34").currency("ARS").transactionCount(3L).build());
 
-        // Then all fields are copied
         assertThat(domain.categoryName()).isEqualTo("Food");
-        assertThat(domain.subcategoryName()).isEqualTo("Cafe");
+        assertThat(domain.subcategoryName()).isNull();
         assertThat(domain.totalAmount()).isEqualByComparingTo("12.34");
         assertThat(domain.currency()).isEqualTo("ARS");
         assertThat(domain.transactionCount()).isEqualTo(3L);
@@ -40,12 +37,11 @@ class InfraMappersTest {
 
     @Test
     void categorySummaryResponse_buildsAndExposesFields() {
-        // Given / When built / Then accessors expose fields
-        CategorySummaryResponse r = CategorySummaryResponse.builder().categoryName("Food")
-                .subcategoryName("Cafe").totalAmount(new BigDecimal("1")).currency("ARS").transactionCount(1L).build();
+        CategorySummaryResponse r = CategorySummaryResponse.builder().categoryId(4L).categoryName("Food")
+                .total("1").currency("ARS").transactionCount(1L).build();
+        assertThat(r.getCategoryId()).isEqualTo(4L);
         assertThat(r.getCategoryName()).isEqualTo("Food");
-        assertThat(r.getSubcategoryName()).isEqualTo("Cafe");
-        assertThat(r.getTotalAmount()).isEqualByComparingTo("1");
+        assertThat(r.getTotal()).isEqualTo("1");
         assertThat(r.getCurrency()).isEqualTo("ARS");
         assertThat(r.getTransactionCount()).isEqualTo(1L);
     }
